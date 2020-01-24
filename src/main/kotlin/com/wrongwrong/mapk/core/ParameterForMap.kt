@@ -11,13 +11,10 @@ class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> 
     val clazz: KClass<*> = (param.type.classifier as KClass<*>)
     val name: String = propertyNameConverter(param.name!!)
 
-    val creator: KFunction<*>? by lazy {
-        val creators: List<KFunction<*>> = listOfNotNull(clazz.constructors, clazz.companionObject?.functions)
+    val creatorMap: Map<KClass<*>, KFunction<*>>? by lazy {
+        listOfNotNull(clazz.constructors, clazz.companionObject?.functions)
             .flatten()
-            .filter {
-                it.annotations.any { annotation -> annotation is SingleArgCreator }
-            }
-
-        if (creators.isEmpty()) null else creators.single()
+            .filter { it.annotations.any { annotation -> annotation is SingleArgCreator } }
+            .associateBy { (it.parameters.single().type as KClass<*>) }
     }
 }
