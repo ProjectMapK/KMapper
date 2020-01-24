@@ -33,11 +33,11 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
             return parameters.associate {
                 val value = obj[it.name]
 
-                if (value != null && value::class != it.clazz) {
-                    TODO()
+                it.param to when {
+                    // 取得した内容に対して型が不一致であればマップする
+                    value != null && value::class != it.clazz -> mapObject(it, value)
+                    else -> value
                 }
-
-                it.param to value
             }.let { function.callBy(it) }
         }
 
