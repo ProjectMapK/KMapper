@@ -28,19 +28,15 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
         return null
     }
 
-    fun map(obj: Any): T {
-        if (obj is Map<*, *>) {
-            return parameters.associate {
-                val value = obj[it.name]
+    fun map(srcMap: Map<String, Any?>): T {
+        return parameters.associate {
+            val value = srcMap[it.name]
 
-                it.param to when {
-                    // 取得した内容に対して型が不一致であればマップする
-                    value != null && value::class != it.clazz -> mapObject(it, value)
-                    else -> value
-                }
-            }.let { function.callBy(it) }
-        }
-
-        TODO()
+            it.param to when {
+                // 取得した内容に対して型が不一致であればマップする
+                value != null && value::class != it.clazz -> mapObject(it, value)
+                else -> value
+            }
+        }.let { function.callBy(it) }
     }
 }
