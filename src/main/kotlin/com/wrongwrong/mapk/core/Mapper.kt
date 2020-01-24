@@ -16,14 +16,16 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
     }
 
     private fun mapObject(param: ParameterForMap, value: Any): Any? {
-        return when {
-            // creatorが設定されていればそれを使う
-            param.creator != null -> param.creator!!.call(value)
+        if (param.creatorMap != null && param.creatorMap!!.contains(value::class)) {
+            // creatorに一致する組み合わせが有れば設定されていればそれを使う
+            return param.creatorMap!![value::class]?.call(value)
+        } else if (param.clazz is Enum<*> && value is String) {
             // 文字列ならEnumにマップ
-            param.clazz is Enum<*> && value is String -> EnumMapper.getEnum(param.clazz.java, value)
-            // TODO: デフォルト値をどう扱う？ nullを入れたらデフォルトになるんだっけ？
-            else -> null
+            return EnumMapper.getEnum(param.clazz.java, value)
         }
+
+        // TODO: デフォルト値をどう扱う？ nullを入れたらデフォルトになるんだっけ？
+        return null
     }
 
     fun map(obj: Any): T {
