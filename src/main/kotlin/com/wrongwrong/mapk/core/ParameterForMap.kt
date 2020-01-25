@@ -15,6 +15,6 @@ class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> 
         listOfNotNull(clazz.constructors, clazz.companionObject?.functions)
             .flatten()
             .filter { it.annotations.any { annotation -> annotation is SingleArgCreator } }
-            .associateBy { (it.parameters.single().type as KClass<*>) }
+            .associateBy { (it.parameters.single().type.classifier as KClass<*>) }
     }
 }
