@@ -16,9 +16,9 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
     }
 
     private fun mapObject(param: ParameterForMap, value: Any): Any? {
-        if (param.creatorMap != null && param.creatorMap!!.contains(value::class)) {
+        if (param.creatorMap.contains(value::class)) {
             // creatorに一致する組み合わせが有れば設定されていればそれを使う
-            return param.creatorMap!![value::class]?.call(value)
+            return param.creatorMap.getValue(value::class)(value)
         } else if (param.clazz is Enum<*> && value is String) {
             // 文字列ならEnumにマップ
             return EnumMapper.getEnum(param.clazz.java, value)
