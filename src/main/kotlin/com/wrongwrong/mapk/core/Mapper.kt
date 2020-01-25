@@ -19,7 +19,7 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
         if (param.creatorMap.contains(value::class)) {
             // creatorに一致する組み合わせが有れば設定されていればそれを使う
             return param.creatorMap.getValue(value::class)(value)
-        } else if (param.clazz is Enum<*> && value is String) {
+        } else if (param.javaClazz.isEnum && value is String) {
             // 文字列ならEnumにマップ
             return EnumMapper.getEnum(param.clazz.java, value)
         }
