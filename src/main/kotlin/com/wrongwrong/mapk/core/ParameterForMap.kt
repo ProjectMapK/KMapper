@@ -12,6 +12,9 @@ class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> 
     val clazz: KClass<*> = (param.type.classifier as KClass<*>)
     val name: String = propertyNameConverter(param.name!!)
 
+    val javaClazz: Class<*> by lazy {
+        clazz.java
+    }
     val creatorMap: Map<KClass<*>, (Any) -> Any?> by lazy {
         creatorsFromConstructors(clazz) + creatorsFromStaticMethods(clazz) + creatorsFromCompanionObject(clazz)
     }
