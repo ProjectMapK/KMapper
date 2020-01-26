@@ -27,14 +27,11 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
             // 文字列ならEnumにマップ
             return EnumMapper.getEnum(param.clazz.java, value)
         }
-
-        // TODO: デフォルト値をどう扱う？ nullを入れたらデフォルトになるんだっけ？
-        return null
     }
 
     fun map(srcMap: Map<String, Any?>): T {
         return parameters.associate {
-            val value = srcMap[it.name]
+            val value = srcMap.getValue(it.name)
 
             it.param to when {
                 // 取得した内容に対して型が不一致であればマップする
@@ -59,7 +56,7 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
         }
 
         return parameters.associate {
-            val value = srcMap[it.name]?.call(src)
+            val value = srcMap.getValue(it.name).call(src)
 
             it.param to when {
                 // 取得した内容に対して型が不一致であればマップする
