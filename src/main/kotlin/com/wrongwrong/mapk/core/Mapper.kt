@@ -66,6 +66,42 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
             }
         }.let { function.callBy(it) }
     }
+
+    fun map(vararg args: Any): T {
+        val srcMap: Map<String, () -> Any?> = listOf(*args)
+            .map { arg ->
+                when (arg) {
+                    is Map<*, *> -> arg.entries.associate { (key, value) ->
+                        (key as String) to { value }
+                    }
+                    is Pair<*, *> -> mapOf(arg.first as String to { arg.second })
+                    else -> {
+                        arg::class.memberProperties.filterTargets().associate { property ->
+                            val getter = property.getter
+
+                            val key = getter.annotations
+                                .find { it is PropertyAlias }
+                                ?.let { (it as PropertyAlias).value }
+                                ?: property.name
+
+                            key to { getter.call(arg) }
+                        }
+                    }
+                }
+            }.reduce { acc, map ->
+                acc + map
+            }
+
+        return parameters.associate {
+            val value = srcMap.getValue(it.name)()
+
+            it.param to when {
+                // 取得した内容に対して型が不一致であればマップする
+                value != null && value::class != it.clazz -> mapObject(it, value)
+                else -> value
+            }
+        }.let { function.callBy(it) }
+    }
 }
 
 private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
