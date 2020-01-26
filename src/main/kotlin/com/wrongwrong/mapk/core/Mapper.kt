@@ -26,6 +26,8 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
         } else if (param.javaClazz.isEnum && value is String) {
             // 文字列ならEnumにマップ
             return EnumMapper.getEnum(param.clazz.java, value)
+        } else {
+            throw IllegalArgumentException("Can not convert ${value::class} to ${param.clazz}")
         }
     }
 
