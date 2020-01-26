@@ -19,6 +19,21 @@ val newInstance = Mapper(DataClass::class.primaryConstructor!!).map(src)
 ```
 
 ## Usages
+### From multiple resources
+```kotlin
+class Src1(val arg1: String, val arg2: String)
+val src2: Map<String, Any?> = mapOf("arg3" to 1, "arg4" to 1.0)
+val src3: Pair<String, Any?> = "arg5" to null
+
+class Dst(
+    val arg1: String,
+    val arg2: String,
+    val arg3: Int,
+    val arg4: Double,
+    val arg5: String?
+)
+```
+
 ### Set alias on map
 #### for getter
 ```kotlin
