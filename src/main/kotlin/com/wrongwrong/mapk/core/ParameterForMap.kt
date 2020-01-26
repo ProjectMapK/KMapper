@@ -1,5 +1,6 @@
 package com.wrongwrong.mapk.core
 
+import com.wrongwrong.mapk.annotations.PropertyAlias
 import com.wrongwrong.mapk.annotations.SingleArgCreator
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -10,7 +11,10 @@ import kotlin.reflect.full.staticFunctions
 
 class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> String) {
     val clazz: KClass<*> = (param.type.classifier as KClass<*>)
-    val name: String = propertyNameConverter(param.name!!)
+    val name: String = param.annotations
+        .find { it is PropertyAlias }
+        ?.let { (it as PropertyAlias).value }
+        ?: propertyNameConverter(param.name!!)
 
     val javaClazz: Class<*> by lazy {
         clazz.java
