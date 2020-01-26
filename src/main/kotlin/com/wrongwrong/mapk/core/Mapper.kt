@@ -3,6 +3,7 @@ package com.wrongwrong.mapk.core
 import com.wrongwrong.mapk.annotations.PropertyAlias
 import com.wrongwrong.mapk.annotations.PropertyIgnore
 import kotlin.reflect.KFunction
+import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 
@@ -44,9 +45,7 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
     }
 
     fun map(src: Any): T {
-        val srcMap = src::class.memberProperties.filter {
-            it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is PropertyIgnore }
-        }.associate { property ->
+        val srcMap = src::class.memberProperties.filterTargets().associate { property ->
             val getter = property.getter
 
             val key = getter.annotations
@@ -66,5 +65,11 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
                 else -> value
             }
         }.let { function.callBy(it) }
+    }
+}
+
+private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
+    return filter {
+        it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is PropertyIgnore }
     }
 }
