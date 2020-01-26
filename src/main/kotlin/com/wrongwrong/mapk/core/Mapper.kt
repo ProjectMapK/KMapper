@@ -1,6 +1,10 @@
 package com.wrongwrong.mapk.core
 
+import com.wrongwrong.mapk.annotations.PropertyAlias
+import com.wrongwrong.mapk.annotations.PropertyIgnore
 import kotlin.reflect.KFunction
+import kotlin.reflect.KVisibility
+import kotlin.reflect.full.memberProperties
 
 class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
     private val parameters: Set<ParameterForMap>
@@ -31,6 +35,31 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
     fun map(srcMap: Map<String, Any?>): T {
         return parameters.associate {
             val value = srcMap[it.name]
+
+            it.param to when {
+                // 取得した内容に対して型が不一致であればマップする
+                value != null && value::class != it.clazz -> mapObject(it, value)
+                else -> value
+            }
+        }.let { function.callBy(it) }
+    }
+
+    fun map(src: Any): T {
+        val srcMap = src::class.memberProperties.filter {
+            it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is PropertyIgnore }
+        }.associate { property ->
+            val getter = property.getter
+
+            val key = getter.annotations
+                .find { it is PropertyAlias }
+                ?.let { (it as PropertyAlias).value }
+                ?: property.name
+
+            key to getter
+        }
+
+        return parameters.associate {
+            val value = srcMap[it.name]?.call(src)
 
             it.param to when {
                 // 取得した内容に対して型が不一致であればマップする
