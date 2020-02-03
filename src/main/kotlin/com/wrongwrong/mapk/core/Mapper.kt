@@ -20,21 +20,6 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
             .toSet()
     }
 
-    private fun mapObject(param: ParameterForMap, value: Any): Any? {
-        return if (param.creatorMap.contains(value::class)) {
-            // creatorに一致する組み合わせが有れば設定されていればそれを使う
-            param.creatorMap.getValue(value::class)(value)
-        } else if (param.javaClazz.isEnum && value is String) {
-            // 要求された値がenumかつ元が文字列ならenum mapperでマップ
-            EnumMapper.getEnum(param.clazz.java, value)
-        } else if (param.clazz == String::class) {
-            // 要求されているパラメータがStringならtoStringする
-            value.toString()
-        } else {
-            throw IllegalArgumentException("Can not convert ${value::class} to ${param.clazz}")
-        }
-    }
-
     fun map(srcMap: Map<String, Any?>): T {
         return parameters.associate {
             val value = srcMap.getValue(it.name)
@@ -110,5 +95,20 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
 private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
     return filter {
         it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is PropertyIgnore }
+    }
+}
+
+private fun mapObject(param: ParameterForMap, value: Any): Any? {
+    return if (param.creatorMap.contains(value::class)) {
+        // creatorに一致する組み合わせが有れば設定されていればそれを使う
+        param.creatorMap.getValue(value::class)(value)
+    } else if (param.javaClazz.isEnum && value is String) {
+        // 要求された値がenumかつ元が文字列ならenum mapperでマップ
+        EnumMapper.getEnum(param.clazz.java, value)
+    } else if (param.clazz == String::class) {
+        // 要求されているパラメータがStringならtoStringする
+        value.toString()
+    } else {
+        throw IllegalArgumentException("Can not convert ${value::class} to ${param.clazz}")
     }
 }
