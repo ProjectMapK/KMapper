@@ -21,12 +21,12 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
     }
 
     private fun mapObject(param: ParameterForMap, value: Any): Any? {
-        if (param.creatorMap.contains(value::class)) {
+        return if (param.creatorMap.contains(value::class)) {
             // creatorに一致する組み合わせが有れば設定されていればそれを使う
-            return param.creatorMap.getValue(value::class)(value)
+            param.creatorMap.getValue(value::class)(value)
         } else if (param.javaClazz.isEnum && value is String) {
             // 文字列ならEnumにマップ
-            return EnumMapper.getEnum(param.clazz.java, value)
+            EnumMapper.getEnum(param.clazz.java, value)
         } else {
             throw IllegalArgumentException("Can not convert ${value::class} to ${param.clazz}")
         }
