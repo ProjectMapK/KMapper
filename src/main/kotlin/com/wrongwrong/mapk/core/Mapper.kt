@@ -2,7 +2,9 @@ package com.wrongwrong.mapk.core
 
 import com.wrongwrong.mapk.annotations.PropertyAlias
 import com.wrongwrong.mapk.annotations.PropertyIgnore
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.isSuperclassOf
@@ -12,7 +14,7 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
     private val parameters: Set<ParameterForMap>
 
     init {
-        val params = function.parameters
+        val params: List<KParameter> = function.parameters
 
         if (params.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
 
@@ -31,16 +33,17 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
     }
 
     fun map(src: Any): T {
-        val srcMap = src::class.memberProperties.filterTargets().associate { property ->
-            val getter = property.getter
+        val srcMap: Map<String, KProperty1.Getter<*, *>> =
+            src::class.memberProperties.filterTargets().associate { property ->
+                val getter = property.getter
 
-            val key = getter.annotations
-                .find { it is PropertyAlias }
-                ?.let { (it as PropertyAlias).value }
-                ?: property.name
+                val key = getter.annotations
+                    .find { it is PropertyAlias }
+                    ?.let { (it as PropertyAlias).value }
+                    ?: property.name
 
-            key to getter
-        }
+                key to getter
+            }
 
         return parameters.associate {
             // 取得した内容がnullでなければ適切にmapする
@@ -91,7 +94,7 @@ private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<
 }
 
 private fun mapObject(param: ParameterForMap, value: Any): Any? {
-    val valueClazz = value::class
+    val valueClazz: KClass<*> = value::class
 
     return when {
         // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
