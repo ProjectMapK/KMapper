@@ -25,7 +25,7 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
             // creatorに一致する組み合わせが有れば設定されていればそれを使う
             param.creatorMap.getValue(value::class)(value)
         } else if (param.javaClazz.isEnum && value is String) {
-            // 文字列ならEnumにマップ
+            // 要求された値がenumかつ元が文字列ならenum mapperでマップ
             EnumMapper.getEnum(param.clazz.java, value)
         } else {
             throw IllegalArgumentException("Can not convert ${value::class} to ${param.clazz}")
