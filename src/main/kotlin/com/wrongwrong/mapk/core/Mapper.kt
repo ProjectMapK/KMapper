@@ -23,12 +23,9 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
 
     fun map(srcMap: Map<String, Any?>): T {
         return parameters.associate {
-            val value = srcMap.getValue(it.name)
-
-            it.param to when {
-                // 取得した内容に対して型が不一致であればマップする
-                value != null && value::class != it.clazz -> mapObject(it, value)
-                else -> value
+            // 取得した内容がnullでなければ適切にmapする
+            it.param to srcMap.getValue(it.name)?.let { value ->
+                mapObject(it, value)
             }
         }.let { function.callBy(it) }
     }
@@ -46,12 +43,9 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
         }
 
         return parameters.associate {
-            val value = srcMap.getValue(it.name).call(src)
-
-            it.param to when {
-                // 取得した内容に対して型が不一致であればマップする
-                value != null && value::class != it.clazz -> mapObject(it, value)
-                else -> value
+            // 取得した内容がnullでなければ適切にmapする
+            it.param to srcMap.getValue(it.name).call(src)?.let { value ->
+                mapObject(it, value)
             }
         }.let { function.callBy(it) }
     }
@@ -82,12 +76,9 @@ class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: 
             }
 
         return parameters.associate {
-            val value = srcMap.getValue(it.name)()
-
-            it.param to when {
-                // 取得した内容に対して型が不一致であればマップする
-                value != null && value::class != it.clazz -> mapObject(it, value)
-                else -> value
+            // 取得した内容がnullでなければ適切にmapする
+            it.param to srcMap.getValue(it.name)()?.let { value ->
+                mapObject(it, value)
             }
         }.let { function.callBy(it) }
     }
