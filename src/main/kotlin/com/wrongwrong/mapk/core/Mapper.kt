@@ -95,12 +95,15 @@ private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<
 
 private fun mapObject(param: ParameterForMap, value: Any): Any? {
     val valueClazz: KClass<*> = value::class
+    val creator: ((Any) -> Any?)? by lazy {
+        param.getCreator(valueClazz)
+    }
 
     return when {
         // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
         param.clazz.isSuperclassOf(valueClazz) -> value
         // creatorに一致する組み合わせが有れば設定されていればそれを使う
-        param.creatorMap.contains(valueClazz) -> param.creatorMap.getValue(valueClazz)(value)
+        creator != null -> creator!!(value)
         // 要求された値がenumかつ元が文字列ならenum mapperでマップ
         param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(param.clazz.java, value)
         // 要求されているパラメータがStringならtoStringする
