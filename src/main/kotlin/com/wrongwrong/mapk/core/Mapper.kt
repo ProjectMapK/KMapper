@@ -98,17 +98,12 @@ private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<
     }
 }
 
-private fun mapObject(param: ParameterForMap, value: Any): Any? {
-    return if (param.creatorMap.contains(value::class)) {
-        // creatorに一致する組み合わせが有れば設定されていればそれを使う
-        param.creatorMap.getValue(value::class)(value)
-    } else if (param.javaClazz.isEnum && value is String) {
-        // 要求された値がenumかつ元が文字列ならenum mapperでマップ
-        EnumMapper.getEnum(param.clazz.java, value)
-    } else if (param.clazz == String::class) {
-        // 要求されているパラメータがStringならtoStringする
-        value.toString()
-    } else {
-        throw IllegalArgumentException("Can not convert ${value::class} to ${param.clazz}")
-    }
+private fun mapObject(param: ParameterForMap, value: Any): Any? = when {
+    // creatorに一致する組み合わせが有れば設定されていればそれを使う
+    param.creatorMap.contains(value::class) -> param.creatorMap.getValue(value::class)(value)
+    // 要求された値がenumかつ元が文字列ならenum mapperでマップ
+    param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(param.clazz.java, value)
+    // 要求されているパラメータがStringならtoStringする
+    param.clazz == String::class -> value.toString()
+    else -> throw IllegalArgumentException("Can not convert ${value::class} to ${param.clazz}")
 }
