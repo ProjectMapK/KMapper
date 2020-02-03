@@ -5,6 +5,7 @@ import com.wrongwrong.mapk.annotations.PropertyIgnore
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 
 class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
@@ -102,6 +103,8 @@ private fun mapObject(param: ParameterForMap, value: Any): Any? {
     val valueClazz = value::class
 
     return when {
+        // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
+        param.clazz.isSuperclassOf(valueClazz) -> value
         // creatorに一致する組み合わせが有れば設定されていればそれを使う
         param.creatorMap.contains(valueClazz) -> param.creatorMap.getValue(valueClazz)(value)
         // 要求された値がenumかつ元が文字列ならenum mapperでマップ
