@@ -10,7 +10,7 @@ import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 
-class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> String) {
+internal class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> String) {
     val clazz: KClass<*> = (param.type.classifier as KClass<*>)
     val name: String = param.annotations
         .find { it is PropertyAlias }
