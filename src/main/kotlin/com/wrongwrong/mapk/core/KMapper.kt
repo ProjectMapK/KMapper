@@ -10,7 +10,7 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 
-class Mapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
+class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
     private val parameters: Set<ParameterForMap>
 
     init {
