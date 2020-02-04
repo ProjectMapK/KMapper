@@ -11,6 +11,10 @@ import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 
 class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
+    constructor(clazz: KClass<T>, propertyNameConverter: (String) -> String = { it }): this(
+        getTarget(clazz), propertyNameConverter
+    )
+
     private val parameters: Set<ParameterForMap>
 
     init {
@@ -85,6 +89,10 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
             }
         }.let { function.callBy(it) }
     }
+}
+
+private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
+    TODO()
 }
 
 private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
