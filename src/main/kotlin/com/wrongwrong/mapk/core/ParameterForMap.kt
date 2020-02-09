@@ -1,6 +1,6 @@
 package com.wrongwrong.mapk.core
 
-import com.wrongwrong.mapk.annotations.PropertyAlias
+import com.wrongwrong.mapk.annotations.KPropertyAlias
 import com.wrongwrong.mapk.annotations.KConverter
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -13,8 +13,8 @@ import kotlin.reflect.full.staticFunctions
 internal class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> String) {
     val clazz: KClass<*> = (param.type.classifier as KClass<*>)
     val name: String = param.annotations
-        .find { it is PropertyAlias }
-        ?.let { (it as PropertyAlias).value }
+        .find { it is KPropertyAlias }
+        ?.let { (it as KPropertyAlias).value }
         ?: propertyNameConverter(param.name!!)
 
     val javaClazz: Class<*> by lazy {

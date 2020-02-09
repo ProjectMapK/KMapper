@@ -1,8 +1,8 @@
 package com.wrongwrong.mapk.core
 
 import com.wrongwrong.mapk.annotations.KConstructor
-import com.wrongwrong.mapk.annotations.PropertyAlias
-import com.wrongwrong.mapk.annotations.PropertyIgnore
+import com.wrongwrong.mapk.annotations.KPropertyAlias
+import com.wrongwrong.mapk.annotations.KPropertyIgnore
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -44,8 +44,8 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
                 val getter = property.getter
 
                 val key = getter.annotations
-                    .find { it is PropertyAlias }
-                    ?.let { (it as PropertyAlias).value }
+                    .find { it is KPropertyAlias }
+                    ?.let { (it as KPropertyAlias).value }
                     ?: property.name
 
                 key to getter
@@ -72,8 +72,8 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
                             val getter = property.getter
 
                             val key = getter.annotations
-                                .find { it is PropertyAlias }
-                                ?.let { (it as PropertyAlias).value }
+                                .find { it is KPropertyAlias }
+                                ?.let { (it as KPropertyAlias).value }
                                 ?: property.name
 
                             key to { getter.call(arg) }
@@ -106,7 +106,7 @@ private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
 
 private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
     return filter {
-        it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is PropertyIgnore }
+        it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is KPropertyIgnore }
     }
 }
 
