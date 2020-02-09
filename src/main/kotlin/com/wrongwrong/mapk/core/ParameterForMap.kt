@@ -1,7 +1,7 @@
 package com.wrongwrong.mapk.core
 
 import com.wrongwrong.mapk.annotations.PropertyAlias
-import com.wrongwrong.mapk.annotations.SingleArgCreator
+import com.wrongwrong.mapk.annotations.KConverter
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -31,7 +31,7 @@ internal class ParameterForMap(val param: KParameter, propertyNameConverter: (St
 }
 
 private fun Collection<KFunction<*>>.getCreatorMapFromFunctions(): Set<Pair<KClass<*>, (Any) -> Any?>> {
-    return filter { it.annotations.any { annotation -> annotation is SingleArgCreator } }
+    return filter { it.annotations.any { annotation -> annotation is KConverter } }
         .map { func ->
             val call = { it: Any ->
                 func.call(it)
@@ -53,7 +53,7 @@ private fun creatorsFromStaticMethods(clazz: KClass<*>): Set<Pair<KClass<*>, (An
 private fun creatorsFromCompanionObject(clazz: KClass<*>): Set<Pair<KClass<*>, (Any) -> Any?>> {
     return clazz.companionObjectInstance?.let { companionObject ->
         companionObject::class.functions
-            .filter { it.annotations.any { annotation -> annotation is SingleArgCreator } }
+            .filter { it.annotations.any { annotation -> annotation is KConverter } }
             .map { function ->
                 val params = function.parameters
                 if (params.size != 2) {
