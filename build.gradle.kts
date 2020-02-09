@@ -5,8 +5,8 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "com.wrongwrong"
+version = "0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
