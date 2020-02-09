@@ -1,5 +1,6 @@
 package com.wrongwrong.mapk.core
 
+import com.wrongwrong.mapk.annotations.KConstructor
 import com.wrongwrong.mapk.annotations.PropertyAlias
 import com.wrongwrong.mapk.annotations.PropertyIgnore
 import kotlin.reflect.KClass
@@ -9,6 +10,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 
 class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
     constructor(clazz: KClass<T>, propertyNameConverter: (String) -> String = { it }): this(
@@ -92,7 +94,14 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
 }
 
 private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
-    TODO()
+    val constructors: List<KFunction<T>> = clazz.constructors
+        .filter { it.annotations.any { annotation -> annotation is KConstructor } }
+
+    if (constructors.size == 1) return constructors.single()
+
+    if (constructors.isEmpty()) return clazz.primaryConstructor!!
+
+    throw IllegalArgumentException("Find multiple target.")
 }
 
 private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
