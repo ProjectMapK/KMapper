@@ -11,11 +11,18 @@ data class Dst(
     val arg1: Int,
     val arg2: String?,
     val arg3: Number
-)
+) {
+    companion object {
+        fun factory(arg1: Int, arg2: String?, arg3: Number): Dst {
+            return Dst(arg1, arg2, arg3)
+        }
+    }
+}
 
 @DisplayName("単純なマッピングのテスト")
 class SimpleKMapperTest {
-    val mappers: Set<KMapper<Dst>> = setOf(KMapper(Dst::class), KMapper(Dst::class.primaryConstructor!!))
+    val mappers: Set<KMapper<Dst>> =
+        setOf(KMapper(Dst::class), KMapper(Dst::class.primaryConstructor!!), KMapper((Dst)::factory))
 
     @Nested
     @DisplayName("Map<String, Any?>からマップ")
