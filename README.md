@@ -15,7 +15,7 @@ val dst = Dst(
 )
 
 // after
-val newInstance = KMapper(DataClass::class.primaryConstructor!!).map(src)
+val newInstance = KMapper(Dst::class.primaryConstructor!!).map(src)
 ```
 ## How to use
 Published on JitPack.  
