@@ -31,19 +31,27 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
+
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.0") {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+    }
 }
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }
+
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     freeCompilerArgs = listOf("-Xjsr305=strict")
     jvmTarget = "1.8"
 }
+tasks.test {
+    useJUnitPlatform()
+}
 
 maven {
     mavenPomDir = projectDir
-
 }
