@@ -17,6 +17,9 @@ val dst = Dst(
 // after
 val newInstance = Mapper(DataClass::class.primaryConstructor!!).map(src)
 ```
+## How to use
+Published on JitPack.  
+Please see [here](https://jitpack.io/#k163377/MapK) for the introduction method.  
 
 ## Usages
 ### From multiple resources
