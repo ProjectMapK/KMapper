@@ -19,6 +19,15 @@ data class Dst(
     }
 }
 
+data class Src1(
+    val arg2: String?
+) {
+    val arg1: Int = arg2?.length ?: 0
+    val arg3: Number
+        get() = arg1.toByte()
+    val arg4 = null
+}
+
 @DisplayName("単純なマッピングのテスト")
 class SimpleKMapperTest {
     private fun instanceFunction(arg1: Int, arg2: String?, arg3: Number): Dst {
@@ -70,6 +79,42 @@ class SimpleKMapperTest {
                 assertEquals(it.arg1, 1)
                 assertEquals(it.arg2, null)
                 assertEquals(it.arg3, 2.0f)
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("インスタンスからマップ")
+    inner class FromInstance {
+        @Test
+        @DisplayName("Nullを含まない場合")
+        fun testWithoutNull() {
+            val stringValue = "value"
+
+            val src = Src1(stringValue)
+
+            val dsts = mappers.map { it.map(src) }
+
+            assertEquals(dsts.distinct().size, 1)
+            dsts.first().let {
+                assertEquals(it.arg1, stringValue.length)
+                assertEquals(it.arg2, stringValue)
+                assertEquals(it.arg3, stringValue.length.toByte())
+            }
+        }
+
+        @Test
+        @DisplayName("Nullを含む場合")
+        fun testContainsNull() {
+            val src = Src1(null)
+
+            val dsts = mappers.map { it.map(src) }
+
+            assertEquals(dsts.distinct().size, 1)
+            dsts.first().let {
+                assertEquals(it.arg1, 0)
+                assertEquals(it.arg2, null)
+                assertEquals(it.arg3, 0.toByte())
             }
         }
     }
