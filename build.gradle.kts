@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
+
+    id("maven")
 }
 
 group = "com.wrongwrong"
@@ -39,4 +41,9 @@ val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     freeCompilerArgs = listOf("-Xjsr305=strict")
     jvmTarget = "1.8"
+}
+
+maven {
+    mavenPomDir = projectDir
+
 }
