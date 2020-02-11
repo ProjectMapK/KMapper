@@ -11,6 +11,7 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.isAccessible
 
 class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
     constructor(clazz: KClass<T>, propertyNameConverter: (String) -> String = { it }): this(
@@ -27,6 +28,9 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
         parameters = params
             .map { ParameterForMap(it, propertyNameConverter) }
             .toSet()
+
+        // private関数に対してもマッピングできなければ何かと不都合があるため、accessibleは書き換える
+        function.isAccessible = true
     }
 
     fun map(srcMap: Map<String, Any?>): T {
