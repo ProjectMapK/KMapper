@@ -21,8 +21,16 @@ data class Dst(
 
 @DisplayName("単純なマッピングのテスト")
 class SimpleKMapperTest {
-    val mappers: Set<KMapper<Dst>> =
-        setOf(KMapper(Dst::class), KMapper(Dst::class.primaryConstructor!!), KMapper((Dst)::factory))
+    private fun instanceFunction(arg1: Int, arg2: String?, arg3: Number): Dst {
+        return Dst(arg1, arg2, arg3)
+    }
+
+    val mappers: Set<KMapper<Dst>> = setOf(
+        KMapper(Dst::class),
+        KMapper(Dst::class.primaryConstructor!!),
+        KMapper((Dst)::factory),
+        KMapper(this::instanceFunction)
+    )
 
     @Nested
     @DisplayName("Map<String, Any?>からマップ")
