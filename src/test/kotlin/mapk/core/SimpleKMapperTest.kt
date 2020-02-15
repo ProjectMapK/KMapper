@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import kotlin.reflect.full.primaryConstructor
 
-data class Dst(
+data class SimpleDst(
     val arg1: Int,
     val arg2: String?,
     val arg3: Number
 ) {
     companion object {
-        fun factory(arg1: Int, arg2: String?, arg3: Number): Dst {
-            return Dst(arg1, arg2, arg3)
+        fun factory(arg1: Int, arg2: String?, arg3: Number): SimpleDst {
+            return SimpleDst(arg1, arg2, arg3)
         }
     }
 }
@@ -33,14 +33,14 @@ data class Src2(val arg2: String?)
 
 @DisplayName("単純なマッピングのテスト")
 class SimpleKMapperTest {
-    private fun instanceFunction(arg1: Int, arg2: String?, arg3: Number): Dst {
-        return Dst(arg1, arg2, arg3)
+    private fun instanceFunction(arg1: Int, arg2: String?, arg3: Number): SimpleDst {
+        return SimpleDst(arg1, arg2, arg3)
     }
 
-    val mappers: Set<KMapper<Dst>> = setOf(
-        KMapper(Dst::class),
-        KMapper(Dst::class.primaryConstructor!!),
-        KMapper((Dst)::factory),
+    val mappers: Set<KMapper<SimpleDst>> = setOf(
+        KMapper(SimpleDst::class),
+        KMapper(SimpleDst::class.primaryConstructor!!),
+        KMapper((SimpleDst)::factory),
         KMapper(this::instanceFunction)
     )
 
