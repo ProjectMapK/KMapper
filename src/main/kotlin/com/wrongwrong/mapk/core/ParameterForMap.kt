@@ -11,14 +11,15 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
-internal class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> String) {
-    val clazz: KClass<*> = (param.type.classifier as KClass<*>)
+internal  class ParameterForMap<T: Any>(
+    val param: KParameter, val clazz: KClass<T>, propertyNameConverter: (String) -> String
+) {
     val name: String = param.annotations
         .find { it is KPropertyAlias }
         ?.let { (it as KPropertyAlias).value }
         ?: propertyNameConverter(param.name!!)
 
-    val javaClazz: Class<*> by lazy {
+    val javaClazz: Class<T> by lazy {
         clazz.java
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい

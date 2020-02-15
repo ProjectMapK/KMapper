@@ -18,7 +18,7 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
         getTarget(clazz), propertyNameConverter
     )
 
-    private val parameters: Set<ParameterForMap>
+    private val parameters: Set<ParameterForMap<*>>
 
     init {
         val params: List<KParameter> = function.parameters
@@ -26,7 +26,7 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
         if (params.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
 
         parameters = params
-            .map { ParameterForMap(it, propertyNameConverter) }
+            .map { ParameterForMap(it, it.type.classifier as KClass<*>, propertyNameConverter) }
             .toSet()
 
         // private関数に対してもマッピングできなければ何かと不都合があるため、accessibleは書き換える
@@ -114,7 +114,7 @@ private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<
     }
 }
 
-private fun <T: Any> mapObject(param: ParameterForMap, value: T): Any? {
+private fun <T: Any, R: Any> mapObject(param: ParameterForMap<R>, value: T): Any? {
     val valueClazz: KClass<*> = value::class
     val creator: ((T) -> Any?)? by lazy {
         param.getCreator(valueClazz)
