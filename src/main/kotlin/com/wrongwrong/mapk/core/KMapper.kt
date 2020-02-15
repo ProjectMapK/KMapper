@@ -97,6 +97,12 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
     }
 }
 
+private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
+    return filter {
+        it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is KPropertyIgnore }
+    }
+}
+
 private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
     val constructors: List<KFunction<T>> = clazz.constructors
         .filter { it.annotations.any { annotation -> annotation is KConstructor } }
@@ -106,12 +112,6 @@ private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
     if (constructors.isEmpty()) return clazz.primaryConstructor!!
 
     throw IllegalArgumentException("Find multiple target.")
-}
-
-private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
-    return filter {
-        it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is KPropertyIgnore }
-    }
 }
 
 private fun <T: Any, R: Any> mapObject(param: ParameterForMap<R>, value: T): Any? {
