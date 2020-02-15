@@ -1,3 +1,7 @@
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CircleCI](https://circleci.com/gh/k163377/MapK.svg?style=svg)](https://circleci.com/gh/k163377/MapK)
+[![](https://jitci.com/gh/k163377/MapK/svg)](https://jitci.com/gh/k163377/MapK)
+
 MapK
 ====
 This is a Mapper Libraly like a `ModelMapper` for `Kotlin`.  
