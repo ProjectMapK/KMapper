@@ -1,8 +1,6 @@
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
-
-    id("maven")
 }
 
 group = "com.wrongwrong"
@@ -50,8 +48,4 @@ tasks.compileTestKotlin {
 }
 tasks.test {
     useJUnitPlatform()
-}
-
-maven {
-    mavenPomDir = projectDir
 }
