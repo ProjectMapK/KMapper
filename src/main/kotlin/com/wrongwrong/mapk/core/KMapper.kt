@@ -112,7 +112,7 @@ private fun KProperty1<*, *>.getAccessibleGetter(): KProperty1.Getter<*, *> {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
+internal fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
     val factoryConstructor: List<KFunction<T>> =
         clazz.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
