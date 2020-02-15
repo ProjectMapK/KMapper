@@ -26,7 +26,7 @@ internal class ParameterForMap(val param: KParameter, propertyNameConverter: (St
     }
 
     // 引数の型がcreatorに対して入力可能ならcreatorを返す
-    fun getCreator(input: KClass<*>): ((Any) -> Any?)? =
+    fun <T: Any> getCreator(input: KClass<out T>): ((T) -> Any?)? =
         creators.find { (key, _) -> input.isSubclassOf(key) }?.let { (_, creator) -> creator }
 }
 
