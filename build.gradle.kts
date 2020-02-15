@@ -36,6 +36,7 @@ dependencies {
 }
 
 tasks.compileKotlin {
+    dependsOn("ktlintFormat")
     kotlinOptions {
         jvmTarget = "1.8"
     }
