@@ -2,15 +2,17 @@
 
 package mapk.core
 
+import com.wrongwrong.mapk.annotations.KConstructor
 import com.wrongwrong.mapk.core.KMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
 
-data class SimpleDst(
+open class SimpleDst(
     val arg1: Int,
     val arg2: String?,
     val arg3: Number
@@ -18,6 +20,34 @@ data class SimpleDst(
     companion object {
         fun factory(arg1: Int, arg2: String?, arg3: Number): SimpleDst {
             return SimpleDst(arg1, arg2, arg3)
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other?.takeIf { other::class.isSubclassOf(SimpleDst::class) }?.let {
+            it as SimpleDst
+
+            return this.arg1 == it.arg1 && this.arg2 == it.arg2 && this.arg3 == it.arg3
+        }?: false
+    }
+
+    override fun hashCode(): Int {
+        var result = arg1
+        result = 31 * result + (arg2?.hashCode() ?: 0)
+        result = 31 * result + arg3.hashCode()
+        return result
+    }
+}
+
+class SimpleDstExt(
+    arg1: Int,
+    arg2: String?,
+    arg3: Number
+): SimpleDst(arg1, arg2, arg3) {
+    companion object {
+        @KConstructor
+        fun factory(arg1: Int, arg2: String?, arg3: Number): SimpleDstExt {
+            return SimpleDstExt(arg1, arg2, arg3)
         }
     }
 }
@@ -39,11 +69,12 @@ class SimpleKMapperTest {
         return SimpleDst(arg1, arg2, arg3)
     }
 
-    private val mappers: Set<KMapper<SimpleDst>> = setOf(
+    private val mappers: Set<KMapper<out SimpleDst>> = setOf(
         KMapper(SimpleDst::class),
         KMapper(SimpleDst::class.primaryConstructor!!),
         KMapper((SimpleDst)::factory),
-        KMapper(this::instanceFunction)
+        KMapper(this::instanceFunction),
+        KMapper(SimpleDstExt::class)
     )
 
     @Nested
