@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import kotlin.reflect.full.primaryConstructor
 
-private data class SimpleDst(
+data class SimpleDst(
     val arg1: Int,
     val arg2: String?,
     val arg3: Number
