@@ -114,9 +114,9 @@ private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<
     }
 }
 
-private fun mapObject(param: ParameterForMap, value: Any): Any? {
+private fun <T: Any> mapObject(param: ParameterForMap, value: T): Any? {
     val valueClazz: KClass<*> = value::class
-    val creator: ((Any) -> Any?)? by lazy {
+    val creator: ((T) -> Any?)? by lazy {
         param.getCreator(valueClazz)
     }
 
