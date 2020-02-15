@@ -23,42 +23,38 @@ internal class ParameterForMap<T: Any>(
         clazz.java
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
-    private val creators: Set<Pair<KClass<*>, (Any) -> T?>> by lazy {
+    private val creators: Set<Pair<KClass<*>, KFunction<T>>> by lazy {
         creatorsFromConstructors(clazz) + creatorsFromStaticMethods(clazz) + creatorsFromCompanionObject(clazz)
     }
 
     // 引数の型がcreatorに対して入力可能ならcreatorを返す
-    fun <T: Any> getCreator(input: KClass<out T>): ((T) -> Any?)? =
-        creators.find { (key, _) -> input.isSubclassOf(key) }?.let { (_, creator) -> creator }
+    fun <R: Any> getCreator(input: KClass<out R>): KFunction<T>? =
+        creators.find { (key, _) -> input.isSubclassOf(key) }?.second
 }
 
-private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pair<KClass<*>, (Any) -> T?>> {
+private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pair<KClass<*>, KFunction<T>>> {
     return filter { it.annotations.any { annotation -> annotation is KConverter } }
         .map { func ->
             func.isAccessible = true
 
-            val call = { it: Any ->
-                func.call(it)
-            }
-
             (func.parameters.single { param -> param.kind == KParameter.Kind.VALUE }.type.classifier as KClass<*>) to
-                    call
+                    func
         }.toSet()
 }
 
-private fun <T: Any> creatorsFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
+private fun <T: Any> creatorsFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     return clazz.constructors.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T: Any> creatorsFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
+private fun <T: Any> creatorsFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     val staticFunctions: Collection<KFunction<T>> = clazz.staticFunctions as Collection<KFunction<T>>
 
     return staticFunctions.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T: Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
+private fun <T: Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     return clazz.companionObjectInstance?.let { companionObject ->
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
@@ -71,11 +67,8 @@ private fun <T: Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KCl
                     throw IllegalArgumentException("This function is not compatible num of arguments.")
                 }
 
-                val func = { value: Any ->
-                    function.call(companionObject, value)
-                }
-
-                (params.single { param -> param.kind == KParameter.Kind.VALUE }.type.classifier as KClass<*>) to func
+                (params.single { param -> param.kind == KParameter.Kind.VALUE }.type.classifier as KClass<*>) to
+                        CompanionKFunction(function, companionObject)
             }.toSet()
     }?: emptySet()
 }
