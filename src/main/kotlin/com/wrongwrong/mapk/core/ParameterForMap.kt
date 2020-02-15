@@ -11,7 +11,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
-internal  class ParameterForMap<T: Any>(
+internal class ParameterForMap<T: Any>(
     val param: KParameter, val clazz: KClass<T>, propertyNameConverter: (String) -> String
 ) {
     val name: String = param.annotations
