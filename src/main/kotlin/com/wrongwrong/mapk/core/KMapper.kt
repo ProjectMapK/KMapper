@@ -45,7 +45,7 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
     fun map(src: Any): T {
         val srcMap: Map<String, KProperty1.Getter<*, *>> =
             src::class.memberProperties.filterTargets().associate { property ->
-                val getter = property.getter
+                val getter = property.getAccessibleGetter()
 
                 val key = getter.annotations
                     .find { it is KPropertyAlias }
@@ -73,7 +73,7 @@ class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter:
                     is Pair<*, *> -> mapOf(arg.first as String to { arg.second })
                     else -> {
                         arg::class.memberProperties.filterTargets().associate { property ->
-                            val getter = property.getter
+                            val getter = property.getAccessibleGetter()
 
                             val key = getter.annotations
                                 .find { it is KPropertyAlias }
@@ -101,6 +101,12 @@ private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<
     return filter {
         it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is KPropertyIgnore }
     }
+}
+
+private fun KProperty1<*, *>.getAccessibleGetter(): KProperty1.Getter<*, *> {
+    // アクセス制限の有るクラスではpublicなプロパティでもゲッターにアクセスできない場合が有るため、アクセス可能にして使う
+    getter.isAccessible = true
+    return getter
 }
 
 private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
