@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 group = "com.wrongwrong"
@@ -35,6 +36,7 @@ dependencies {
 }
 
 tasks.compileKotlin {
+    dependsOn("ktlintFormat")
     kotlinOptions {
         jvmTarget = "1.8"
     }
