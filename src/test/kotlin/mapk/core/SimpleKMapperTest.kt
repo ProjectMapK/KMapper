@@ -58,11 +58,11 @@ class SimpleKMapperTest {
 
             val dsts = mappers.map { it.map(srcMap) }
 
-            assertEquals(dsts.distinct().size, 1)
+            assertEquals(1, dsts.distinct().size)
             dsts.first().let {
-                assertEquals(it.arg1, 2)
-                assertEquals(it.arg2, "value")
-                assertEquals(it.arg3, 1.0)
+                assertEquals(2, it.arg1)
+                assertEquals("value", it.arg2)
+                assertEquals(1.0, it.arg3)
             }
         }
 
@@ -77,11 +77,11 @@ class SimpleKMapperTest {
 
             val dsts = mappers.map { it.map(srcMap) }
 
-            assertEquals(dsts.distinct().size, 1)
+            assertEquals(1, dsts.distinct().size)
             dsts.first().let {
-                assertEquals(it.arg1, 1)
-                assertEquals(it.arg2, null)
-                assertEquals(it.arg3, 2.0f)
+                assertEquals(1, it.arg1)
+                assertEquals(null, it.arg2)
+                assertEquals(2.0f, it.arg3)
             }
         }
     }
@@ -98,11 +98,11 @@ class SimpleKMapperTest {
 
             val dsts = mappers.map { it.map(src) }
 
-            assertEquals(dsts.distinct().size, 1)
+            assertEquals(1, dsts.distinct().size)
             dsts.first().let {
-                assertEquals(it.arg1, stringValue.length)
-                assertEquals(it.arg2, stringValue)
-                assertEquals(it.arg3, stringValue.length.toByte())
+                assertEquals(stringValue.length, it.arg1)
+                assertEquals(stringValue, it.arg2)
+                assertEquals(stringValue.length.toByte(), it.arg3)
             }
         }
 
@@ -113,11 +113,11 @@ class SimpleKMapperTest {
 
             val dsts = mappers.map { it.map(src) }
 
-            assertEquals(dsts.distinct().size, 1)
+            assertEquals(1, dsts.distinct().size)
             dsts.first().let {
-                assertEquals(it.arg1, 0)
-                assertEquals(it.arg2, null)
-                assertEquals(it.arg3, 0.toByte())
+                assertEquals(0, it.arg1)
+                assertEquals(null, it.arg2)
+                assertEquals(0.toByte(), it.arg3)
             }
         }
     }
@@ -134,11 +134,11 @@ class SimpleKMapperTest {
 
             val dsts = mappers.map { it.map(src1, src2, src3) }
 
-            assertEquals(dsts.distinct().size, 1)
+            assertEquals(1, dsts.distinct().size)
             dsts.first().let {
-                assertEquals(it.arg1, 1)
-                assertEquals(it.arg2, "value")
-                assertEquals(it.arg3, 5.5)
+                assertEquals(1, it.arg1)
+                assertEquals("value", it.arg2)
+                assertEquals(5.5, it.arg3)
             }
         }
 
@@ -151,11 +151,11 @@ class SimpleKMapperTest {
 
             val dsts = mappers.map { it.map(src1, src2, src3) }
 
-            assertEquals(dsts.distinct().size, 1)
+            assertEquals(1, dsts.distinct().size)
             dsts.first().let {
-                assertEquals(it.arg1, 7)
-                assertEquals(it.arg2, null)
-                assertEquals(it.arg3, BigInteger.TWO)
+                assertEquals(7, it.arg1)
+                assertEquals(null, it.arg2)
+                assertEquals(BigInteger.TWO, it.arg3)
             }
         }
     }
