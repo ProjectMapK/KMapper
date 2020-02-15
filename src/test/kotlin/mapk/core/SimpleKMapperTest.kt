@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import kotlin.reflect.full.primaryConstructor
 
-data class SimpleDst(
+private data class SimpleDst(
     val arg1: Int,
     val arg2: String?,
     val arg3: Number
@@ -20,7 +20,7 @@ data class SimpleDst(
     }
 }
 
-data class Src1(
+private data class Src1(
     val arg2: String?
 ) {
     val arg1: Int = arg2?.length ?: 0
@@ -29,7 +29,7 @@ data class Src1(
     val arg4 = null
 }
 
-data class Src2(val arg2: String?)
+private data class Src2(val arg2: String?)
 
 @DisplayName("単純なマッピングのテスト")
 class SimpleKMapperTest {
@@ -37,7 +37,7 @@ class SimpleKMapperTest {
         return SimpleDst(arg1, arg2, arg3)
     }
 
-    val mappers: Set<KMapper<SimpleDst>> = setOf(
+    private val mappers: Set<KMapper<SimpleDst>> = setOf(
         KMapper(SimpleDst::class),
         KMapper(SimpleDst::class.primaryConstructor!!),
         KMapper((SimpleDst)::factory),
