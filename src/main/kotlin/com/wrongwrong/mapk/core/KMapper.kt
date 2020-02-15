@@ -8,6 +8,8 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -109,8 +111,16 @@ private fun KProperty1<*, *>.getAccessibleGetter(): KProperty1.Getter<*, *> {
     return getter
 }
 
+@Suppress("UNCHECKED_CAST")
 private fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
-    val constructors: List<KFunction<T>> = clazz.constructors
+    val factoryConstructor: List<KFunction<T>> =
+        clazz.companionObjectInstance?.let { companionObject ->
+            companionObject::class.functions
+                .filter { it.annotations.any { annotation -> annotation is KConstructor } }
+                .map { CompanionKFunction(it, companionObject) as KFunction<T> }
+        }?: emptyList()
+
+    val constructors: List<KFunction<T>> = factoryConstructor + clazz.constructors
         .filter { it.annotations.any { annotation -> annotation is KConstructor } }
 
     if (constructors.size == 1) return constructors.single()
