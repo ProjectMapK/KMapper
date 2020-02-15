@@ -23,7 +23,7 @@ internal  class ParameterForMap<T: Any>(
         clazz.java
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
-    private val creators: Set<Pair<KClass<*>, (Any) -> Any?>> by lazy {
+    private val creators: Set<Pair<KClass<*>, (Any) -> T?>> by lazy {
         creatorsFromConstructors(clazz) + creatorsFromStaticMethods(clazz) + creatorsFromCompanionObject(clazz)
     }
 
@@ -32,7 +32,7 @@ internal  class ParameterForMap<T: Any>(
         creators.find { (key, _) -> input.isSubclassOf(key) }?.let { (_, creator) -> creator }
 }
 
-private fun Collection<KFunction<*>>.getCreatorMapFromFunctions(): Set<Pair<KClass<*>, (Any) -> Any?>> {
+private fun <T> Collection<KFunction<T>>.getCreatorMapFromFunctions(): Set<Pair<KClass<*>, (Any) -> T?>> {
     return filter { it.annotations.any { annotation -> annotation is KConverter } }
         .map { func ->
             func.isAccessible = true
@@ -46,19 +46,24 @@ private fun Collection<KFunction<*>>.getCreatorMapFromFunctions(): Set<Pair<KCla
         }.toSet()
 }
 
-private fun creatorsFromConstructors(clazz: KClass<*>): Set<Pair<KClass<*>, (Any) -> Any?>> {
+private fun <T: Any> creatorsFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
     return clazz.constructors.getCreatorMapFromFunctions()
 }
 
-private fun creatorsFromStaticMethods(clazz: KClass<*>): Set<Pair<KClass<*>, (Any) -> Any?>> {
-    return clazz.staticFunctions.getCreatorMapFromFunctions()
+@Suppress("UNCHECKED_CAST")
+private fun <T: Any> creatorsFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
+    val staticFunctions: Collection<KFunction<T>> = clazz.staticFunctions as Collection<KFunction<T>>
+
+    return staticFunctions.getCreatorMapFromFunctions()
 }
 
-private fun creatorsFromCompanionObject(clazz: KClass<*>): Set<Pair<KClass<*>, (Any) -> Any?>> {
+@Suppress("UNCHECKED_CAST")
+private fun <T: Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
     return clazz.companionObjectInstance?.let { companionObject ->
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
             .map { function ->
+                function as KFunction<T>
                 function.isAccessible = true
 
                 val params = function.parameters
