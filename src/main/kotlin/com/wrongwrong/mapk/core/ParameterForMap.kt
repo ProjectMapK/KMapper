@@ -32,7 +32,7 @@ internal  class ParameterForMap<T: Any>(
         creators.find { (key, _) -> input.isSubclassOf(key) }?.let { (_, creator) -> creator }
 }
 
-private fun <T> Collection<KFunction<T>>.getCreatorMapFromFunctions(): Set<Pair<KClass<*>, (Any) -> T?>> {
+private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pair<KClass<*>, (Any) -> T?>> {
     return filter { it.annotations.any { annotation -> annotation is KConverter } }
         .map { func ->
             func.isAccessible = true
@@ -47,14 +47,14 @@ private fun <T> Collection<KFunction<T>>.getCreatorMapFromFunctions(): Set<Pair<
 }
 
 private fun <T: Any> creatorsFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
-    return clazz.constructors.getCreatorMapFromFunctions()
+    return clazz.constructors.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T: Any> creatorsFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, (Any) -> T?>> {
     val staticFunctions: Collection<KFunction<T>> = clazz.staticFunctions as Collection<KFunction<T>>
 
-    return staticFunctions.getCreatorMapFromFunctions()
+    return staticFunctions.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
