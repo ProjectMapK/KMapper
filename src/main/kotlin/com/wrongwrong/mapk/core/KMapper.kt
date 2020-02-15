@@ -15,8 +15,8 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
-class KMapper<T: Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
-    constructor(clazz: KClass<T>, propertyNameConverter: (String) -> String = { it }): this(
+class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
+    constructor(clazz: KClass<T>, propertyNameConverter: (String) -> String = { it }) : this(
         getTarget(clazz), propertyNameConverter
     )
 
@@ -118,7 +118,7 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
             companionObject::class.functions
                 .filter { it.annotations.any { annotation -> annotation is KConstructor } }
                 .map { CompanionKFunction(it, companionObject) as KFunction<T> }
-        }?: emptyList()
+        } ?: emptyList()
 
     val constructors: List<KFunction<T>> = factoryConstructor + clazz.constructors
         .filter { it.annotations.any { annotation -> annotation is KConstructor } }
@@ -130,7 +130,7 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
     throw IllegalArgumentException("Find multiple target.")
 }
 
-private fun <T: Any, R: Any> mapObject(param: ParameterForMap<R>, value: T): Any? {
+private fun <T : Any, R : Any> mapObject(param: ParameterForMap<R>, value: T): Any? {
     val valueClazz: KClass<*> = value::class
     val creator: KFunction<*>? by lazy {
         param.getCreator(valueClazz)

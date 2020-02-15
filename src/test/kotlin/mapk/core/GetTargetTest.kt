@@ -4,12 +4,12 @@ package mapk.core
 
 import com.wrongwrong.mapk.annotations.KConstructor
 import com.wrongwrong.mapk.core.getTarget
+import kotlin.reflect.full.primaryConstructor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.reflect.full.primaryConstructor
 
 private class SecondaryConstructorDst(val argument: Int) {
     @KConstructor constructor(argument: Number) : this(argument.toInt())
@@ -24,7 +24,7 @@ class CompanionFactoryDst(val argument: IntArray) {
 }
 private class ConstructorDst(val argument: String)
 class MultipleConstructorDst @KConstructor constructor(val argument: Int) {
-    @KConstructor constructor(argument: String): this(argument.toInt())
+    @KConstructor constructor(argument: String) : this(argument.toInt())
 }
 
 @DisplayName("クラスからのコンストラクタ抽出関連テスト")

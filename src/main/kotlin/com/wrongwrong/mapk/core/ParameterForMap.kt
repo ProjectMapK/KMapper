@@ -1,7 +1,7 @@
 package com.wrongwrong.mapk.core
 
-import com.wrongwrong.mapk.annotations.KPropertyAlias
 import com.wrongwrong.mapk.annotations.KConverter
+import com.wrongwrong.mapk.annotations.KPropertyAlias
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -11,8 +11,10 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
-internal class ParameterForMap<T: Any>(
-    val param: KParameter, val clazz: KClass<T>, propertyNameConverter: (String) -> String
+internal class ParameterForMap<T : Any>(
+    val param: KParameter,
+    val clazz: KClass<T>,
+    propertyNameConverter: (String) -> String
 ) {
     val name: String = param.annotations
         .find { it is KPropertyAlias }
@@ -28,7 +30,7 @@ internal class ParameterForMap<T: Any>(
     }
 
     // 引数の型がcreatorに対して入力可能ならcreatorを返す
-    fun <R: Any> getCreator(input: KClass<out R>): KFunction<T>? =
+    fun <R : Any> getCreator(input: KClass<out R>): KFunction<T>? =
         creators.find { (key, _) -> input.isSubclassOf(key) }?.second
 }
 
@@ -42,19 +44,19 @@ private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pai
         }.toSet()
 }
 
-private fun <T: Any> creatorsFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
+private fun <T : Any> creatorsFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     return clazz.constructors.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T: Any> creatorsFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
+private fun <T : Any> creatorsFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     val staticFunctions: Collection<KFunction<T>> = clazz.staticFunctions as Collection<KFunction<T>>
 
     return staticFunctions.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T: Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
+private fun <T : Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     return clazz.companionObjectInstance?.let { companionObject ->
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
@@ -70,5 +72,5 @@ private fun <T: Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KCl
                 (params.single { param -> param.kind == KParameter.Kind.VALUE }.type.classifier as KClass<*>) to
                         CompanionKFunction(function, companionObject)
             }.toSet()
-    }?: emptySet()
+    } ?: emptySet()
 }
