@@ -147,9 +147,11 @@ class SimpleKMapperTest {
         @Test
         @DisplayName("Nullを含む場合")
         fun testContainsNull() {
+            val two = BigInteger.valueOf(2L)
+
             val src1 = "arg1" to 7
             val src2 = Src2(null)
-            val src3 = mapOf("arg3" to BigInteger.TWO)
+            val src3 = mapOf("arg3" to two)
 
             val dsts = mappers.map { it.map(src1, src2, src3) }
 
@@ -157,7 +159,7 @@ class SimpleKMapperTest {
             dsts.first().let {
                 assertEquals(7, it.arg1)
                 assertEquals(null, it.arg2)
-                assertEquals(BigInteger.TWO, it.arg3)
+                assertEquals(two, it.arg3)
             }
         }
     }
