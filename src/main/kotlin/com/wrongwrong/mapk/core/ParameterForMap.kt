@@ -9,6 +9,7 @@ import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
+import kotlin.reflect.jvm.isAccessible
 
 internal class ParameterForMap(val param: KParameter, propertyNameConverter: (String) -> String) {
     val clazz: KClass<*> = (param.type.classifier as KClass<*>)
@@ -33,6 +34,8 @@ internal class ParameterForMap(val param: KParameter, propertyNameConverter: (St
 private fun Collection<KFunction<*>>.getCreatorMapFromFunctions(): Set<Pair<KClass<*>, (Any) -> Any?>> {
     return filter { it.annotations.any { annotation -> annotation is KConverter } }
         .map { func ->
+            func.isAccessible = true
+
             val call = { it: Any ->
                 func.call(it)
             }
@@ -55,6 +58,8 @@ private fun creatorsFromCompanionObject(clazz: KClass<*>): Set<Pair<KClass<*>, (
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
             .map { function ->
+                function.isAccessible = true
+
                 val params = function.parameters
                 if (params.size != 2) {
                     throw IllegalArgumentException("This function is not compatible num of arguments.")
