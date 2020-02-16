@@ -66,16 +66,11 @@ private fun <T : Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KC
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
             .map { function ->
-                function as KFunction<T>
+                // isAccessibleの書き換えはKotlinの都合で先に行う必要が有る
                 function.isAccessible = true
+                val func: KFunction<T> = CompanionKFunction(function, companionObject) as KFunction<T>
 
-                val params = function.parameters
-                if (params.size != 2) {
-                    throw IllegalArgumentException("This function is not compatible num of arguments.")
-                }
-
-                (params.single { param -> param.kind == KParameter.Kind.VALUE }.type.classifier as KClass<*>) to
-                        CompanionKFunction(function, companionObject)
+                (func.parameters.single().type.classifier as KClass<*>) to func
             }.toSet()
     } ?: emptySet()
 }
