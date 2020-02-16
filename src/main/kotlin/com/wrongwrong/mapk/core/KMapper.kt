@@ -117,7 +117,11 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
         clazz.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
                 .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map { CompanionKFunction(it, companionObject) as KFunction<T> }
+                .map {
+                    // isAccessibleの書き換えはKotlinの都合で先に行う必要が有る
+                    it.isAccessible = true
+                    CompanionKFunction(it, companionObject) as KFunction<T>
+                }
         } ?: emptyList()
 
     val constructors: List<KFunction<T>> = factoryConstructor + clazz.constructors
