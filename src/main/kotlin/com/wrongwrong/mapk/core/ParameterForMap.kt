@@ -11,7 +11,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
-internal class ParameterForMap<T : Any>(
+internal class ParameterForMap<T : Any> private constructor(
     val param: KParameter,
     val clazz: KClass<T>,
     propertyNameConverter: (String) -> String
@@ -32,6 +32,12 @@ internal class ParameterForMap<T : Any>(
     // 引数の型がcreatorに対して入力可能ならcreatorを返す
     fun <R : Any> getCreator(input: KClass<out R>): KFunction<T>? =
         creators.find { (key, _) -> input.isSubclassOf(key) }?.second
+
+    companion object {
+        fun newInstance(param: KParameter, propertyNameConverter: (String) -> String): ParameterForMap<*> {
+            return ParameterForMap(param, param.type.classifier as KClass<*>, propertyNameConverter)
+        }
+    }
 }
 
 private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pair<KClass<*>, KFunction<T>>> {

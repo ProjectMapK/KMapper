@@ -28,7 +28,7 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         if (params.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
 
         parameters = params
-            .map { ParameterForMap(it, it.type.classifier as KClass<*>, propertyNameConverter) }
+            .map { ParameterForMap.newInstance(it, propertyNameConverter) }
             .toSet()
 
         // private関数に対してもマッピングできなければ何かと不都合があるため、accessibleは書き換える
