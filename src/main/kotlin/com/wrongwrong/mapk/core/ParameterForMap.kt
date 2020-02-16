@@ -45,8 +45,7 @@ private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pai
         .map { func ->
             func.isAccessible = true
 
-            (func.parameters.single { param -> param.kind == KParameter.Kind.VALUE }.type.classifier as KClass<*>) to
-                    func
+            (func.parameters.single().type.classifier as KClass<*>) to func
         }.toSet()
 }
 
