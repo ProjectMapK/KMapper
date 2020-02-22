@@ -39,20 +39,22 @@ dependencies {
     testImplementation(group = "com.google.guava", name = "guava", version = "28.2-jre")
 }
 
-tasks.compileKotlin {
-    dependsOn("ktlintFormat")
-    kotlinOptions {
-        jvmTarget = "1.8"
-        allWarningsAsErrors = true
+tasks {
+    compileKotlin {
+        dependsOn("ktlintFormat")
+        kotlinOptions {
+            jvmTarget = "1.8"
+            allWarningsAsErrors = true
+        }
     }
-}
 
-tasks.compileTestKotlin {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+    compileTestKotlin {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "1.8"
+        }
     }
-}
-tasks.test {
-    useJUnitPlatform()
+    test {
+        useJUnitPlatform()
+    }
 }
