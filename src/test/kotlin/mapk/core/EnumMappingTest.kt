@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package mapk.core
 
 import com.wrongwrong.mapk.core.KMapper
