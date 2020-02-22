@@ -5,6 +5,7 @@ import com.wrongwrong.mapk.annotations.KPropertyAlias
 import com.wrongwrong.mapk.annotations.KPropertyIgnore
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.companionObjectInstance
@@ -15,62 +16,87 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
-class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
+class KMapper<T : Any>(function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
     constructor(clazz: KClass<T>, propertyNameConverter: (String) -> String = { it }) : this(
         getTarget(clazz), propertyNameConverter
     )
 
-    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters.associate {
-        (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
-                ParameterForMap.newInstance(it)
-    }
+    private val parameterMap: Map<String, ParameterForMap<*>>
+    private val functionForCall: KFunctionForCall<T>
 
     init {
-        if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
+        val params = function.parameters
+        functionForCall = KFunctionForCall(function, params.size) // TODO: 必要に応じてインスタンスを渡す
 
-        // private関数に対してもマッピングできなければ何かと不都合があるため、accessibleは書き換える
-        function.isAccessible = true
+        parameterMap = params.filter { it.kind != KParameter.Kind.INSTANCE }.associate {
+            (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
+                    ParameterForMap.newInstance(it)
+        }
+
+        if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        return srcMap.entries.mapNotNull { (key, value) ->
+        val array: Array<Any?> = functionForCall.argumentArray
+
+        srcMap.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                param.param to value?.let { mapObject(param, it) }
+                array[param.param.index] = value?.let { mapObject(param, it) }
             }
-        }.let { function.callBy(it.toMap()) }
+        }
+
+        return functionForCall.call(array)
     }
 
     fun map(srcPair: Pair<String, Any?>): T = parameterMap.getValue(srcPair.first).let {
-        function.callBy(mapOf(it.param to srcPair.second?.let { value -> mapObject(it, value) }))
+        val array: Array<Any?> = functionForCall.argumentArray
+        array[it.param.index] = srcPair.second?.let { value -> mapObject(it, value) }
+        functionForCall.call(array)
     }
 
-    fun map(src: Any): T = src::class.memberProperties.filterTargets().mapNotNull { property ->
-        val getter = property.getAccessibleGetter()
-        parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
-            it.param to getter.call(src)?.let { value -> mapObject(it, value) }
-        }
-    }.let { function.callBy(it.toMap()) }
+    fun map(src: Any): T {
+        val array: Array<Any?> = functionForCall.argumentArray
 
-    fun map(vararg args: Any): T = listOf(*args).map { arg ->
-        when (arg) {
-            is Map<*, *> -> arg.entries.mapNotNull { (key, value) ->
-                parameterMap[key]?.let { param ->
-                    param.param to value?.let { mapObject(param, it) }
-                }
-            }
-            is Pair<*, *> -> {
-                val param = parameterMap.getValue(arg.first as String)
-                listOf(param.param to arg.second?.let { mapObject(param, it) })
-            }
-            else -> arg::class.memberProperties.filterTargets().mapNotNull { property ->
+        src::class.memberProperties.forEach { property ->
+            if (property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
                 val getter = property.getAccessibleGetter()
                 parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
-                    it.param to getter.call(arg)?.let { value -> mapObject(it, value) }
+                    array[it.param.index] = getter.call(src)?.let { value -> mapObject(it, value) }
                 }
             }
         }
-    }.flatten().let { function.callBy(it.toMap()) }
+
+        return functionForCall.call(array)
+    }
+
+    fun map(vararg args: Any): T {
+        val array: Array<Any?> = functionForCall.argumentArray
+
+        listOf(*args).forEach { arg ->
+            when (arg) {
+                is Map<*, *> -> arg.forEach { (key, value) ->
+                    parameterMap[key]?.let { param ->
+                        // 取得した内容がnullでなければ適切にmapする
+                        array[param.param.index] = value?.let { mapObject(param, it) }
+                    }
+                }
+                is Pair<*, *> -> parameterMap.getValue(arg.first as String).let {
+                    array[it.param.index] = arg.second?.let { value -> mapObject(it, value) }
+                }
+                else -> arg::class.memberProperties.forEach { property ->
+                    if (property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
+                        val getter = property.getAccessibleGetter()
+                        parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
+                            array[it.param.index] = getter.call(arg)?.let { value -> mapObject(it, value) }
+                        }
+                    }
+                }
+            }
+        }
+
+        return functionForCall.call(array)
+    }
 }
 
 private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
