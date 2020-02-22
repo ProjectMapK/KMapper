@@ -38,12 +38,12 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        return parameters.associate {
-            // 取得した内容がnullでなければ適切にmapする
-            it.param to srcMap.getValue(it.name)?.let { value ->
-                mapObject(it, value)
+        return srcMap.entries.mapNotNull { (key, value) ->
+            parameterMap[key]?.let { param ->
+                // 取得した内容がnullでなければ適切にmapする
+                param.param to value?.let { mapObject(param, it) }
             }
-        }.let { function.callBy(it) }
+        }.let { function.callBy(it.toMap()) }
     }
 
     fun map(srcPair: Pair<String, Any?>): T = parameters
