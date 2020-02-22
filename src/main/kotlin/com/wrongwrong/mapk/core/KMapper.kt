@@ -57,33 +57,25 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         }
     }.let { function.callBy(it.toMap()) }
 
-    fun map(vararg args: Any): T {
-        val srcMap: Map<String, () -> Any?> = listOf(*args)
-            .map { arg ->
-                when (arg) {
-                    is Map<*, *> -> arg.entries.associate { (key, value) ->
-                        (key as String) to { value }
-                    }
-                    is Pair<*, *> -> mapOf(arg.first as String to { arg.second })
-                    else -> {
-                        arg::class.memberProperties.filterTargets().associate { property ->
-                            val getter = property.getAccessibleGetter()
-
-                            (getter.findAnnotation<KPropertyAlias>()?.value ?: property.name) to { getter.call(arg) }
-                        }
-                    }
+    fun map(vararg args: Any): T = listOf(*args).map { arg ->
+        when (arg) {
+            is Map<*, *> -> arg.entries.mapNotNull { (key, value) ->
+                parameterMap[key]?.let { param ->
+                    param.param to value?.let { mapObject(param, it) }
                 }
-            }.reduce { acc, map ->
-                acc + map
             }
-
-        return parameters.associate {
-            // 取得した内容がnullでなければ適切にmapする
-            it.param to srcMap.getValue(it.name)()?.let { value ->
-                mapObject(it, value)
+            is Pair<*, *> -> {
+                val param = parameterMap.getValue(arg.first as String)
+                listOf(param.param to arg.second?.let { mapObject(param, it) })
             }
-        }.let { function.callBy(it) }
-    }
+            else -> arg::class.memberProperties.filterTargets().mapNotNull { property ->
+                val getter = property.getAccessibleGetter()
+                parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
+                    it.param to getter.call(arg)?.let { value -> mapObject(it, value) }
+                }
+            }
+        }
+    }.flatten().let { function.callBy(it.toMap()) }
 }
 
 private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
