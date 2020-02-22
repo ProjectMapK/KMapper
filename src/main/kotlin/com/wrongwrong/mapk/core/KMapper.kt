@@ -20,11 +20,10 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         getTarget(clazz), propertyNameConverter
     )
 
-    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
-        .associate {
-            (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
-                    ParameterForMap.newInstance(it)
-        }
+    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters.associate {
+        (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
+                ParameterForMap.newInstance(it)
+    }
 
     init {
         if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")

@@ -10,10 +10,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
-internal class ParameterForMap<T : Any> private constructor(
-    val param: KParameter,
-    val clazz: KClass<T>
-) {
+internal class ParameterForMap<T : Any> private constructor(val param: KParameter, val clazz: KClass<T>) {
     val javaClazz: Class<T> by lazy {
         clazz.java
     }
