@@ -20,10 +20,6 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         getTarget(clazz), propertyNameConverter
     )
 
-    private val parameters: Set<ParameterForMap<*>> = function.parameters
-        .map { ParameterForMap.newInstance(it, propertyNameConverter) }
-        .toSet()
-
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .associate {
             val param = ParameterForMap.newInstance(it, propertyNameConverter)
@@ -31,7 +27,7 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         }
 
     init {
-        if (parameters.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
+        if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
 
         // private関数に対してもマッピングできなければ何かと不都合があるため、accessibleは書き換える
         function.isAccessible = true
