@@ -46,11 +46,9 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         }.let { function.callBy(it.toMap()) }
     }
 
-    fun map(srcPair: Pair<String, Any?>): T = parameters
-        .single { it.name == srcPair.first }
-        .let {
-            function.callBy(mapOf(it.param to srcPair.second?.let { value -> mapObject(it, value) }))
-        }
+    fun map(srcPair: Pair<String, Any?>): T = parameterMap.getValue(srcPair.first).let {
+        function.callBy(mapOf(it.param to srcPair.second?.let { value -> mapObject(it, value) }))
+    }
 
     fun map(src: Any): T {
         val srcMap: Map<String, KProperty1.Getter<*, *>> =
