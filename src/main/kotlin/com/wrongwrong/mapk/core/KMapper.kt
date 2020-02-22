@@ -50,21 +50,12 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         function.callBy(mapOf(it.param to srcPair.second?.let { value -> mapObject(it, value) }))
     }
 
-    fun map(src: Any): T {
-        val srcMap: Map<String, KProperty1.Getter<*, *>> =
-            src::class.memberProperties.filterTargets().associate { property ->
-                val getter = property.getAccessibleGetter()
-
-                (getter.findAnnotation<KPropertyAlias>()?.value ?: property.name) to getter
-            }
-
-        return parameters.associate {
-            // 取得した内容がnullでなければ適切にmapする
-            it.param to srcMap.getValue(it.name).call(src)?.let { value ->
-                mapObject(it, value)
-            }
-        }.let { function.callBy(it) }
-    }
+    fun map(src: Any): T = src::class.memberProperties.filterTargets().mapNotNull { property ->
+        val getter = property.getAccessibleGetter()
+        parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
+            it.param to getter.call(src)?.let { value -> mapObject(it, value) }
+        }
+    }.let { function.callBy(it.toMap()) }
 
     fun map(vararg args: Any): T {
         val srcMap: Map<String, () -> Any?> = listOf(*args)
