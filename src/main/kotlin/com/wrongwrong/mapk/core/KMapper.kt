@@ -8,6 +8,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
@@ -50,10 +51,7 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
             src::class.memberProperties.filterTargets().associate { property ->
                 val getter = property.getAccessibleGetter()
 
-                val key = getter.annotations
-                    .find { it is KPropertyAlias }
-                    ?.let { (it as KPropertyAlias).value }
-                    ?: property.name
+                val key = getter.findAnnotation<KPropertyAlias>()?.value ?: property.name
 
                 key to getter
             }
@@ -78,10 +76,7 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
                         arg::class.memberProperties.filterTargets().associate { property ->
                             val getter = property.getAccessibleGetter()
 
-                            val key = getter.annotations
-                                .find { it is KPropertyAlias }
-                                ?.let { (it as KPropertyAlias).value }
-                                ?: property.name
+                            val key = getter.findAnnotation<KPropertyAlias>()?.value ?: property.name
 
                             key to { getter.call(arg) }
                         }

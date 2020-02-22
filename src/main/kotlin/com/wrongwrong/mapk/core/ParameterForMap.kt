@@ -6,6 +6,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
@@ -16,10 +17,7 @@ internal class ParameterForMap<T : Any> private constructor(
     val clazz: KClass<T>,
     propertyNameConverter: (String) -> String
 ) {
-    val name: String = param.annotations
-        .find { it is KPropertyAlias }
-        ?.let { (it as KPropertyAlias).value }
-        ?: propertyNameConverter(param.name!!)
+    val name: String = param.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(param.name!!)
 
     val javaClazz: Class<T> by lazy {
         clazz.java
