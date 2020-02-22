@@ -3,11 +3,17 @@ package com.wrongwrong.mapk.core
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.instanceParameter
+import kotlin.reflect.jvm.isAccessible
 
-internal class CompanionKFunction<T>(
+internal class KFunctionWithInstance<T>(
     private val function: KFunction<T>,
     private val instance: Any
 ) : KFunction<T> by function {
+    init {
+        // このインスタンスを生成している時点でfunctionにアクセスしたい状況なので、アクセシビリティはここでセットする
+        function.isAccessible = true
+    }
+
     private val instanceParam by lazy { mapOf(function.instanceParameter!! to instance) }
 
     override val parameters: List<KParameter> by lazy {

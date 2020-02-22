@@ -5,7 +5,6 @@ import com.wrongwrong.mapk.annotations.KPropertyAlias
 import com.wrongwrong.mapk.annotations.KPropertyIgnore
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.companionObjectInstance
@@ -20,16 +19,12 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         getTarget(clazz), propertyNameConverter
     )
 
-    private val parameters: Set<ParameterForMap<*>>
+    private val parameters: Set<ParameterForMap<*>> = function.parameters
+        .map { ParameterForMap.newInstance(it, propertyNameConverter) }
+        .toSet()
 
     init {
-        val params: List<KParameter> = function.parameters
-
-        if (params.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
-
-        parameters = params
-            .map { ParameterForMap.newInstance(it, propertyNameConverter) }
-            .toSet()
+        if (parameters.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
 
         // private関数に対してもマッピングできなければ何かと不都合があるため、accessibleは書き換える
         function.isAccessible = true
@@ -43,6 +38,12 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
             }
         }.let { function.callBy(it) }
     }
+
+    fun map(srcPair: Pair<String, Any?>): T = parameters
+        .single { it.name == srcPair.first }
+        .let {
+            function.callBy(mapOf(it.param to srcPair.second?.let { value -> mapObject(it, value) }))
+        }
 
     fun map(src: Any): T {
         val srcMap: Map<String, KProperty1.Getter<*, *>> =
@@ -117,11 +118,7 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
         clazz.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
                 .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map {
-                    // isAccessibleの書き換えはKotlinの都合で先に行う必要が有る
-                    it.isAccessible = true
-                    CompanionKFunction(it, companionObject) as KFunction<T>
-                }
+                .map { KFunctionWithInstance(it, companionObject) as KFunction<T> }
         } ?: emptyList()
 
     val constructors: List<KFunction<T>> = factoryConstructor + clazz.constructors
