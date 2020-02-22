@@ -5,7 +5,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.jvm.isAccessible
 
-internal class CompanionKFunction<T>(
+internal class KFunctionWithInstance<T>(
     private val function: KFunction<T>,
     private val instance: Any
 ) : KFunction<T> by function {

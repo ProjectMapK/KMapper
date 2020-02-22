@@ -66,7 +66,7 @@ private fun <T : Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KC
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
             .map { function ->
-                val func: KFunction<T> = CompanionKFunction(function, companionObject) as KFunction<T>
+                val func: KFunction<T> = KFunctionWithInstance(function, companionObject) as KFunction<T>
 
                 (func.parameters.single().type.classifier as KClass<*>) to func
             }.toSet()
