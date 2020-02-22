@@ -24,6 +24,12 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         .map { ParameterForMap.newInstance(it, propertyNameConverter) }
         .toSet()
 
+    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
+        .associate {
+            val param = ParameterForMap.newInstance(it, propertyNameConverter)
+            param.name to param
+        }
+
     init {
         if (parameters.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
 
