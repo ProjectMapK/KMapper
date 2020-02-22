@@ -5,7 +5,6 @@ import com.wrongwrong.mapk.annotations.KPropertyAlias
 import com.wrongwrong.mapk.annotations.KPropertyIgnore
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.companionObjectInstance
@@ -20,16 +19,12 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
         getTarget(clazz), propertyNameConverter
     )
 
-    private val parameters: Set<ParameterForMap<*>>
+    private val parameters: Set<ParameterForMap<*>> = function.parameters
+        .map { ParameterForMap.newInstance(it, propertyNameConverter) }
+        .toSet()
 
     init {
-        val params: List<KParameter> = function.parameters
-
-        if (params.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
-
-        parameters = params
-            .map { ParameterForMap.newInstance(it, propertyNameConverter) }
-            .toSet()
+        if (parameters.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
 
         // private関数に対してもマッピングできなければ何かと不都合があるため、accessibleは書き換える
         function.isAccessible = true
