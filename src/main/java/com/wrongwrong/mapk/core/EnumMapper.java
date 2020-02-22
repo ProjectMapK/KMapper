@@ -8,7 +8,7 @@ class EnumMapper {
      * @param <T> enumClass
      * @return Enum.valueOf
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     static <T> T getEnum(Class<T> clazz, String value) {
         if (value == null || value.isEmpty()) {
             return null;
