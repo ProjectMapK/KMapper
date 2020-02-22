@@ -22,8 +22,8 @@ class KMapper<T : Any>(private val function: KFunction<T>, propertyNameConverter
 
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .associate {
-            val param = ParameterForMap.newInstance(it, propertyNameConverter)
-            param.name to param
+            (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
+                    ParameterForMap.newInstance(it)
         }
 
     init {
