@@ -66,8 +66,6 @@ private fun <T : Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KC
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
             .map { function ->
-                // isAccessibleの書き換えはKotlinの都合で先に行う必要が有る
-                function.isAccessible = true
                 val func: KFunction<T> = CompanionKFunction(function, companionObject) as KFunction<T>
 
                 (func.parameters.single().type.classifier as KClass<*>) to func
