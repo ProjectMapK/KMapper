@@ -63,16 +63,22 @@ class KMapper<T : Any> private constructor(
         }
     }
 
+    private fun bindParameters(targetArray: Array<Any?>, srcPair: Pair<*, *>) {
+        parameterMap.getValue(srcPair.first.toString()).let {
+            targetArray[it.index] = srcPair.second?.let { value -> mapObject(it, value) }
+        }
+    }
+
     fun map(srcMap: Map<String, Any?>): T {
         val array: Array<Any?> = function.argumentArray
         srcMap.bindParameters(array)
         return function.call(array)
     }
 
-    fun map(srcPair: Pair<String, Any?>): T = parameterMap.getValue(srcPair.first).let {
+    fun map(srcPair: Pair<String, Any?>): T {
         val array: Array<Any?> = function.argumentArray
-        array[it.index] = srcPair.second?.let { value -> mapObject(it, value) }
-        function.call(array)
+        bindParameters(array, srcPair)
+        return function.call(array)
     }
 
     fun map(src: Any): T {
@@ -87,9 +93,7 @@ class KMapper<T : Any> private constructor(
         listOf(*args).forEach { arg ->
             when (arg) {
                 is Map<*, *> -> arg.bindParameters(array)
-                is Pair<*, *> -> parameterMap.getValue(arg.first as String).let {
-                    array[it.index] = arg.second?.let { value -> mapObject(it, value) }
-                }
+                is Pair<*, *> -> bindParameters(array, arg)
                 else -> arg::class.bindParameters(array, arg)
             }
         }
