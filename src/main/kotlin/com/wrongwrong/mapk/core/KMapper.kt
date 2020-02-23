@@ -1,8 +1,10 @@
 package com.wrongwrong.mapk.core
 
 import com.wrongwrong.mapk.annotations.KConstructor
+import com.wrongwrong.mapk.annotations.KGetterAlias
 import com.wrongwrong.mapk.annotations.KPropertyAlias
 import com.wrongwrong.mapk.annotations.KPropertyIgnore
+import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -15,6 +17,7 @@ import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaGetter
 
 class KMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
@@ -62,10 +65,12 @@ class KMapper<T : Any> private constructor(
         val array: Array<Any?> = function.argumentArray
 
         src::class.memberProperties.forEach { property ->
-            if (property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
-                val getter = property.getAccessibleGetter()
-                parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
-                    array[it.index] = getter.call(src)?.let { value -> mapObject(it, value) }
+            val javaGetter: Method? = property.javaGetter
+            if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
+                parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
+                    // javaGetterを呼び出す方が高速
+                    javaGetter.isAccessible = true
+                    array[it.index] = javaGetter.invoke(src)?.let { value -> mapObject(it, value) }
                 }
             }
         }
@@ -88,10 +93,12 @@ class KMapper<T : Any> private constructor(
                     array[it.index] = arg.second?.let { value -> mapObject(it, value) }
                 }
                 else -> arg::class.memberProperties.forEach { property ->
-                    if (property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
-                        val getter = property.getAccessibleGetter()
-                        parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
-                            array[it.index] = getter.call(arg)?.let { value -> mapObject(it, value) }
+                    val javaGetter: Method? = property.javaGetter
+                    if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
+                        parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
+                            // javaGetterを呼び出す方が高速
+                            javaGetter.isAccessible = true
+                            array[it.index] = javaGetter.invoke(arg)?.let { value -> mapObject(it, value) }
                         }
                     }
                 }
