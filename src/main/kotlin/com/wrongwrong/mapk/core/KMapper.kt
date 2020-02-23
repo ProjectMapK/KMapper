@@ -102,12 +102,6 @@ class KMapper<T : Any> private constructor(
     }
 }
 
-private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<*, *>> {
-    return filter {
-        it.visibility == KVisibility.PUBLIC && it.annotations.none { annotation -> annotation is KPropertyIgnore }
-    }
-}
-
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
     val factoryConstructor: List<KFunctionForCall<T>> =
