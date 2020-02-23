@@ -6,7 +6,6 @@ import com.wrongwrong.mapk.annotations.KConstructor
 import com.wrongwrong.mapk.core.KMapper
 import java.math.BigInteger
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.primaryConstructor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -71,7 +70,7 @@ class SimpleKMapperTest {
 
     private val mappers: Set<KMapper<out SimpleDst>> = setOf(
         KMapper(SimpleDst::class),
-        KMapper(SimpleDst::class.primaryConstructor!!),
+        KMapper(::SimpleDst),
         KMapper((SimpleDst)::factory),
         KMapper(this::instanceFunction),
         KMapper(SimpleDstExt::class)
