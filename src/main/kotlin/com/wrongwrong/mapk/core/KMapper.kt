@@ -45,7 +45,7 @@ class KMapper<T : Any> private constructor(
         srcMap.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                array[param.param.index] = value?.let { mapObject(param, it) }
+                array[param.index] = value?.let { mapObject(param, it) }
             }
         }
 
@@ -54,7 +54,7 @@ class KMapper<T : Any> private constructor(
 
     fun map(srcPair: Pair<String, Any?>): T = parameterMap.getValue(srcPair.first).let {
         val array: Array<Any?> = function.argumentArray
-        array[it.param.index] = srcPair.second?.let { value -> mapObject(it, value) }
+        array[it.index] = srcPair.second?.let { value -> mapObject(it, value) }
         function.call(array)
     }
 
@@ -65,7 +65,7 @@ class KMapper<T : Any> private constructor(
             if (property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
                 val getter = property.getAccessibleGetter()
                 parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
-                    array[it.param.index] = getter.call(src)?.let { value -> mapObject(it, value) }
+                    array[it.index] = getter.call(src)?.let { value -> mapObject(it, value) }
                 }
             }
         }
@@ -81,17 +81,17 @@ class KMapper<T : Any> private constructor(
                 is Map<*, *> -> arg.forEach { (key, value) ->
                     parameterMap[key]?.let { param ->
                         // 取得した内容がnullでなければ適切にmapする
-                        array[param.param.index] = value?.let { mapObject(param, it) }
+                        array[param.index] = value?.let { mapObject(param, it) }
                     }
                 }
                 is Pair<*, *> -> parameterMap.getValue(arg.first as String).let {
-                    array[it.param.index] = arg.second?.let { value -> mapObject(it, value) }
+                    array[it.index] = arg.second?.let { value -> mapObject(it, value) }
                 }
                 else -> arg::class.memberProperties.forEach { property ->
                     if (property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
                         val getter = property.getAccessibleGetter()
                         parameterMap[getter.findAnnotation<KPropertyAlias>()?.value ?: property.name]?.let {
-                            array[it.param.index] = getter.call(arg)?.let { value -> mapObject(it, value) }
+                            array[it.index] = getter.call(arg)?.let { value -> mapObject(it, value) }
                         }
                     }
                 }
