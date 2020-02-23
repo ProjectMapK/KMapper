@@ -1,7 +1,6 @@
 package com.wrongwrong.mapk.core
 
 import com.wrongwrong.mapk.annotations.KConverter
-import com.wrongwrong.mapk.annotations.KPropertyAlias
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -11,16 +10,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
-internal class ParameterForMap<T : Any> private constructor(
-    val param: KParameter,
-    val clazz: KClass<T>,
-    propertyNameConverter: (String) -> String
-) {
-    val name: String = param.annotations
-        .find { it is KPropertyAlias }
-        ?.let { (it as KPropertyAlias).value }
-        ?: propertyNameConverter(param.name!!)
-
+internal class ParameterForMap<T : Any> private constructor(val index: Int, val clazz: KClass<T>) {
     val javaClazz: Class<T> by lazy {
         clazz.java
     }
@@ -34,8 +24,8 @@ internal class ParameterForMap<T : Any> private constructor(
         creators.find { (key, _) -> input.isSubclassOf(key) }?.second
 
     companion object {
-        fun newInstance(param: KParameter, propertyNameConverter: (String) -> String): ParameterForMap<*> {
-            return ParameterForMap(param, param.type.classifier as KClass<*>, propertyNameConverter)
+        fun newInstance(param: KParameter): ParameterForMap<*> {
+            return ParameterForMap(param.index, param.type.classifier as KClass<*>)
         }
     }
 }

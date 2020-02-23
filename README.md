@@ -44,7 +44,7 @@ class Dst(
 ### Set alias on map
 #### for getter
 ```kotlin
-class Src(@get:PropertyAlias("aliased") val str: String)
+class Src(@KGetterAlias("aliased") val str: String)
 
 class Dst(val aliased: String)
 ```
@@ -53,7 +53,7 @@ class Dst(val aliased: String)
 ```kotlin
 class Src(val str: String)
 
-class Dst(@param:PropertyAlias("str") private val _src: String) {
+class Dst(@param:KPropertyAlias("str") private val _src: String) {
   val src = _src.someArrangement
 }
 ```
@@ -64,7 +64,7 @@ val srcMap = mapOf("snake_case" to "SnakeCase")
 
 class Dst(val snakeCase: String)
 
-val dst: Dst = Mapper(DataClass::class.primaryConstructor!!) { it.toSnakeCase }.map(src)
+val dst: Dst = Mapper(::DataClass) { it.toSnakeCase }.map(src)
 ```
 
 ### Map param to another class
@@ -72,7 +72,7 @@ val dst: Dst = Mapper(DataClass::class.primaryConstructor!!) { it.toSnakeCase }.
 ```kotlin
 class CreatorClass @SingleArgCreator constructor(val arg: String) {
   companion object {
-    @SingleArgCreator
+    @KConverter
     fun fromInt(arg: Int): CreatorClass {
       return CreatorClass(arg.toString)
     }
