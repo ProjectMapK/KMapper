@@ -1,5 +1,6 @@
 package mapk.core
 
+import com.wrongwrong.mapk.annotations.KGetterAlias
 import com.wrongwrong.mapk.annotations.KPropertyAlias
 import com.wrongwrong.mapk.core.KMapper
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -12,7 +13,8 @@ private data class AliasedDst(
 )
 
 private data class AliasedSrc(
-    @get:KPropertyAlias("arg1") val arg2: Double,
+    @KGetterAlias("arg1")
+    val arg2: Double,
     val arg3: Int
 )
 
