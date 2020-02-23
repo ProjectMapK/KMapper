@@ -8,7 +8,6 @@ import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.findAnnotation
@@ -55,16 +54,18 @@ class KMapper<T : Any> private constructor(
         }
     }
 
-    fun map(srcMap: Map<String, Any?>): T {
-        val array: Array<Any?> = function.argumentArray
-
-        srcMap.forEach { (key, value) ->
+    private fun Map<*, *>.bindParameters(targetArray: Array<Any?>) {
+        forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                array[param.index] = value?.let { mapObject(param, it) }
+                targetArray[param.index] = value?.let { mapObject(param, it) }
             }
         }
+    }
 
+    fun map(srcMap: Map<String, Any?>): T {
+        val array: Array<Any?> = function.argumentArray
+        srcMap.bindParameters(array)
         return function.call(array)
     }
 
@@ -85,12 +86,7 @@ class KMapper<T : Any> private constructor(
 
         listOf(*args).forEach { arg ->
             when (arg) {
-                is Map<*, *> -> arg.forEach { (key, value) ->
-                    parameterMap[key]?.let { param ->
-                        // 取得した内容がnullでなければ適切にmapする
-                        array[param.index] = value?.let { mapObject(param, it) }
-                    }
-                }
+                is Map<*, *> -> arg.bindParameters(array)
                 is Pair<*, *> -> parameterMap.getValue(arg.first as String).let {
                     array[it.index] = arg.second?.let { value -> mapObject(it, value) }
                 }
