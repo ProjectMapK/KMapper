@@ -115,12 +115,6 @@ private fun Collection<KProperty1<*, *>>.filterTargets(): Collection<KProperty1<
     }
 }
 
-private fun KProperty1<*, *>.getAccessibleGetter(): KProperty1.Getter<*, *> {
-    // アクセス制限の有るクラスではpublicなプロパティでもゲッターにアクセスできない場合が有るため、アクセス可能にして使う
-    getter.isAccessible = true
-    return getter
-}
-
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
     val factoryConstructor: List<KFunctionForCall<T>> =
