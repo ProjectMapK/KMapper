@@ -42,6 +42,19 @@ class KMapper<T : Any> private constructor(
         if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
     }
 
+    private fun KClass<*>.bindParameters(targetArray: Array<Any?>, instance: Any) {
+        memberProperties.forEach { property ->
+            val javaGetter: Method? = property.javaGetter
+            if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
+                parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
+                    // javaGetterを呼び出す方が高速
+                    javaGetter.isAccessible = true
+                    targetArray[it.index] = javaGetter.invoke(instance)?.let { value -> mapObject(it, value) }
+                }
+            }
+        }
+    }
+
     fun map(srcMap: Map<String, Any?>): T {
         val array: Array<Any?> = function.argumentArray
 
@@ -63,18 +76,7 @@ class KMapper<T : Any> private constructor(
 
     fun map(src: Any): T {
         val array: Array<Any?> = function.argumentArray
-
-        src::class.memberProperties.forEach { property ->
-            val javaGetter: Method? = property.javaGetter
-            if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
-                parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
-                    // javaGetterを呼び出す方が高速
-                    javaGetter.isAccessible = true
-                    array[it.index] = javaGetter.invoke(src)?.let { value -> mapObject(it, value) }
-                }
-            }
-        }
-
+        src::class.bindParameters(array, src)
         return function.call(array)
     }
 
@@ -92,16 +94,7 @@ class KMapper<T : Any> private constructor(
                 is Pair<*, *> -> parameterMap.getValue(arg.first as String).let {
                     array[it.index] = arg.second?.let { value -> mapObject(it, value) }
                 }
-                else -> arg::class.memberProperties.forEach { property ->
-                    val javaGetter: Method? = property.javaGetter
-                    if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
-                        parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
-                            // javaGetterを呼び出す方が高速
-                            javaGetter.isAccessible = true
-                            array[it.index] = javaGetter.invoke(arg)?.let { value -> mapObject(it, value) }
-                        }
-                    }
-                }
+                else -> arg::class.bindParameters(array, arg)
             }
         }
 
