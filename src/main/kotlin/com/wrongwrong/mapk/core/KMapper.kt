@@ -15,7 +15,6 @@ import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaGetter
 
 class KMapper<T : Any> private constructor(
@@ -41,21 +40,21 @@ class KMapper<T : Any> private constructor(
         if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
     }
 
-    private fun KClass<*>.bindParameters(targetArray: Array<Any?>, instance: Any) {
-        memberProperties.forEach { property ->
+    private fun bindParameters(targetArray: Array<Any?>, src: Any) {
+        src::class.memberProperties.forEach { property ->
             val javaGetter: Method? = property.javaGetter
             if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
                 parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
-                    targetArray[it.index] = javaGetter.invoke(instance)?.let { value -> mapObject(it, value) }
+                    targetArray[it.index] = javaGetter.invoke(src)?.let { value -> mapObject(it, value) }
                 }
             }
         }
     }
 
-    private fun Map<*, *>.bindParameters(targetArray: Array<Any?>) {
-        forEach { (key, value) ->
+    private fun bindParameters(targetArray: Array<Any?>, src: Map<*, *>) {
+        src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
                 targetArray[param.index] = value?.let { mapObject(param, it) }
@@ -71,7 +70,7 @@ class KMapper<T : Any> private constructor(
 
     fun map(srcMap: Map<String, Any?>): T {
         val array: Array<Any?> = function.argumentArray
-        srcMap.bindParameters(array)
+        bindParameters(array, srcMap)
         return function.call(array)
     }
 
@@ -83,7 +82,7 @@ class KMapper<T : Any> private constructor(
 
     fun map(src: Any): T {
         val array: Array<Any?> = function.argumentArray
-        src::class.bindParameters(array, src)
+        bindParameters(array, src)
         return function.call(array)
     }
 
@@ -92,9 +91,9 @@ class KMapper<T : Any> private constructor(
 
         listOf(*args).forEach { arg ->
             when (arg) {
-                is Map<*, *> -> arg.bindParameters(array)
+                is Map<*, *> -> bindParameters(array, arg)
                 is Pair<*, *> -> bindParameters(array, arg)
-                else -> arg::class.bindParameters(array, arg)
+                else -> bindParameters(array, arg)
             }
         }
 
