@@ -16,28 +16,31 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
-class KMapper<T : Any>(function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) {
+class KMapper<T : Any> private constructor(
+    private val function: KFunctionForCall<T>,
+    propertyNameConverter: (String) -> String = { it }
+) {
+    constructor(function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) : this(
+        KFunctionForCall(function), propertyNameConverter
+    )
+
     constructor(clazz: KClass<T>, propertyNameConverter: (String) -> String = { it }) : this(
         getTarget(clazz), propertyNameConverter
     )
 
-    private val parameterMap: Map<String, ParameterForMap<*>>
-    private val functionForCall: KFunctionForCall<T>
-
-    init {
-        val params = function.parameters
-        functionForCall = KFunctionForCall(function, params.size) // TODO: 必要に応じてインスタンスを渡す
-
-        parameterMap = params.filter { it.kind != KParameter.Kind.INSTANCE }.associate {
+    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
+        .filter { it.kind != KParameter.Kind.INSTANCE }
+        .associate {
             (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
                     ParameterForMap.newInstance(it)
         }
 
+    init {
         if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        val array: Array<Any?> = functionForCall.argumentArray
+        val array: Array<Any?> = function.argumentArray
 
         srcMap.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
@@ -46,17 +49,17 @@ class KMapper<T : Any>(function: KFunction<T>, propertyNameConverter: (String) -
             }
         }
 
-        return functionForCall.call(array)
+        return function.call(array)
     }
 
     fun map(srcPair: Pair<String, Any?>): T = parameterMap.getValue(srcPair.first).let {
-        val array: Array<Any?> = functionForCall.argumentArray
+        val array: Array<Any?> = function.argumentArray
         array[it.param.index] = srcPair.second?.let { value -> mapObject(it, value) }
-        functionForCall.call(array)
+        function.call(array)
     }
 
     fun map(src: Any): T {
-        val array: Array<Any?> = functionForCall.argumentArray
+        val array: Array<Any?> = function.argumentArray
 
         src::class.memberProperties.forEach { property ->
             if (property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
@@ -67,11 +70,11 @@ class KMapper<T : Any>(function: KFunction<T>, propertyNameConverter: (String) -
             }
         }
 
-        return functionForCall.call(array)
+        return function.call(array)
     }
 
     fun map(vararg args: Any): T {
-        val array: Array<Any?> = functionForCall.argumentArray
+        val array: Array<Any?> = function.argumentArray
 
         listOf(*args).forEach { arg ->
             when (arg) {
@@ -95,7 +98,7 @@ class KMapper<T : Any>(function: KFunction<T>, propertyNameConverter: (String) -
             }
         }
 
-        return functionForCall.call(array)
+        return function.call(array)
     }
 }
 
@@ -112,20 +115,21 @@ private fun KProperty1<*, *>.getAccessibleGetter(): KProperty1.Getter<*, *> {
 }
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T : Any> getTarget(clazz: KClass<T>): KFunction<T> {
-    val factoryConstructor: List<KFunction<T>> =
+internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
+    val factoryConstructor: List<KFunctionForCall<T>> =
         clazz.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
                 .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map { KFunctionWithInstance(it, companionObject) as KFunction<T> }
+                .map { KFunctionForCall(it, companionObject) as KFunctionForCall<T> }
         } ?: emptyList()
 
-    val constructors: List<KFunction<T>> = factoryConstructor + clazz.constructors
+    val constructors: List<KFunctionForCall<T>> = factoryConstructor + clazz.constructors
         .filter { it.annotations.any { annotation -> annotation is KConstructor } }
+        .map { KFunctionForCall(it) }
 
     if (constructors.size == 1) return constructors.single()
 
-    if (constructors.isEmpty()) return clazz.primaryConstructor!!
+    if (constructors.isEmpty()) return KFunctionForCall(clazz.primaryConstructor!!)
 
     throw IllegalArgumentException("Find multiple target.")
 }
