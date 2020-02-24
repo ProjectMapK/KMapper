@@ -6,20 +6,33 @@ import kotlin.reflect.jvm.isAccessible
 
 class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = null) {
     val parameters: List<KParameter> = function.parameters
-    private val originalArgumentBucket: List<Any?>
-    val argumentBucket: Array<Any?> get() = originalArgumentBucket.toTypedArray()
+    private val originalArgumentBucket: ArgumentBucket
+
+    fun getArgumentBucket(): ArgumentBucket = originalArgumentBucket.clone()
 
     init {
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
         originalArgumentBucket = if (instance != null) {
-            List(parameters.size) { if (it == 0) instance else null }
+            ArgumentBucket(
+                Array(parameters.size) { if (it == 0) instance else null },
+                1,
+                generateSequence(1) { it.shl(1) }
+                    .take(parameters.size)
+                    .toList()
+            )
         } else {
-            List(parameters.size) { null }
+            ArgumentBucket(
+                Array(parameters.size) { null },
+                0,
+                generateSequence(1) { it.shl(1) }
+                    .take(parameters.size)
+                    .toList()
+            )
         }
     }
 
-    fun call(arguments: Array<Any?>): T {
-        return function.call(*arguments)
+    fun call(argumentBucket: ArgumentBucket): T {
+        return function.call(*argumentBucket.bucket)
     }
 }
