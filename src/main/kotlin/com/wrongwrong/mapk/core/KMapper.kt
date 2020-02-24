@@ -40,50 +40,50 @@ class KMapper<T : Any> private constructor(
         if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
     }
 
-    private fun bindParameters(targetArray: Array<Any?>, src: Any) {
+    private fun bindParameters(targetBucket: Array<Any?>, src: Any) {
         src::class.memberProperties.forEach { property ->
             val javaGetter: Method? = property.javaGetter
             if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
                 parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
-                    targetArray[it.index] = javaGetter.invoke(src)?.let { value -> mapObject(it, value) }
+                    targetBucket[it.index] = javaGetter.invoke(src)?.let { value -> mapObject(it, value) }
                 }
             }
         }
     }
 
-    private fun bindParameters(targetArray: Array<Any?>, src: Map<*, *>) {
+    private fun bindParameters(targetBucket: Array<Any?>, src: Map<*, *>) {
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                targetArray[param.index] = value?.let { mapObject(param, it) }
+                targetBucket[param.index] = value?.let { mapObject(param, it) }
             }
         }
     }
 
-    private fun bindParameters(targetArray: Array<Any?>, srcPair: Pair<*, *>) {
+    private fun bindParameters(targetBucket: Array<Any?>, srcPair: Pair<*, *>) {
         parameterMap.getValue(srcPair.first.toString()).let {
-            targetArray[it.index] = srcPair.second?.let { value -> mapObject(it, value) }
+            targetBucket[it.index] = srcPair.second?.let { value -> mapObject(it, value) }
         }
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        val array: Array<Any?> = function.argumentBucket
-        bindParameters(array, srcMap)
-        return function.call(array)
+        val bucket: Array<Any?> = function.argumentBucket
+        bindParameters(bucket, srcMap)
+        return function.call(bucket)
     }
 
     fun map(srcPair: Pair<String, Any?>): T {
-        val array: Array<Any?> = function.argumentBucket
-        bindParameters(array, srcPair)
-        return function.call(array)
+        val bucket: Array<Any?> = function.argumentBucket
+        bindParameters(bucket, srcPair)
+        return function.call(bucket)
     }
 
     fun map(src: Any): T {
-        val array: Array<Any?> = function.argumentBucket
-        bindParameters(array, src)
-        return function.call(array)
+        val bucket: Array<Any?> = function.argumentBucket
+        bindParameters(bucket, src)
+        return function.call(bucket)
     }
 
     fun map(vararg args: Any): T {
