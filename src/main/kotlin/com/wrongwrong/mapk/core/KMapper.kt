@@ -69,25 +69,25 @@ class KMapper<T : Any> private constructor(
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        val array: Array<Any?> = function.argumentArray
+        val array: Array<Any?> = function.argumentBucket
         bindParameters(array, srcMap)
         return function.call(array)
     }
 
     fun map(srcPair: Pair<String, Any?>): T {
-        val array: Array<Any?> = function.argumentArray
+        val array: Array<Any?> = function.argumentBucket
         bindParameters(array, srcPair)
         return function.call(array)
     }
 
     fun map(src: Any): T {
-        val array: Array<Any?> = function.argumentArray
+        val array: Array<Any?> = function.argumentBucket
         bindParameters(array, src)
         return function.call(array)
     }
 
     fun map(vararg args: Any): T {
-        val array: Array<Any?> = function.argumentArray
+        val array: Array<Any?> = function.argumentBucket
 
         listOf(*args).forEach { arg ->
             when (arg) {

@@ -6,16 +6,16 @@ import kotlin.reflect.jvm.isAccessible
 
 class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = null) {
     val parameters: List<KParameter> = function.parameters
-    private val originalArray: Array<Any?>
-    val argumentArray: Array<Any?> get() = originalArray.copyOf()
+    private val originalArgumentBucket: List<Any?>
+    val argumentBucket: Array<Any?> get() = originalArgumentBucket.toTypedArray()
 
     init {
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
-        originalArray = if (instance != null) {
-            Array(parameters.size) { if (it == 0) instance else null }
+        originalArgumentBucket = if (instance != null) {
+            List(parameters.size) { if (it == 0) instance else null }
         } else {
-            Array(parameters.size) { null }
+            List(parameters.size) { null }
         }
     }
 
