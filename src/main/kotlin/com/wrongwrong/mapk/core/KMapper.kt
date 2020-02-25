@@ -149,15 +149,15 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
 
 private fun <T : Any, R : Any> mapObject(param: ParameterForMap<R>, value: T): Any? {
     val valueClazz: KClass<*> = value::class
-    val creator: KFunction<*>? by lazy {
-        param.getCreator(valueClazz)
-    }
+
+    // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
+    if (param.clazz.isSuperclassOf(valueClazz)) return value
+
+    val creator: KFunction<*>? = param.getCreator(valueClazz)
 
     return when {
-        // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
-        param.clazz.isSuperclassOf(valueClazz) -> value
         // creatorに一致する組み合わせが有れば設定されていればそれを使う
-        creator != null -> creator!!.call(value)
+        creator != null -> creator.call(value)
         // 要求された値がenumかつ元が文字列ならenum mapperでマップ
         param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(param.clazz.java, value)
         // 要求されているパラメータがStringならtoStringする
