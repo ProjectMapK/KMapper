@@ -40,64 +40,90 @@ class KMapper<T : Any> private constructor(
         if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
     }
 
-    private fun bindParameters(targetArray: Array<Any?>, src: Any) {
+    private fun throwExceptionOnNotInitialized(argumentBucket: ArgumentBucket): Nothing {
+        val notInitializedIndexes = argumentBucket.notInitializedParameterIndexes
+        function.parameters
+            .filter { it.index in notInitializedIndexes }
+            .map { it.name }
+            .joinToString(", ")
+            .let {
+                throw IllegalArgumentException("Not passed arguments: $it")
+            }
+    }
+
+    private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach { property ->
             val javaGetter: Method? = property.javaGetter
             if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
                 parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
-                    targetArray[it.index] = javaGetter.invoke(src)?.let { value -> mapObject(it, value) }
+                    argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
+                    // 終了判定
+                    if (argumentBucket.isInitialized) return
                 }
             }
         }
     }
 
-    private fun bindParameters(targetArray: Array<Any?>, src: Map<*, *>) {
+    private fun bindArguments(argumentBucket: ArgumentBucket, src: Map<*, *>) {
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                targetArray[param.index] = value?.let { mapObject(param, it) }
+                argumentBucket.setArgument(value?.let { mapObject(param, it) }, param.index)
+                // 終了判定
+                if (argumentBucket.isInitialized) return
             }
         }
     }
 
-    private fun bindParameters(targetArray: Array<Any?>, srcPair: Pair<*, *>) {
-        parameterMap.getValue(srcPair.first.toString()).let {
-            targetArray[it.index] = srcPair.second?.let { value -> mapObject(it, value) }
+    private fun bindArguments(argumentBucket: ArgumentBucket, srcPair: Pair<*, *>) {
+        parameterMap[srcPair.first.toString()]?.let {
+            argumentBucket.setArgument(srcPair.second?.let { value -> mapObject(it, value) }, it.index)
         }
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        val array: Array<Any?> = function.argumentArray
-        bindParameters(array, srcMap)
-        return function.call(array)
+        val bucket: ArgumentBucket = function.getArgumentBucket()
+        bindArguments(bucket, srcMap)
+
+        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
+
+        return function.call(bucket)
     }
 
     fun map(srcPair: Pair<String, Any?>): T {
-        val array: Array<Any?> = function.argumentArray
-        bindParameters(array, srcPair)
-        return function.call(array)
+        val bucket: ArgumentBucket = function.getArgumentBucket()
+        bindArguments(bucket, srcPair)
+
+        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
+
+        return function.call(bucket)
     }
 
     fun map(src: Any): T {
-        val array: Array<Any?> = function.argumentArray
-        bindParameters(array, src)
-        return function.call(array)
+        val bucket: ArgumentBucket = function.getArgumentBucket()
+        bindArguments(bucket, src)
+
+        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
+
+        return function.call(bucket)
     }
 
     fun map(vararg args: Any): T {
-        val array: Array<Any?> = function.argumentArray
+        val bucket: ArgumentBucket = function.getArgumentBucket()
 
         listOf(*args).forEach { arg ->
             when (arg) {
-                is Map<*, *> -> bindParameters(array, arg)
-                is Pair<*, *> -> bindParameters(array, arg)
-                else -> bindParameters(array, arg)
+                is Map<*, *> -> bindArguments(bucket, arg)
+                is Pair<*, *> -> bindArguments(bucket, arg)
+                else -> bindArguments(bucket, arg)
             }
         }
 
-        return function.call(array)
+        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
+
+        return function.call(bucket)
     }
 }
 
@@ -123,15 +149,15 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
 
 private fun <T : Any, R : Any> mapObject(param: ParameterForMap<R>, value: T): Any? {
     val valueClazz: KClass<*> = value::class
-    val creator: KFunction<*>? by lazy {
-        param.getCreator(valueClazz)
-    }
+
+    // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
+    if (param.clazz.isSuperclassOf(valueClazz)) return value
+
+    val creator: KFunction<*>? = param.getCreator(valueClazz)
 
     return when {
-        // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
-        param.clazz.isSuperclassOf(valueClazz) -> value
         // creatorに一致する組み合わせが有れば設定されていればそれを使う
-        creator != null -> creator!!.call(value)
+        creator != null -> creator.call(value)
         // 要求された値がenumかつ元が文字列ならenum mapperでマップ
         param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(param.clazz.java, value)
         // 要求されているパラメータがStringならtoStringする
