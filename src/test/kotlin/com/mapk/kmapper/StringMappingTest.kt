@@ -1,6 +1,5 @@
-package mapk.core
+package com.mapk.kmapper
 
-import com.mapk.kmapper.KMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

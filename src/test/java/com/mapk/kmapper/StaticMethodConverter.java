@@ -1,4 +1,4 @@
-package mapk.core;
+package com.mapk.kmapper;
 
 import com.mapk.annotations.KConverter;
 
