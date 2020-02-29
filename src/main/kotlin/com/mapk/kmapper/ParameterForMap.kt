@@ -1,6 +1,7 @@
-package com.mapk.core
+package com.mapk.kmapper
 
 import com.mapk.annotations.KConverter
+import com.mapk.core.KFunctionWithInstance
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter

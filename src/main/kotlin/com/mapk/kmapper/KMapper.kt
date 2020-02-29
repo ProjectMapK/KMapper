@@ -1,9 +1,12 @@
-package com.mapk.core
+package com.mapk.kmapper
 
 import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KGetterAlias
 import com.mapk.annotations.KPropertyAlias
 import com.mapk.annotations.KPropertyIgnore
+import com.mapk.core.ArgumentBucket
+import com.mapk.core.EnumMapper
+import com.mapk.core.KFunctionForCall
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction

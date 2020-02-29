@@ -1,7 +1,7 @@
 package mapk.core
 
 import com.google.common.base.CaseFormat
-import com.mapk.core.KMapper
+import com.mapk.kmapper.KMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

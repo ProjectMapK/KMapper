@@ -4,7 +4,7 @@ package mapk.core
 
 import com.mapk.annotations.KConstructor
 import com.mapk.core.KFunctionForCall
-import com.mapk.core.getTarget
+import com.mapk.kmapper.getTarget
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor

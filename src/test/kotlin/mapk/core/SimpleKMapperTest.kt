@@ -3,7 +3,7 @@
 package mapk.core
 
 import com.mapk.annotations.KConstructor
-import com.mapk.core.KMapper
+import com.mapk.kmapper.KMapper
 import java.math.BigInteger
 import kotlin.reflect.full.isSubclassOf
 import org.junit.jupiter.api.Assertions.assertEquals
