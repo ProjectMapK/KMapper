@@ -1,1 +1,1 @@
-rootProject.name = "MapK"
+rootProject.name = "KMapper"
