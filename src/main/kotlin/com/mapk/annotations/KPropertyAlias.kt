@@ -1,4 +1,4 @@
-package com.wrongwrong.mapk.annotations
+package com.mapk.annotations
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)

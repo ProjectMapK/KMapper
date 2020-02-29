@@ -1,4 +1,4 @@
-package com.wrongwrong.mapk.core;
+package com.mapk.core;
 
 class EnumMapper {
     /**

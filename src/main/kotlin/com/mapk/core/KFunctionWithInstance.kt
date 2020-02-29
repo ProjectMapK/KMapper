@@ -1,4 +1,4 @@
-package com.wrongwrong.mapk.core
+package com.mapk.core
 
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter

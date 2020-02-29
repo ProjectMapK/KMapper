@@ -1,6 +1,6 @@
-package com.wrongwrong.mapk.core
+package com.mapk.core
 
-import com.wrongwrong.mapk.annotations.KConverter
+import com.mapk.annotations.KConverter
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -16,7 +16,9 @@ internal class ParameterForMap<T : Any> private constructor(val index: Int, val 
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
     private val creators: Set<Pair<KClass<*>, KFunction<T>>> by lazy {
-        creatorsFromConstructors(clazz) + creatorsFromStaticMethods(clazz) + creatorsFromCompanionObject(clazz)
+        creatorsFromConstructors(clazz) + creatorsFromStaticMethods(
+            clazz
+        ) + creatorsFromCompanionObject(clazz)
     }
 
     // 引数の型がcreatorに対して入力可能ならcreatorを返す
@@ -56,7 +58,10 @@ private fun <T : Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KC
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
             .map { function ->
-                val func: KFunction<T> = KFunctionWithInstance(function, companionObject) as KFunction<T>
+                val func: KFunction<T> = KFunctionWithInstance(
+                    function,
+                    companionObject
+                ) as KFunction<T>
 
                 (func.parameters.single().type.classifier as KClass<*>) to func
             }.toSet()

@@ -2,8 +2,8 @@
 
 package mapk.core
 
-import com.wrongwrong.mapk.annotations.KConstructor
-import com.wrongwrong.mapk.core.KMapper
+import com.mapk.annotations.KConstructor
+import com.mapk.core.KMapper
 import java.math.BigInteger
 import kotlin.reflect.full.isSubclassOf
 import org.junit.jupiter.api.Assertions.assertEquals

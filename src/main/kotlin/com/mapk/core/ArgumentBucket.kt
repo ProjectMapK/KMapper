@@ -1,4 +1,4 @@
-package com.wrongwrong.mapk.core
+package com.mapk.core
 
 class ArgumentBucket(
     val bucket: Array<Any?>,
@@ -21,6 +21,11 @@ class ArgumentBucket(
     }
 
     public override fun clone(): ArgumentBucket {
-        return ArgumentBucket(bucket.copyOf(), initializeStatus, initializeMask, completionValue)
+        return ArgumentBucket(
+            bucket.copyOf(),
+            initializeStatus,
+            initializeMask,
+            completionValue
+        )
     }
 }

@@ -1,9 +1,9 @@
-package com.wrongwrong.mapk.core
+package com.mapk.core
 
-import com.wrongwrong.mapk.annotations.KConstructor
-import com.wrongwrong.mapk.annotations.KGetterAlias
-import com.wrongwrong.mapk.annotations.KPropertyAlias
-import com.wrongwrong.mapk.annotations.KPropertyIgnore
+import com.mapk.annotations.KConstructor
+import com.mapk.annotations.KGetterAlias
+import com.mapk.annotations.KPropertyAlias
+import com.mapk.annotations.KPropertyIgnore
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -58,7 +58,12 @@ class KMapper<T : Any> private constructor(
                 parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
-                    argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
+                    argumentBucket.setArgument(javaGetter.invoke(src)?.let { value ->
+                        mapObject(
+                            it,
+                            value
+                        )
+                    }, it.index)
                     // 終了判定
                     if (argumentBucket.isInitialized) return
                 }
@@ -79,7 +84,12 @@ class KMapper<T : Any> private constructor(
 
     private fun bindArguments(argumentBucket: ArgumentBucket, srcPair: Pair<*, *>) {
         parameterMap[srcPair.first.toString()]?.let {
-            argumentBucket.setArgument(srcPair.second?.let { value -> mapObject(it, value) }, it.index)
+            argumentBucket.setArgument(srcPair.second?.let { value ->
+                mapObject(
+                    it,
+                    value
+                )
+            }, it.index)
         }
     }
 
@@ -133,7 +143,11 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
         clazz.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
                 .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map { KFunctionForCall(it, companionObject) as KFunctionForCall<T> }
+                .map { KFunctionForCall(
+                    it,
+                    companionObject
+                ) as KFunctionForCall<T>
+                }
         } ?: emptyList()
 
     val constructors: List<KFunctionForCall<T>> = factoryConstructor + clazz.constructors
@@ -159,7 +173,10 @@ private fun <T : Any, R : Any> mapObject(param: ParameterForMap<R>, value: T): A
         // creatorに一致する組み合わせが有れば設定されていればそれを使う
         creator != null -> creator.call(value)
         // 要求された値がenumかつ元が文字列ならenum mapperでマップ
-        param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(param.clazz.java, value)
+        param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(
+            param.clazz.java,
+            value
+        )
         // 要求されているパラメータがStringならtoStringする
         param.clazz == String::class -> value.toString()
         else -> throw IllegalArgumentException("Can not convert $valueClazz to ${param.clazz}")
