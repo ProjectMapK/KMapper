@@ -5,8 +5,8 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
-group = "com.wrongwrong"
-version = "0.1"
+group = "com.mapk"
+version = "0.10"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
