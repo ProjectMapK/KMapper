@@ -2,7 +2,7 @@
 [![CircleCI](https://circleci.com/gh/ProjectMapK/KMapper.svg?style=svg)](https://circleci.com/gh/ProjectMapK/KMapper)
 [![](https://jitci.com/gh/ProjectMapK/KMapper/svg)](https://jitci.com/gh/ProjectMapK/KMapper)
 
-MapK
+KMapper
 ====
 This is a Mapper Libraly like a `ModelMapper` for `Kotlin`.  
 You can call `KFunction`(e.g. `constructor`) from `Object`.
@@ -23,7 +23,7 @@ val newInstance = KMapper(Dst::class.primaryConstructor!!).map(src)
 ```
 ## How to use
 Published on JitPack.  
-Please see [here](https://jitpack.io/#k163377/MapK) for the introduction method.  
+Please see [here](https://jitpack.io/#ProjectMapK/KMapper/) for the introduction method.  
 
 ## Usages
 ### From multiple resources
