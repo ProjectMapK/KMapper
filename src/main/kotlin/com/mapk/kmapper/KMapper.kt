@@ -176,10 +176,7 @@ private fun <T : Any, R : Any> mapObject(param: ParameterForMap<R>, value: T): A
         // creatorに一致する組み合わせが有れば設定されていればそれを使う
         creator != null -> creator.call(value)
         // 要求された値がenumかつ元が文字列ならenum mapperでマップ
-        param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(
-            param.clazz.java,
-            value
-        )
+        param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(param.clazz.java, value)
         // 要求されているパラメータがStringならtoStringする
         param.clazz == String::class -> value.toString()
         else -> throw IllegalArgumentException("Can not convert $valueClazz to ${param.clazz}")
