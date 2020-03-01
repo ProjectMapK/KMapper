@@ -1,9 +1,8 @@
 @file:Suppress("unused")
 
-package mapk.core
+package com.mapk.kmapper
 
-import com.wrongwrong.mapk.annotations.KConstructor
-import com.wrongwrong.mapk.core.KMapper
+import com.mapk.annotations.KConstructor
 import java.math.BigInteger
 import kotlin.reflect.full.isSubclassOf
 import org.junit.jupiter.api.Assertions.assertEquals

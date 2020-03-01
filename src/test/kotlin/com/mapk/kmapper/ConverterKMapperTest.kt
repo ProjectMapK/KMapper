@@ -1,9 +1,8 @@
 @file:Suppress("unused")
 
-package mapk.core
+package com.mapk.kmapper
 
-import com.wrongwrong.mapk.annotations.KConverter
-import com.wrongwrong.mapk.core.KMapper
+import com.mapk.annotations.KConverter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName

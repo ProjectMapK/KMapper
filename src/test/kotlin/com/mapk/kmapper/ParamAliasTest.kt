@@ -1,8 +1,7 @@
-package mapk.core
+package com.mapk.kmapper
 
-import com.wrongwrong.mapk.annotations.KGetterAlias
-import com.wrongwrong.mapk.annotations.KPropertyAlias
-import com.wrongwrong.mapk.core.KMapper
+import com.mapk.annotations.KGetterAlias
+import com.mapk.annotations.KPropertyAlias
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

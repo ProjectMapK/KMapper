@@ -5,8 +5,8 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
-group = "com.wrongwrong"
-version = "0.1"
+group = "com.mapk"
+version = "0.10"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -24,11 +24,13 @@ buildscript {
 
 repositories {
     mavenCentral()
+    maven { setUrl("https://jitpack.io") }
 }
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
+    implementation("com.github.ProjectMapK:Shared:0.1")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.0") {

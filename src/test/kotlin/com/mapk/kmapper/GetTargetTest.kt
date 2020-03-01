@@ -1,10 +1,9 @@
 @file:Suppress("unused")
 
-package mapk.core
+package com.mapk.kmapper
 
-import com.wrongwrong.mapk.annotations.KConstructor
-import com.wrongwrong.mapk.core.KFunctionForCall
-import com.wrongwrong.mapk.core.getTarget
+import com.mapk.annotations.KConstructor
+import com.mapk.core.KFunctionForCall
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor

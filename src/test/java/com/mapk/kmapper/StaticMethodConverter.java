@@ -1,6 +1,6 @@
-package mapk.core;
+package com.mapk.kmapper;
 
-import com.wrongwrong.mapk.annotations.KConverter;
+import com.mapk.annotations.KConverter;
 
 import java.util.Arrays;
 
