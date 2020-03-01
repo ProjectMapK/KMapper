@@ -70,7 +70,7 @@ val srcMap = mapOf("snake_case" to "SnakeCase")
 
 class Dst(val snakeCase: String)
 
-val dst: Dst = KMapper(::DataClass) { it.toSnakeCase }.map(src)
+val dst: Dst = KMapper(::DataClass) { camelToSnake(it) }.map(src)
 ```
 
 ### Map param to another class
