@@ -39,6 +39,8 @@ class Dst(
     val arg4: Double,
     val arg5: String?
 )
+
+val newInstance = KMapper(::Dst).map(src1, src2, src3)
 ```
 
 ### Set alias on map
@@ -47,6 +49,8 @@ class Dst(
 class Src(@KGetterAlias("aliased") val str: String)
 
 class Dst(val aliased: String)
+
+val newInstance = KMapper(::Dst).map(src)
 ```
 
 #### for parameter
@@ -56,6 +60,8 @@ class Src(val str: String)
 class Dst(@param:KPropertyAlias("str") private val _src: String) {
   val src = _src.someArrangement
 }
+
+val newInstance = KMapper(::Dst).map(src)
 ```
 
 ### Convert parameter name
@@ -82,4 +88,6 @@ class CreatorClass @SingleArgCreator constructor(val arg: String) {
 class Src(val arg1: String, val arg2: Int)
 
 class Dst(val arg1: CreatorClass, val arg2: CreatorClass)
+
+val newInstance = KMapper(::Dst).map(src)
 ```
