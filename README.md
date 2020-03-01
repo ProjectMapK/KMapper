@@ -5,7 +5,7 @@
 KMapper
 ====
 This is a Mapper Libraly like a `ModelMapper` for `Kotlin`.  
-You can call `KFunction`(e.g. `constructor`) from `Object`.
+You can call `KFunction`(e.g. `method reference`) from `Object`.
 
 ```kotlin
 // before
