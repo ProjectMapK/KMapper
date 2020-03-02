@@ -145,8 +145,7 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
                 .map { KFunctionForCall(
                     it,
                     companionObject
-                ) as KFunctionForCall<T>
-                }
+                ) as KFunctionForCall<T> }
         } ?: emptyList()
 
     val constructors: List<KFunctionForCall<T>> = factoryConstructor + clazz.constructors
