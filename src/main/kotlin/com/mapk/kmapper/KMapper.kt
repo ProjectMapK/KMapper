@@ -39,10 +39,6 @@ class KMapper<T : Any> private constructor(
                     ParameterForMap.newInstance(it)
         }
 
-    init {
-        if (parameterMap.isEmpty()) throw IllegalArgumentException("This function is not require arguments.")
-    }
-
     private fun throwExceptionOnNotInitialized(argumentBucket: ArgumentBucket): Nothing {
         val notInitializedIndexes = argumentBucket.notInitializedParameterIndexes
         function.parameters
@@ -149,8 +145,7 @@ internal fun <T : Any> getTarget(clazz: KClass<T>): KFunctionForCall<T> {
                 .map { KFunctionForCall(
                     it,
                     companionObject
-                ) as KFunctionForCall<T>
-                }
+                ) as KFunctionForCall<T> }
         } ?: emptyList()
 
     val constructors: List<KFunctionForCall<T>> = factoryConstructor + clazz.constructors
