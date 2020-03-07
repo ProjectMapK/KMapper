@@ -2,8 +2,8 @@ package com.mapk.kmapper
 
 import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KGetterAlias
-import com.mapk.annotations.KPropertyAlias
-import com.mapk.annotations.KPropertyIgnore
+import com.mapk.annotations.KGetterIgnore
+import com.mapk.annotations.KParameterAlias
 import com.mapk.core.ArgumentBucket
 import com.mapk.core.EnumMapper
 import com.mapk.core.KFunctionForCall
@@ -35,7 +35,7 @@ class KMapper<T : Any> private constructor(
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE }
         .associate {
-            (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
+            (it.findAnnotation<KParameterAlias>()?.value ?: propertyNameConverter(it.name!!)) to
                     ParameterForMap.newInstance(it)
         }
 
@@ -51,21 +51,26 @@ class KMapper<T : Any> private constructor(
     }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
-        src::class.memberProperties.forEach { property ->
-            val javaGetter: Method? = property.javaGetter
-            if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
-                parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
-                    // javaGetterを呼び出す方が高速
-                    javaGetter.isAccessible = true
-                    argumentBucket.setArgument(javaGetter.invoke(src)?.let { value ->
-                        mapObject(
-                            it,
-                            value
-                        )
-                    }, it.index)
-                    // 終了判定
-                    if (argumentBucket.isInitialized) return
-                }
+        src::class.memberProperties.forEach outer@{ property ->
+            // propertyが公開されていない場合は処理を行わない
+            if (property.visibility != KVisibility.PUBLIC) return@outer
+
+            // ゲッターが取れない場合は処理を行わない
+            val javaGetter: Method = property.javaGetter ?: return@outer
+
+            var alias: String? = null
+            // NOTE: IgnoreとAliasが同時に指定されるようなパターンを考慮してaliasが取れてもbreakしていない
+            javaGetter.annotations.forEach {
+                if (it is KGetterIgnore) return@outer // ignoreされている場合は処理を行わない
+                if (it is KGetterAlias) alias = it.value
+            }
+
+            parameterMap[alias ?: property.name]?.let {
+                // javaGetterを呼び出す方が高速
+                javaGetter.isAccessible = true
+                argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
+                // 終了判定
+                if (argumentBucket.isInitialized) return
             }
         }
     }

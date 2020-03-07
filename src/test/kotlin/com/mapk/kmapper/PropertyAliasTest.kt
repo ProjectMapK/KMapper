@@ -1,24 +1,24 @@
 package com.mapk.kmapper
 
 import com.mapk.annotations.KGetterAlias
-import com.mapk.annotations.KPropertyAlias
+import com.mapk.annotations.KParameterAlias
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 private data class AliasedDst(
     val arg1: Double,
-    @param:KPropertyAlias("arg3") val arg2: Int
+    @param:KParameterAlias("arg3") val arg2: Int
 )
 
 private data class AliasedSrc(
-    @KGetterAlias("arg1")
+    @get:KGetterAlias("arg1")
     val arg2: Double,
     val arg3: Int
 )
 
 @DisplayName("エイリアスを貼った場合のテスト")
-class ParamAliasTest {
+class PropertyAliasTest {
     @Test
     @DisplayName("パラメータにエイリアスを貼った場合")
     fun paramAliasTest() {
