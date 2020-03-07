@@ -59,7 +59,7 @@ class KMapper<T : Any> private constructor(
             val javaGetter: Method = property.javaGetter ?: return@outer
 
             var alias: String? = null
-            // NOTE: IgnoreとAliasが同時に指定されるようなパターンを考慮してbreakしていない、アノテーションは数も限られると考えれば影響は無いはず
+            // NOTE: IgnoreとAliasが同時に指定されるようなパターンを考慮してaliasが取れてもbreakしていない
             javaGetter.annotations.forEach {
                 if (it is KGetterIgnore) return@outer // ignoreされている場合は処理を行わない
                 if (it is KGetterAlias) alias = it.value
