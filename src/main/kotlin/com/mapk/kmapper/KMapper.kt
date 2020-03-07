@@ -52,8 +52,11 @@ class KMapper<T : Any> private constructor(
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach { property ->
+            // propertyが公開されていない場合は処理を行わない
+            if (property.visibility != KVisibility.PUBLIC) return
+
             val javaGetter: Method? = property.javaGetter
-            if (javaGetter != null && property.visibility == KVisibility.PUBLIC && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
+            if (javaGetter != null && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
                 parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
