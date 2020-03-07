@@ -61,7 +61,7 @@ class KMapper<T : Any> private constructor(
             var alias: String? = null
             // NOTE: IgnoreとAliasが同時に指定されるようなパターンを考慮してbreakしていない、アノテーションは数も限られると考えれば影響は無いはず
             javaGetter.annotations.forEach {
-                if (it is KGetterIgnore) return@outer
+                if (it is KGetterIgnore) return@outer // ignoreされている場合は処理を行わない
                 if (it is KGetterAlias) alias = it.value
             }
 
