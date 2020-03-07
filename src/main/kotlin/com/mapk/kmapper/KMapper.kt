@@ -2,8 +2,8 @@ package com.mapk.kmapper
 
 import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KGetterAlias
+import com.mapk.annotations.KGetterIgnore
 import com.mapk.annotations.KParameterAlias
-import com.mapk.annotations.KPropertyIgnore
 import com.mapk.core.ArgumentBucket
 import com.mapk.core.EnumMapper
 import com.mapk.core.KFunctionForCall
@@ -56,7 +56,7 @@ class KMapper<T : Any> private constructor(
             if (property.visibility != KVisibility.PUBLIC) return
 
             val javaGetter: Method? = property.javaGetter
-            if (javaGetter != null && property.annotations.none { annotation -> annotation is KPropertyIgnore }) {
+            if (javaGetter != null && javaGetter.annotations.none { annotation -> annotation is KGetterIgnore }) {
                 parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
