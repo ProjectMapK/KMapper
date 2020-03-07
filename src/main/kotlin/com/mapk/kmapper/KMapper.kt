@@ -51,19 +51,26 @@ class KMapper<T : Any> private constructor(
     }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
-        src::class.memberProperties.forEach { property ->
+        src::class.memberProperties.forEach outer@{ property ->
             // propertyが公開されていない場合は処理を行わない
-            if (property.visibility != KVisibility.PUBLIC) return
+            if (property.visibility != KVisibility.PUBLIC) return@outer
 
-            val javaGetter: Method? = property.javaGetter
-            if (javaGetter != null && javaGetter.annotations.none { annotation -> annotation is KGetterIgnore }) {
-                parameterMap[javaGetter.getAnnotation(KGetterAlias::class.java)?.value ?: property.name]?.let {
-                    // javaGetterを呼び出す方が高速
-                    javaGetter.isAccessible = true
-                    argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
-                    // 終了判定
-                    if (argumentBucket.isInitialized) return
-                }
+            // ゲッターが取れない場合は処理を行わない
+            val javaGetter: Method = property.javaGetter ?: return@outer
+
+            var alias: String? = null
+            // NOTE: IgnoreとAliasが同時に指定されるようなパターンを考慮してbreakしていない、アノテーションは数も限られると考えれば影響は無いはず
+            javaGetter.annotations.forEach {
+                if (it is KGetterIgnore) return@outer
+                if (it is KGetterAlias) alias = it.value
+            }
+
+            parameterMap[alias ?: property.name]?.let {
+                // javaGetterを呼び出す方が高速
+                javaGetter.isAccessible = true
+                argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
+                // 終了判定
+                if (argumentBucket.isInitialized) return
             }
         }
     }
