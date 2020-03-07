@@ -2,7 +2,7 @@ package com.mapk.kmapper
 
 import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KGetterAlias
-import com.mapk.annotations.KPropertyAlias
+import com.mapk.annotations.KParameterAlias
 import com.mapk.annotations.KPropertyIgnore
 import com.mapk.core.ArgumentBucket
 import com.mapk.core.EnumMapper
@@ -35,7 +35,7 @@ class KMapper<T : Any> private constructor(
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE }
         .associate {
-            (it.findAnnotation<KPropertyAlias>()?.value ?: propertyNameConverter(it.name!!)) to
+            (it.findAnnotation<KParameterAlias>()?.value ?: propertyNameConverter(it.name!!)) to
                     ParameterForMap.newInstance(it)
         }
 
