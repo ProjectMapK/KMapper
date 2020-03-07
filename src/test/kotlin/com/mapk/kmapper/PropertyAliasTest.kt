@@ -18,7 +18,7 @@ private data class AliasedSrc(
 )
 
 @DisplayName("エイリアスを貼った場合のテスト")
-class ParamAliasTest {
+class PropertyAliasTest {
     @Test
     @DisplayName("パラメータにエイリアスを貼った場合")
     fun paramAliasTest() {
