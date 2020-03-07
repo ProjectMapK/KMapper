@@ -1,6 +1,6 @@
 package com.mapk.annotations
 
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
-annotation class KPropertyIgnore
+annotation class KGetterIgnore
