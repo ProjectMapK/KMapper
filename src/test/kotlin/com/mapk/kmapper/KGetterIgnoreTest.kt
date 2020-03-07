@@ -1,14 +1,14 @@
 package com.mapk.kmapper
 
-import com.mapk.annotations.KPropertyIgnore
+import com.mapk.annotations.KGetterIgnore
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-class KPropertyIgnoreTest {
-    data class Src1(val arg1: Int, val arg2: String, @KPropertyIgnore val arg3: Short)
-    data class Src2(@KPropertyIgnore val arg2: String, val arg3: Int, val arg4: String)
+class KGetterIgnoreTest {
+    data class Src1(val arg1: Int, val arg2: String, @get:KGetterIgnore val arg3: Short)
+    data class Src2(@get:KGetterIgnore val arg2: String, val arg3: Int, val arg4: String)
 
     data class Dst(val arg1: Int, val arg2: String, val arg3: Int, val arg4: String)
 
