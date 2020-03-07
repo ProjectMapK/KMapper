@@ -12,7 +12,7 @@ private data class AliasedDst(
 )
 
 private data class AliasedSrc(
-    @KGetterAlias("arg1")
+    @get:KGetterAlias("arg1")
     val arg2: Double,
     val arg3: Int
 )
