@@ -60,12 +60,7 @@ class KMapper<T : Any> private constructor(
                 parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
-                    argumentBucket.setArgument(javaGetter.invoke(src)?.let { value ->
-                        mapObject(
-                            it,
-                            value
-                        )
-                    }, it.index)
+                    argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
                     // 終了判定
                     if (argumentBucket.isInitialized) return
                 }
