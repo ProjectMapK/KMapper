@@ -57,7 +57,7 @@ class KMapper<T : Any> private constructor(
 
             val javaGetter: Method? = property.javaGetter
             if (javaGetter != null && javaGetter.annotations.none { annotation -> annotation is KGetterIgnore }) {
-                parameterMap[property.findAnnotation<KGetterAlias>()?.value ?: property.name]?.let {
+                parameterMap[javaGetter.getAnnotation(KGetterAlias::class.java)?.value ?: property.name]?.let {
                     // javaGetterを呼び出す方が高速
                     javaGetter.isAccessible = true
                     argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
