@@ -90,8 +90,6 @@ class KMapper<T : Any> private constructor(
         val bucket: ArgumentBucket = function.getArgumentBucket()
         bindArguments(bucket, srcMap)
 
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
-
         return function.call(bucket)
     }
 
@@ -99,16 +97,12 @@ class KMapper<T : Any> private constructor(
         val bucket: ArgumentBucket = function.getArgumentBucket()
         bindArguments(bucket, srcPair)
 
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
-
         return function.call(bucket)
     }
 
     fun map(src: Any): T {
         val bucket: ArgumentBucket = function.getArgumentBucket()
         bindArguments(bucket, src)
-
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
 
         return function.call(bucket)
     }
@@ -123,8 +117,6 @@ class KMapper<T : Any> private constructor(
                 else -> bindArguments(bucket, arg)
             }
         }
-
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
 
         return function.call(bucket)
     }
