@@ -39,17 +39,6 @@ class KMapper<T : Any> private constructor(
                     ParameterForMap.newInstance(it)
         }
 
-    private fun throwExceptionOnNotInitialized(argumentBucket: ArgumentBucket): Nothing {
-        val notInitializedIndexes = argumentBucket.notInitializedParameterIndexes
-        function.parameters
-            .filter { it.index in notInitializedIndexes }
-            .map { it.name }
-            .joinToString(", ")
-            .let {
-                throw IllegalArgumentException("Not passed arguments: $it")
-            }
-    }
-
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
             // propertyが公開されていない場合は処理を行わない
