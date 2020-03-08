@@ -39,17 +39,6 @@ class KMapper<T : Any> private constructor(
                     ParameterForMap.newInstance(it)
         }
 
-    private fun throwExceptionOnNotInitialized(argumentBucket: ArgumentBucket): Nothing {
-        val notInitializedIndexes = argumentBucket.notInitializedParameterIndexes
-        function.parameters
-            .filter { it.index in notInitializedIndexes }
-            .map { it.name }
-            .joinToString(", ")
-            .let {
-                throw IllegalArgumentException("Not passed arguments: $it")
-            }
-    }
-
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
             // propertyが公開されていない場合は処理を行わない
@@ -68,7 +57,7 @@ class KMapper<T : Any> private constructor(
             parameterMap[alias ?: property.name]?.let {
                 // javaGetterを呼び出す方が高速
                 javaGetter.isAccessible = true
-                argumentBucket.setArgument(javaGetter.invoke(src)?.let { value -> mapObject(it, value) }, it.index)
+                argumentBucket.setArgument(it.param, javaGetter.invoke(src)?.let { value -> mapObject(it, value) })
                 // 終了判定
                 if (argumentBucket.isInitialized) return
             }
@@ -79,7 +68,7 @@ class KMapper<T : Any> private constructor(
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                argumentBucket.setArgument(value?.let { mapObject(param, it) }, param.index)
+                argumentBucket.setArgument(param.param, value?.let { mapObject(param, it) })
                 // 終了判定
                 if (argumentBucket.isInitialized) return
             }
@@ -88,20 +77,13 @@ class KMapper<T : Any> private constructor(
 
     private fun bindArguments(argumentBucket: ArgumentBucket, srcPair: Pair<*, *>) {
         parameterMap[srcPair.first.toString()]?.let {
-            argumentBucket.setArgument(srcPair.second?.let { value ->
-                mapObject(
-                    it,
-                    value
-                )
-            }, it.index)
+            argumentBucket.setArgument(it.param, srcPair.second?.let { value -> mapObject(it, value) })
         }
     }
 
     fun map(srcMap: Map<String, Any?>): T {
         val bucket: ArgumentBucket = function.getArgumentBucket()
         bindArguments(bucket, srcMap)
-
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
 
         return function.call(bucket)
     }
@@ -110,16 +92,12 @@ class KMapper<T : Any> private constructor(
         val bucket: ArgumentBucket = function.getArgumentBucket()
         bindArguments(bucket, srcPair)
 
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
-
         return function.call(bucket)
     }
 
     fun map(src: Any): T {
         val bucket: ArgumentBucket = function.getArgumentBucket()
         bindArguments(bucket, src)
-
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
 
         return function.call(bucket)
     }
@@ -134,8 +112,6 @@ class KMapper<T : Any> private constructor(
                 else -> bindArguments(bucket, arg)
             }
         }
-
-        if (!bucket.isInitialized) throwExceptionOnNotInitialized(bucket)
 
         return function.call(bucket)
     }

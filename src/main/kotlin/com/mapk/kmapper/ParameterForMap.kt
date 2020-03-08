@@ -11,7 +11,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
-internal class ParameterForMap<T : Any> private constructor(val index: Int, val clazz: KClass<T>) {
+internal class ParameterForMap<T : Any> private constructor(val param: KParameter, val clazz: KClass<T>) {
     val javaClazz: Class<T> by lazy {
         clazz.java
     }
@@ -28,7 +28,7 @@ internal class ParameterForMap<T : Any> private constructor(val index: Int, val 
 
     companion object {
         fun newInstance(param: KParameter): ParameterForMap<*> {
-            return ParameterForMap(param.index, param.type.classifier as KClass<*>)
+            return ParameterForMap(param, param.type.classifier as KClass<*>)
         }
     }
 }
