@@ -3,17 +3,16 @@ package com.mapk.kmapper
 import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KGetterAlias
 import com.mapk.annotations.KGetterIgnore
-import com.mapk.annotations.KParameterAlias
 import com.mapk.core.ArgumentBucket
 import com.mapk.core.EnumMapper
 import com.mapk.core.KFunctionForCall
+import com.mapk.core.getAliasOrName
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.companionObjectInstance
-import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
@@ -34,10 +33,7 @@ class KMapper<T : Any> private constructor(
 
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE }
-        .associate {
-            (it.findAnnotation<KParameterAlias>()?.value ?: propertyNameConverter(it.name!!)) to
-                    ParameterForMap.newInstance(it)
-        }
+        .associate { (propertyNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
