@@ -30,7 +30,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
-    implementation("com.github.ProjectMapK:Shared:0.6")
+    api("com.github.ProjectMapK:Shared:0.7")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.0") {
