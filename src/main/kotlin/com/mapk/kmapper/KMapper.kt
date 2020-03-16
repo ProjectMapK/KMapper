@@ -6,6 +6,7 @@ import com.mapk.core.ArgumentBucket
 import com.mapk.core.EnumMapper
 import com.mapk.core.KFunctionForCall
 import com.mapk.core.getAliasOrName
+import com.mapk.core.isUseDefaultArgument
 import com.mapk.core.toKConstructor
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
@@ -29,7 +30,7 @@ class KMapper<T : Any> private constructor(
     )
 
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
-        .filter { it.kind != KParameter.Kind.INSTANCE }
+        .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
         .associate { (propertyNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
