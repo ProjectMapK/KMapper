@@ -16,15 +16,15 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
         clazz.java
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
-    private val creators: Set<Pair<KClass<*>, KFunction<T>>> by lazy {
-        creatorsFromConstructors(clazz) + creatorsFromStaticMethods(
+    private val converters: Set<Pair<KClass<*>, KFunction<T>>> by lazy {
+        convertersFromConstructors(clazz) + convertersFromStaticMethods(
             clazz
-        ) + creatorsFromCompanionObject(clazz)
+        ) + convertersFromCompanionObject(clazz)
     }
 
-    // 引数の型がcreatorに対して入力可能ならcreatorを返す
-    fun <R : Any> getCreator(input: KClass<out R>): KFunction<T>? =
-        creators.find { (key, _) -> input.isSubclassOf(key) }?.second
+    // 引数の型がconverterに対して入力可能ならconverterを返す
+    fun <R : Any> getConverter(input: KClass<out R>): KFunction<T>? =
+        converters.find { (key, _) -> input.isSubclassOf(key) }?.second
 
     companion object {
         fun newInstance(param: KParameter): ParameterForMap<*> {
@@ -42,19 +42,19 @@ private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pai
         }.toSet()
 }
 
-private fun <T : Any> creatorsFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
+private fun <T : Any> convertersFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     return clazz.constructors.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> creatorsFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
+private fun <T : Any> convertersFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     val staticFunctions: Collection<KFunction<T>> = clazz.staticFunctions as Collection<KFunction<T>>
 
     return staticFunctions.getConverterMapFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> creatorsFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
+private fun <T : Any> convertersFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     return clazz.companionObjectInstance?.let { companionObject ->
         companionObject::class.functions
             .filter { it.annotations.any { annotation -> annotation is KConverter } }
