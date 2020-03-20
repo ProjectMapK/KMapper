@@ -76,18 +76,18 @@ val dst: Dst = KMapper(::DataClass) { camelToSnake(it) }.map(src)
 ### Map param to another class
 
 ```kotlin
-class CreatorClass @SingleArgCreator constructor(val arg: String) {
+class ConverterClass @KConverter constructor(val arg: String) {
   companion object {
     @KConverter
-    fun fromInt(arg: Int): CreatorClass {
-      return CreatorClass(arg.toString)
+    fun fromInt(arg: Int): ConverterClass {
+      return ConverterClass(arg.toString)
     }
   }
 }
 
 class Src(val arg1: String, val arg2: Int)
 
-class Dst(val arg1: CreatorClass, val arg2: CreatorClass)
+class Dst(val arg1: ConverterClass, val arg2: ConverterClass)
 
 val newInstance = KMapper(::Dst).map(src)
 ```

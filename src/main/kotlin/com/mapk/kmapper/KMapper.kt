@@ -117,11 +117,11 @@ private fun <T : Any, R : Any> mapObject(param: ParameterForMap<R>, value: T): A
     // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
     if (param.clazz.isSuperclassOf(valueClazz)) return value
 
-    val creator: KFunction<*>? = param.getCreator(valueClazz)
+    val converter: KFunction<*>? = param.getConverter(valueClazz)
 
     return when {
-        // creatorに一致する組み合わせが有れば設定されていればそれを使う
-        creator != null -> creator.call(value)
+        // converterに一致する組み合わせが有れば設定されていればそれを使う
+        converter != null -> converter.call(value)
         // 要求された値がenumかつ元が文字列ならenum mapperでマップ
         param.javaClazz.isEnum && value is String -> EnumMapper.getEnum(param.clazz.java, value)
         // 要求されているパラメータがStringならtoStringする
