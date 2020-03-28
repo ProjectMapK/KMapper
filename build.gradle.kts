@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.mapk"
-version = "0.17"
+version = "0.18"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
