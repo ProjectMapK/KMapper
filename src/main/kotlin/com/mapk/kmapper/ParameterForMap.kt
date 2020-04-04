@@ -17,9 +17,7 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
     private val converters: Set<Pair<KClass<*>, KFunction<T>>> by lazy {
-        convertersFromConstructors(clazz) + convertersFromStaticMethods(
-            clazz
-        ) + convertersFromCompanionObject(clazz)
+        convertersFromConstructors(clazz) + convertersFromStaticMethods(clazz) + convertersFromCompanionObject(clazz)
     }
 
     // 引数の型がconverterに対して入力可能ならconverterを返す
