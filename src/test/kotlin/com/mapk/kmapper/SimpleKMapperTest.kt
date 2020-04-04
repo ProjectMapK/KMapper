@@ -50,7 +50,7 @@ class SimpleDstExt(
     }
 }
 
-private data class Src1(
+data class Src1(
     val arg2: String?
 ) {
     val arg1: Int = arg2?.length ?: 0
@@ -193,6 +193,42 @@ class SimpleKMapperTest {
                     assertEquals(null, it.arg2)
                     assertEquals(two, it.arg3)
                 }
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("BoundKMapper")
+    inner class BoundKMapperTest {
+        @Nested
+        @DisplayName("インスタンスからマップ")
+        inner class FromInstance {
+            private val mapper = BoundKMapper(::SimpleDst, Src1::class)
+
+            @Test
+            @DisplayName("Nullを含まない場合")
+            fun testWithoutNull() {
+                val stringValue = "value"
+
+                val src = Src1(stringValue)
+
+                val dst = mapper.map(src)
+
+                assertEquals(stringValue.length, dst.arg1)
+                assertEquals(stringValue, dst.arg2)
+                assertEquals(stringValue.length.toByte(), dst.arg3)
+            }
+
+            @Test
+            @DisplayName("Nullを含む場合")
+            fun testContainsNull() {
+                val src = Src1(null)
+
+                val dst = mapper.map(src)
+
+                assertEquals(0, dst.arg1)
+                assertEquals(null, dst.arg2)
+                assertEquals(0.toByte(), dst.arg3)
             }
         }
     }
