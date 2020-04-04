@@ -5,9 +5,11 @@ import com.mapk.annotations.KGetterIgnore
 import com.mapk.core.ArgumentBucket
 import com.mapk.core.KFunctionForCall
 import com.mapk.core.getAliasOrName
+import com.mapk.core.isUseDefaultArgument
 import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.findAnnotation
@@ -34,18 +36,20 @@ class BoundKMapper<S : Any, D> private constructor(
                             it.getter.annotations.none { annotation -> annotation is KGetterIgnore }
                 }.associateBy { it.getter.findAnnotation<KGetterAlias>()?.value ?: it.name }
 
-        parameters = function.parameters.mapNotNull {
-            val temp = srcPropertiesMap[parameterNameConverter(it.getAliasOrName()!!)]?.let { property ->
-                BoundParameterForMap(it, property)
-            }
+        parameters = function.parameters
+            .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
+            .mapNotNull {
+                val temp = srcPropertiesMap[parameterNameConverter(it.getAliasOrName()!!)]?.let { property ->
+                    BoundParameterForMap(it, property)
+                }
 
-            // 必須引数に対応するプロパティがsrcに定義されていない場合エラー
-            if (temp == null && !it.isOptional) {
-                throw IllegalArgumentException("Property ${it.name!!} is not declared in ${src.jvmName}.")
-            }
+                // 必須引数に対応するプロパティがsrcに定義されていない場合エラー
+                if (temp == null && !it.isOptional) {
+                    throw IllegalArgumentException("Property ${it.name!!} is not declared in ${src.jvmName}.")
+                }
 
-            temp
-        }
+                temp
+            }
     }
 
     fun map(src: S): D {
