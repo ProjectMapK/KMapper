@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test
 
 private class CamelCaseDst(val camelCase: String)
 
-@DisplayName("プロパティ名変換のテスト")
-class PropertyNameConverterTest {
+@DisplayName("パラメータ名変換のテスト")
+class ParameterNameConverterTest {
     @Test
     @DisplayName("スネークケースsrc -> キャメルケースdst")
     fun test() {
