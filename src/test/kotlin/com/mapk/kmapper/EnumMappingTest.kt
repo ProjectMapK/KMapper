@@ -29,4 +29,20 @@ class EnumMappingTest {
             assertEquals(language, result.language)
         }
     }
+
+    data class BoundSrc(val language: String)
+
+    @Nested
+    @DisplayName("BoundKMapper")
+    inner class BoundKMapperTest {
+        private val mapper = BoundKMapper(::EnumMappingDst, BoundSrc::class)
+
+        @ParameterizedTest(name = "Non-Null要求")
+        @EnumSource(value = JvmLanguage::class)
+        fun test(language: JvmLanguage) {
+            val result = mapper.map(BoundSrc(language.name))
+
+            assertEquals(language, result.language)
+        }
+    }
 }
