@@ -19,7 +19,7 @@ import kotlin.reflect.jvm.javaGetter
 
 class KMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
-    propertyNameConverter: (String) -> String = { it }
+    parameterNameConverter: (String) -> String = { it }
 ) {
     constructor(function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) : this(
         KFunctionForCall(function), propertyNameConverter
@@ -31,7 +31,7 @@ class KMapper<T : Any> private constructor(
 
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate { (propertyNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
+        .associate { (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
