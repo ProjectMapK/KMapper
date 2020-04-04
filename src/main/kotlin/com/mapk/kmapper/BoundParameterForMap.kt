@@ -25,9 +25,9 @@ internal class BoundParameterForMap<S : Any>(val param: KParameter, property: KP
         map = when {
             paramClazz.isSubclassOf(propertyClazz) -> { { propertyGetter.invoke(it) } }
             paramClazz.java.isEnum && propertyClazz == String::class -> { {
-                EnumMapper.getEnum(paramClazz.java, it as String)
+                EnumMapper.getEnum(paramClazz.java, propertyGetter.invoke(it) as String)
             } }
-            propertyClazz == String::class -> { { it.toString() } }
+            propertyClazz == String::class -> { { propertyGetter.invoke(it).toString() } }
             else -> throw IllegalArgumentException("Can not convert $propertyClazz to $paramClazz")
         }
     }
