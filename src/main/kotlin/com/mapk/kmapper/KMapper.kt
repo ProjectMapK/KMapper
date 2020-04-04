@@ -19,7 +19,7 @@ import kotlin.reflect.jvm.javaGetter
 
 class KMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
-    parameterNameConverter: (String) -> String = { it }
+    parameterNameConverter: (String) -> String
 ) {
     constructor(function: KFunction<T>, propertyNameConverter: (String) -> String = { it }) : this(
         KFunctionForCall(function), propertyNameConverter
