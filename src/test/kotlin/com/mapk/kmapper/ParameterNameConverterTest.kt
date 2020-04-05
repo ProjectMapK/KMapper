@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-private class CamelCaseDst(val camelCase: String)
+private data class CamelCaseDst(val camelCase: String)
 
 @DisplayName("パラメータ名変換のテスト")
 class ParameterNameConverterTest {
