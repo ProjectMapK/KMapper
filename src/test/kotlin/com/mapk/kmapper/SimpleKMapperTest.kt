@@ -4,11 +4,17 @@ package com.mapk.kmapper
 
 import com.mapk.annotations.KConstructor
 import java.math.BigInteger
+import java.util.stream.Stream
 import kotlin.reflect.full.isSubclassOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.Arguments.arguments
+import org.junit.jupiter.params.provider.MethodSource
 
 open class SimpleDst(
     val arg1: Int,
@@ -199,15 +205,20 @@ class SimpleKMapperTest {
 
     @Nested
     @DisplayName("BoundKMapper")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class BoundKMapperTest {
         @Nested
         @DisplayName("インスタンスからマップ")
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         inner class FromInstance {
-            private val mapper = BoundKMapper(::SimpleDst, Src1::class)
+            fun boundKMapperProvider(): Stream<Arguments> = Stream.of(
+                arguments("from method reference", BoundKMapper(::SimpleDst, Src1::class)),
+                arguments("from class", BoundKMapper(SimpleDst::class, Src1::class))
+            )
 
-            @Test
-            @DisplayName("Nullを含まない場合")
-            fun testWithoutNull() {
+            @ParameterizedTest(name = "Nullを含まない場合")
+            @MethodSource("boundKMapperProvider")
+            fun testWithoutNull(name: String, mapper: BoundKMapper<Src1, SimpleDst>) {
                 val stringValue = "value"
 
                 val src = Src1(stringValue)
@@ -219,9 +230,9 @@ class SimpleKMapperTest {
                 assertEquals(stringValue.length.toByte(), dst.arg3)
             }
 
-            @Test
-            @DisplayName("Nullを含む場合")
-            fun testContainsNull() {
+            @ParameterizedTest(name = "Nullを含む場合")
+            @MethodSource("boundKMapperProvider")
+            fun testContainsNull(name: String, mapper: BoundKMapper<Src1, SimpleDst>) {
                 val src = Src1(null)
 
                 val dst = mapper.map(src)
