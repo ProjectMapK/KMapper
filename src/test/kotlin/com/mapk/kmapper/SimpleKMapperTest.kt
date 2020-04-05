@@ -218,7 +218,10 @@ class SimpleKMapperTest {
 
             @ParameterizedTest(name = "Nullを含まない場合")
             @MethodSource("boundKMapperProvider")
-            fun testWithoutNull(name: String, mapper: BoundKMapper<Src1, SimpleDst>) {
+            fun testWithoutNull(
+                @Suppress("UNUSED_PARAMETER") name: String,
+                mapper: BoundKMapper<Src1, SimpleDst>
+            ) {
                 val stringValue = "value"
 
                 val src = Src1(stringValue)
@@ -232,7 +235,10 @@ class SimpleKMapperTest {
 
             @ParameterizedTest(name = "Nullを含む場合")
             @MethodSource("boundKMapperProvider")
-            fun testContainsNull(name: String, mapper: BoundKMapper<Src1, SimpleDst>) {
+            fun testContainsNull(
+                @Suppress("UNUSED_PARAMETER") name: String,
+                mapper: BoundKMapper<Src1, SimpleDst>
+            ) {
                 val src = Src1(null)
 
                 val dst = mapper.map(src)
