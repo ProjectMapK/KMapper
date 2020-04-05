@@ -10,7 +10,7 @@ private data class StringMappingDst(val value: String)
 @DisplayName("文字列に対してtoStringしたものを渡すテスト")
 class StringMappingTest {
     @Nested
-    @DisplayName("KMapperの場合")
+    @DisplayName("KMapper")
     inner class KMapperTest {
         @Test
         fun test() {
