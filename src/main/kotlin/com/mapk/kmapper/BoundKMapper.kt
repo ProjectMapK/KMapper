@@ -6,6 +6,7 @@ import com.mapk.core.ArgumentBucket
 import com.mapk.core.KFunctionForCall
 import com.mapk.core.getAliasOrName
 import com.mapk.core.isUseDefaultArgument
+import com.mapk.core.toKConstructor
 import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -16,13 +17,17 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.jvmName
 
-class BoundKMapper<S : Any, D> private constructor(
+class BoundKMapper<S : Any, D : Any> private constructor(
     private val function: KFunctionForCall<D>,
     src: KClass<S>,
     parameterNameConverter: (String) -> String = { it }
 ) {
     constructor(function: KFunction<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
         KFunctionForCall(function), src, parameterNameConverter
+    )
+
+    constructor(clazz: KClass<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
+        clazz.toKConstructor(), src, parameterNameConverter
     )
 
     private val parameters: List<BoundParameterForMap<S>>
