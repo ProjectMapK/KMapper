@@ -48,4 +48,18 @@ class PropertyAliasTest {
             assertEquals(2, result.arg2)
         }
     }
+
+    @Nested
+    @DisplayName("BoundKMapper")
+    inner class BoundKMapperTest {
+        @Test
+        @DisplayName("パラメータとゲッターそれぞれエイリアス有りでのマッピング")
+        fun test() {
+            val mapper = BoundKMapper(::AliasedDst, AliasedSrc::class)
+
+            val result = mapper.map(AliasedSrc(2.2, 100))
+
+            assertEquals(AliasedDst(2.2, 100), result)
+        }
+    }
 }
