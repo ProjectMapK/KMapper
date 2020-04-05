@@ -25,6 +25,10 @@ class CompanionConverter private constructor(val arg: String) {
 
 private data class StaticMethodConverterDst(val argument: StaticMethodConverter)
 
+private data class BoundConstructorConverterSrc(val argument: Int)
+private data class BoundCompanionConverterSrc(val argument: String)
+private data class BoundStaticMethodConverterSrc(val argument: String)
+
 @DisplayName("コンバータ有りでのマッピングテスト")
 class ConverterKMapperTest {
     @Nested
@@ -53,6 +57,37 @@ class ConverterKMapperTest {
         fun staticMethodConverterTest() {
             val mapper = KMapper(StaticMethodConverterDst::class)
             val result = mapper.map(mapOf("argument" to "1,2,3"))
+
+            assertTrue(intArrayOf(1, 2, 3) contentEquals result.argument.arg)
+        }
+    }
+
+    @Nested
+    @DisplayName("BoundKMapper")
+    inner class BoundKMapperTest {
+        @Test
+        @DisplayName("コンストラクターでのコンバートテスト")
+        fun constructorConverterTest() {
+            val mapper = BoundKMapper(::ConstructorConverterDst, BoundConstructorConverterSrc::class)
+            val result = mapper.map(BoundConstructorConverterSrc(1))
+
+            assertEquals(ConstructorConverter(1), result.argument)
+        }
+
+        @Test
+        @DisplayName("コンパニオンオブジェクトに定義したコンバータでのコンバートテスト")
+        fun companionConverterTest() {
+            val mapper = BoundKMapper(::CompanionConverterDst, BoundCompanionConverterSrc::class)
+            val result = mapper.map(BoundCompanionConverterSrc("arg"))
+
+            assertEquals("arg", result.argument.arg)
+        }
+
+        @Test
+        @DisplayName("スタティックメソッドに定義したコンバータでのコンバートテスト")
+        fun staticMethodConverterTest() {
+            val mapper = BoundKMapper(::StaticMethodConverterDst, BoundStaticMethodConverterSrc::class)
+            val result = mapper.map(BoundStaticMethodConverterSrc("1,2,3"))
 
             assertTrue(intArrayOf(1, 2, 3) contentEquals result.argument.arg)
         }

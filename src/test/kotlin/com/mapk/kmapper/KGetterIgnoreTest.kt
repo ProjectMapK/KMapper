@@ -31,4 +31,21 @@ class KGetterIgnoreTest {
             assertEquals(Dst(1, "2-1", 32, "4"), dst1)
         }
     }
+
+    data class BoundSrc(val arg1: Int, val arg2: Short, @get:KGetterIgnore val arg3: String)
+    data class BoundDst(val arg1: Int, val arg2: Short, val arg3: String = "default")
+
+    @Nested
+    @DisplayName("BoundKMapper")
+    inner class BoundKMapperTest {
+        @Test
+        @DisplayName("フィールドを無視するテスト")
+        fun test() {
+            val mapper = BoundKMapper(::BoundDst, BoundSrc::class)
+
+            val result = mapper.map(BoundSrc(1, 2, "arg3"))
+
+            assertEquals(BoundDst(1, 2, "default"), result)
+        }
+    }
 }

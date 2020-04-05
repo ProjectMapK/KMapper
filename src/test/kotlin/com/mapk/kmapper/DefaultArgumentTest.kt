@@ -11,14 +11,24 @@ class DefaultArgumentTest {
     data class Dst(val fooArgument: Int, @param:KUseDefaultArgument val barArgument: String = "default")
     data class Src(val fooArgument: Int, val barArgument: String)
 
+    private val src = Src(1, "src")
+
     @Nested
     @DisplayName("KMapper")
     inner class KMapperTest {
         @Test
         fun test() {
-            val src = Src(1, "src")
-
             val result = KMapper(::Dst).map(src)
+            assertEquals(Dst(1, "default"), result)
+        }
+    }
+
+    @Nested
+    @DisplayName("BoundKMapper")
+    inner class BoundKMapperTest {
+        @Test
+        fun test() {
+            val result = BoundKMapper(::Dst, Src::class).map(src)
             assertEquals(Dst(1, "default"), result)
         }
     }
