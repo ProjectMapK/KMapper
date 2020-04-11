@@ -12,7 +12,7 @@ private data class BoundSrc(val camel_case: String)
 @DisplayName("パラメータ名変換のテスト")
 class ParameterNameConverterTest {
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         @DisplayName("スネークケースsrc -> キャメルケースdst")
@@ -20,7 +20,7 @@ class ParameterNameConverterTest {
             val expected = "snakeCase"
             val src = mapOf("camel_case" to expected)
 
-            val mapper = KMapper(CamelCaseDst::class) {
+            val mapper = PlainKMapper(CamelCaseDst::class) {
                 CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, it)
             }
             val result = mapper.map(src)

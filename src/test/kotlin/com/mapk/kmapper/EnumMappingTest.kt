@@ -17,9 +17,9 @@ private class EnumMappingDst(val language: JvmLanguage?)
 @DisplayName("文字列 -> Enumのマッピングテスト")
 class EnumMappingTest {
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
-        private val mapper = KMapper(EnumMappingDst::class)
+        private val mapper = PlainKMapper(EnumMappingDst::class)
 
         @ParameterizedTest(name = "Non-Null要求")
         @EnumSource(value = JvmLanguage::class)

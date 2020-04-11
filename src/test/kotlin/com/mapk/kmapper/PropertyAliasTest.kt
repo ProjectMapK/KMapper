@@ -21,7 +21,7 @@ private data class AliasedSrc(
 @DisplayName("エイリアスを貼った場合のテスト")
 class PropertyAliasTest {
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         @DisplayName("パラメータにエイリアスを貼った場合")
@@ -32,7 +32,7 @@ class PropertyAliasTest {
                 "arg3" to 3
             )
 
-            val result = KMapper(::AliasedDst).map(src)
+            val result = PlainKMapper(::AliasedDst).map(src)
 
             assertEquals(1.0, result.arg1)
             assertEquals(3, result.arg2)
@@ -42,7 +42,7 @@ class PropertyAliasTest {
         @DisplayName("ゲッターにエイリアスを貼った場合")
         fun getAliasTest() {
             val src = AliasedSrc(1.0, 2)
-            val result = KMapper(::AliasedDst).map(src)
+            val result = PlainKMapper(::AliasedDst).map(src)
 
             assertEquals(1.0, result.arg1)
             assertEquals(2, result.arg2)

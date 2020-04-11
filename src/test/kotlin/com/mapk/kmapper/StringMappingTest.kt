@@ -11,11 +11,11 @@ private data class BoundMappingSrc(val value: Int)
 @DisplayName("文字列に対してtoStringしたものを渡すテスト")
 class StringMappingTest {
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         fun test() {
-            val result: StringMappingDst = KMapper(StringMappingDst::class).map("value" to 1)
+            val result: StringMappingDst = PlainKMapper(StringMappingDst::class).map("value" to 1)
             assertEquals("1", result.value)
         }
     }

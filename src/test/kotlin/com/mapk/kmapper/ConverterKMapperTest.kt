@@ -32,12 +32,12 @@ private data class BoundStaticMethodConverterSrc(val argument: String)
 @DisplayName("コンバータ有りでのマッピングテスト")
 class ConverterKMapperTest {
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         @DisplayName("コンストラクターでのコンバートテスト")
         fun constructorConverterTest() {
-            val mapper = KMapper(ConstructorConverterDst::class)
+            val mapper = PlainKMapper(ConstructorConverterDst::class)
             val result = mapper.map(mapOf("argument" to 1))
 
             assertEquals(ConstructorConverter(1), result.argument)
@@ -46,7 +46,7 @@ class ConverterKMapperTest {
         @Test
         @DisplayName("コンパニオンオブジェクトに定義したコンバータでのコンバートテスト")
         fun companionConverterTest() {
-            val mapper = KMapper(CompanionConverterDst::class)
+            val mapper = PlainKMapper(CompanionConverterDst::class)
             val result = mapper.map(mapOf("argument" to "arg"))
 
             assertEquals("arg", result.argument.arg)
@@ -55,7 +55,7 @@ class ConverterKMapperTest {
         @Test
         @DisplayName("スタティックメソッドに定義したコンバータでのコンバートテスト")
         fun staticMethodConverterTest() {
-            val mapper = KMapper(StaticMethodConverterDst::class)
+            val mapper = PlainKMapper(StaticMethodConverterDst::class)
             val result = mapper.map(mapOf("argument" to "1,2,3"))
 
             assertTrue(intArrayOf(1, 2, 3) contentEquals result.argument.arg)

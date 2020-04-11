@@ -14,11 +14,11 @@ class DefaultArgumentTest {
     private val src = Src(1, "src")
 
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         fun test() {
-            val result = KMapper(::Dst).map(src)
+            val result = PlainKMapper(::Dst).map(src)
             assertEquals(Dst(1, "default"), result)
         }
     }
