@@ -15,7 +15,6 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaGetter
 
-// TODO: キャッシュ機能の実装
 class KMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
     parameterNameConverter: (String) -> String
