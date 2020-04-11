@@ -6,6 +6,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.functions
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
@@ -47,3 +48,7 @@ private fun <T : Any> convertersFromCompanionObject(clazz: KClass<T>): Set<Pair<
             }.toSet()
     } ?: emptySet()
 }
+
+// 引数の型がconverterに対して入力可能ならconverterを返す
+internal fun <T : Any> Set<Pair<KClass<*>, KFunction<T>>>.getConverter(input: KClass<out T>): KFunction<T>? =
+    this.find { (key, _) -> input.isSubclassOf(key) }?.second
