@@ -74,6 +74,96 @@ class SimpleKMapperTest {
     }
 
     @Nested
+    @DisplayName("KMapper")
+    inner class KMapperTest {
+        private val mappers: Set<KMapper<out SimpleDst>> = setOf(
+            KMapper(SimpleDst::class),
+            KMapper(::SimpleDst),
+            KMapper((SimpleDst)::factory),
+            KMapper(::instanceFunction),
+            KMapper(SimpleDstExt::class)
+        )
+
+        @Nested
+        @DisplayName("Map<String, Any?>からマップ")
+        inner class FromMap {
+            @Test
+            @DisplayName("Nullを含まない場合")
+            fun testWithoutNull() {
+                val srcMap: Map<String, Any?> = mapOf(
+                    "arg1" to 2,
+                    "arg2" to "value",
+                    "arg3" to 1.0
+                )
+
+                val dsts = mappers.map { it.map(srcMap) }
+
+                assertEquals(1, dsts.distinct().size)
+                dsts.first().let {
+                    assertEquals(2, it.arg1)
+                    assertEquals("value", it.arg2)
+                    assertEquals(1.0, it.arg3)
+                }
+            }
+
+            @Test
+            @DisplayName("Nullを含む場合")
+            fun testContainsNull() {
+                val srcMap: Map<String, Any?> = mapOf(
+                    "arg1" to 1,
+                    "arg2" to null,
+                    "arg3" to 2.0f
+                )
+
+                val dsts = mappers.map { it.map(srcMap) }
+
+                assertEquals(1, dsts.distinct().size)
+                dsts.first().let {
+                    assertEquals(1, it.arg1)
+                    assertEquals(null, it.arg2)
+                    assertEquals(2.0f, it.arg3)
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("インスタンスからマップ")
+        inner class FromInstance {
+            @Test
+            @DisplayName("Nullを含まない場合")
+            fun testWithoutNull() {
+                val stringValue = "value"
+
+                val src = Src1(stringValue)
+
+                val dsts = mappers.map { it.map(src) }
+
+                assertEquals(1, dsts.distinct().size)
+                dsts.first().let {
+                    assertEquals(stringValue.length, it.arg1)
+                    assertEquals(stringValue, it.arg2)
+                    assertEquals(stringValue.length.toByte(), it.arg3)
+                }
+            }
+
+            @Test
+            @DisplayName("Nullを含む場合")
+            fun testContainsNull() {
+                val src = Src1(null)
+
+                val dsts = mappers.map { it.map(src) }
+
+                assertEquals(1, dsts.distinct().size)
+                dsts.first().let {
+                    assertEquals(0, it.arg1)
+                    assertEquals(null, it.arg2)
+                    assertEquals(0.toByte(), it.arg3)
+                }
+            }
+        }
+    }
+
+    @Nested
     @DisplayName("PlainKMapper")
     inner class PlainKMapperTest {
         private val mappers: Set<PlainKMapper<out SimpleDst>> = setOf(
