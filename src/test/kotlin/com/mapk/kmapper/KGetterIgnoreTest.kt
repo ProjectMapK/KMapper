@@ -15,7 +15,7 @@ class KGetterIgnoreTest {
 
     @Nested
     @DisplayName("PlainKMapper")
-    inner class KMapperTest {
+    inner class PlainKMapperTest {
         @Test
         @DisplayName("フィールドを無視するテスト")
         fun test() {

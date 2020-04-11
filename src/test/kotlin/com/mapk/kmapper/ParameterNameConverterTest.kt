@@ -13,7 +13,7 @@ private data class BoundSrc(val camel_case: String)
 class ParameterNameConverterTest {
     @Nested
     @DisplayName("PlainKMapper")
-    inner class KMapperTest {
+    inner class PlainKMapperTest {
         @Test
         @DisplayName("スネークケースsrc -> キャメルケースdst")
         fun test() {
