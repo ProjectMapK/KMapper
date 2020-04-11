@@ -14,6 +14,25 @@ class KGetterIgnoreTest {
     data class Dst(val arg1: Int, val arg2: String, val arg3: Int, val arg4: String)
 
     @Nested
+    @DisplayName("KMapper")
+    inner class KMapperTest {
+        @Test
+        @DisplayName("フィールドを無視するテスト")
+        fun test() {
+            val src1 = Src1(1, "2-1", 31)
+            val src2 = Src2("2-2", 32, "4")
+
+            val mapper = KMapper(::Dst)
+
+            val dst1 = mapper.map(src1, src2)
+            val dst2 = mapper.map(src2, src1)
+
+            assertTrue(dst1 == dst2)
+            assertEquals(Dst(1, "2-1", 32, "4"), dst1)
+        }
+    }
+
+    @Nested
     @DisplayName("PlainKMapper")
     inner class PlainKMapperTest {
         @Test

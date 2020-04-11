@@ -21,9 +21,7 @@ internal class BoundParameterForMap<S : Any>(val param: KParameter, property: KP
         val paramClazz = param.type.classifier as KClass<*>
         val propertyClazz = property.returnType.classifier as KClass<*>
 
-        val converter = (convertersFromConstructors(paramClazz) +
-                convertersFromStaticMethods(paramClazz) +
-                convertersFromCompanionObject(paramClazz))
+        val converter = paramClazz.getConverters()
             .filter { (key, _) -> propertyClazz.isSubclassOf(key) }
             .let {
                 if (1 < it.size) throw IllegalArgumentException("${param.name} has multiple converter. $it")
