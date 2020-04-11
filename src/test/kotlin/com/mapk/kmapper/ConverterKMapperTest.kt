@@ -33,7 +33,7 @@ private data class BoundStaticMethodConverterSrc(val argument: String)
 class ConverterKMapperTest {
     @Nested
     @DisplayName("PlainKMapper")
-    inner class KMapperTest {
+    inner class PlainKMapperTest {
         @Test
         @DisplayName("コンストラクターでのコンバートテスト")
         fun constructorConverterTest() {

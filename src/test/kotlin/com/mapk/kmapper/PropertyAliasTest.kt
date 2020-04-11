@@ -22,7 +22,7 @@ private data class AliasedSrc(
 class PropertyAliasTest {
     @Nested
     @DisplayName("PlainKMapper")
-    inner class KMapperTest {
+    inner class PlainKMapperTest {
         @Test
         @DisplayName("パラメータにエイリアスを貼った場合")
         fun paramAliasTest() {

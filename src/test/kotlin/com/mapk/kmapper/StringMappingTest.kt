@@ -12,7 +12,7 @@ private data class BoundMappingSrc(val value: Int)
 class StringMappingTest {
     @Nested
     @DisplayName("PlainKMapper")
-    inner class KMapperTest {
+    inner class PlainKMapperTest {
         @Test
         fun test() {
             val result: StringMappingDst = PlainKMapper(StringMappingDst::class).map("value" to 1)

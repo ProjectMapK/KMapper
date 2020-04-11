@@ -15,7 +15,7 @@ class DefaultArgumentTest {
 
     @Nested
     @DisplayName("PlainKMapper")
-    inner class KMapperTest {
+    inner class PlainKMapperTest {
         @Test
         fun test() {
             val result = PlainKMapper(::Dst).map(src)
