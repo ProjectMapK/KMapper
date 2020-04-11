@@ -28,9 +28,9 @@ class KMapper<T : Any> private constructor(
         clazz.toKConstructor(), parameterNameConverter
     )
 
-    private val parameterMap: Map<String, PlainParameterForMap<*>> = function.parameters
+    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate { (parameterNameConverter(it.getAliasOrName()!!)) to PlainParameterForMap.newInstance(it) }
+        .associate { (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
