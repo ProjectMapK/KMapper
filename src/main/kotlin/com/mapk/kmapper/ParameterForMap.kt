@@ -4,7 +4,6 @@ import com.mapk.core.EnumMapper
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 
 internal class ParameterForMap<T : Any> private constructor(val param: KParameter, private val clazz: KClass<T>) {
@@ -28,7 +27,7 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
             return value
         }
 
-        val converter: KFunction<*>? = getConverter(valueClazz)
+        val converter: KFunction<*>? = converters.getConverter(valueClazz)
 
         val lambda: (Any) -> Any? = when {
             // converterに一致する組み合わせが有れば設定されていればそれを使う
@@ -42,10 +41,6 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
         convertCache[valueClazz] = lambda
         return lambda(value)
     }
-
-    // 引数の型がconverterに対して入力可能ならconverterを返す
-    private fun <R : Any> getConverter(input: KClass<out R>): KFunction<T>? =
-        converters.find { (key, _) -> input.isSubclassOf(key) }?.second
 
     companion object {
         fun newInstance(param: KParameter): ParameterForMap<*> {
