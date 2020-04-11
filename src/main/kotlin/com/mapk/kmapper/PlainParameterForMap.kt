@@ -7,8 +7,8 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 
-internal class PlainParameterForMap<T : Any> private constructor(val param: KParameter, val clazz: KClass<T>) {
-    val javaClazz: Class<T> by lazy {
+internal class PlainParameterForMap<T : Any> private constructor(val param: KParameter, private val clazz: KClass<T>) {
+    private val javaClazz: Class<T> by lazy {
         clazz.java
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
@@ -36,7 +36,7 @@ internal class PlainParameterForMap<T : Any> private constructor(val param: KPar
     }
 
     // 引数の型がconverterに対して入力可能ならconverterを返す
-    fun <R : Any> getConverter(input: KClass<out R>): KFunction<T>? =
+    private fun <R : Any> getConverter(input: KClass<out R>): KFunction<T>? =
         converters.find { (key, _) -> input.isSubclassOf(key) }?.second
 
     companion object {
