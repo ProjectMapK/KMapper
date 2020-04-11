@@ -14,7 +14,7 @@ class KGetterIgnoreTest {
     data class Dst(val arg1: Int, val arg2: String, val arg3: Int, val arg4: String)
 
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         @DisplayName("フィールドを無視するテスト")

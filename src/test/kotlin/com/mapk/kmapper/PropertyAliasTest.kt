@@ -21,7 +21,7 @@ private data class AliasedSrc(
 @DisplayName("エイリアスを貼った場合のテスト")
 class PropertyAliasTest {
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         @DisplayName("パラメータにエイリアスを貼った場合")

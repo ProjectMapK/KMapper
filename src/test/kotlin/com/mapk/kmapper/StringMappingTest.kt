@@ -11,7 +11,7 @@ private data class BoundMappingSrc(val value: Int)
 @DisplayName("文字列に対してtoStringしたものを渡すテスト")
 class StringMappingTest {
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         fun test() {

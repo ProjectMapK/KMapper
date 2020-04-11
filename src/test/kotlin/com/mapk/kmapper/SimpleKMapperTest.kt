@@ -74,7 +74,7 @@ class SimpleKMapperTest {
     }
 
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         private val mappers: Set<PlainKMapper<out SimpleDst>> = setOf(
             PlainKMapper(SimpleDst::class),

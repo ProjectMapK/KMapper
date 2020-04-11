@@ -14,7 +14,7 @@ class DefaultArgumentTest {
     private val src = Src(1, "src")
 
     @Nested
-    @DisplayName("KMapper")
+    @DisplayName("PlainKMapper")
     inner class KMapperTest {
         @Test
         fun test() {
