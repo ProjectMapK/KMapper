@@ -5,7 +5,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSubclassOf
 
-internal class ParameterForMap<T : Any> private constructor(val param: KParameter, val clazz: KClass<T>) {
+internal class PlainParameterForMap<T : Any> private constructor(val param: KParameter, val clazz: KClass<T>) {
     val javaClazz: Class<T> by lazy {
         clazz.java
     }
@@ -19,8 +19,8 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
         converters.find { (key, _) -> input.isSubclassOf(key) }?.second
 
     companion object {
-        fun newInstance(param: KParameter): ParameterForMap<*> {
-            return ParameterForMap(param, param.type.classifier as KClass<*>)
+        fun newInstance(param: KParameter): PlainParameterForMap<*> {
+            return PlainParameterForMap(param, param.type.classifier as KClass<*>)
         }
     }
 }

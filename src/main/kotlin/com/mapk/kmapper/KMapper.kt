@@ -29,9 +29,9 @@ class KMapper<T : Any> private constructor(
         clazz.toKConstructor(), parameterNameConverter
     )
 
-    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
+    private val parameterMap: Map<String, PlainParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate { (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
+        .associate { (parameterNameConverter(it.getAliasOrName()!!)) to PlainParameterForMap.newInstance(it) }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
@@ -111,7 +111,7 @@ class KMapper<T : Any> private constructor(
     }
 }
 
-private fun <T : Any, R : Any> mapObject(param: ParameterForMap<R>, value: T): Any? {
+private fun <T : Any, R : Any> mapObject(param: PlainParameterForMap<R>, value: T): Any? {
     val valueClazz: KClass<*> = value::class
 
     // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
