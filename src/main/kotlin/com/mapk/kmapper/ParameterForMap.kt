@@ -12,9 +12,7 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
         clazz.java
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
-    private val converters: Set<Pair<KClass<*>, KFunction<T>>> = convertersFromConstructors(clazz) +
-            convertersFromStaticMethods(clazz) +
-            convertersFromCompanionObject(clazz)
+    private val converters: Set<Pair<KClass<*>, KFunction<T>>> = clazz.getConverters()
 
     private val convertCache: MutableMap<KClass<*>, (Any) -> Any?> = HashMap()
 
