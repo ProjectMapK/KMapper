@@ -15,7 +15,7 @@ class StringMappingTest {
     inner class KMapperTest {
         @Test
         fun test() {
-            val result: StringMappingDst = KMapper(StringMappingDst::class).map("value" to 1)
+            val result: StringMappingDst = PlainKMapper(StringMappingDst::class).map("value" to 1)
             assertEquals("1", result.value)
         }
     }

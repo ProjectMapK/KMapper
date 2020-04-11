@@ -17,7 +17,7 @@ import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaGetter
 
-class KMapper<T : Any> private constructor(
+class PlainKMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
     parameterNameConverter: (String) -> String
 ) {
