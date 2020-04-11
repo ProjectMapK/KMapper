@@ -11,11 +11,14 @@ import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaGetter
 
-// TODO: キャッシュ機能の実装
+private typealias MethodCache = Pair<String, Method>
+private typealias PropertyCache = MutableMap<KProperty1<*, *>, MethodCache>
+
 class KMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
     parameterNameConverter: (String) -> String
@@ -28,31 +31,45 @@ class KMapper<T : Any> private constructor(
         clazz.toKConstructor(), parameterNameConverter
     )
 
+    private val propertyCache: PropertyCache = HashMap()
     private val parameterMap: Map<String, PlainParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
         .associate { (parameterNameConverter(it.getAliasOrName()!!)) to PlainParameterForMap.newInstance(it) }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
+            // キャッシュヒットした場合
+            propertyCache[property]?.let { (name, getter) ->
+                // 入ってないはずが無いのでgetValue
+                val param = parameterMap.getValue(name)
+                argumentBucket.putIfAbsent(param.param, getter.invoke(src)?.let { value -> param.mapObject(value) })
+                // 終了判定
+                if (argumentBucket.isInitialized) return
+                return@outer
+            }
+
             // propertyが公開されていない場合は処理を行わない
             if (property.visibility != KVisibility.PUBLIC) return@outer
 
             // ゲッターが取れない場合は処理を行わない
             val javaGetter: Method = property.javaGetter ?: return@outer
 
-            var alias: String? = null
+            var propertyName: String? = null
             // NOTE: IgnoreとAliasが同時に指定されるようなパターンを考慮してaliasが取れてもbreakしていない
             javaGetter.annotations.forEach {
                 if (it is KGetterIgnore) return@outer // ignoreされている場合は処理を行わない
-                if (it is KGetterAlias) alias = it.value
+                if (it is KGetterAlias) propertyName = it.value
             }
+            propertyName = propertyName ?: property.name
 
-            parameterMap[alias ?: property.name]?.let {
+            parameterMap[propertyName!!]?.let {
                 // javaGetterを呼び出す方が高速
                 javaGetter.isAccessible = true
                 argumentBucket.putIfAbsent(it.param, javaGetter.invoke(src)?.let { value -> it.mapObject(value) })
                 // 終了判定
                 if (argumentBucket.isInitialized) return
+                // キャッシュ登録
+                propertyCache[property] = propertyName!! to javaGetter
             }
         }
     }
