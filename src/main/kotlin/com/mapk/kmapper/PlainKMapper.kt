@@ -49,7 +49,7 @@ class PlainKMapper<T : Any> private constructor(
             parameterMap[alias ?: property.name]?.let {
                 // javaGetterを呼び出す方が高速
                 javaGetter.isAccessible = true
-                argumentBucket.putIfAbsent(it.param, javaGetter.invoke(src)?.let { value -> mapObject(it, value) })
+                argumentBucket.putIfAbsent(it.param, javaGetter.invoke(src)?.let { value -> it.mapObject(value) })
                 // 終了判定
                 if (argumentBucket.isInitialized) return
             }
@@ -60,7 +60,7 @@ class PlainKMapper<T : Any> private constructor(
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                argumentBucket.putIfAbsent(param.param, value?.let { mapObject(param, it) })
+                argumentBucket.putIfAbsent(param.param, value?.let { param.mapObject(value) })
                 // 終了判定
                 if (argumentBucket.isInitialized) return
             }
@@ -69,7 +69,7 @@ class PlainKMapper<T : Any> private constructor(
 
     private fun bindArguments(argumentBucket: ArgumentBucket, srcPair: Pair<*, *>) {
         parameterMap[srcPair.first.toString()]?.let {
-            argumentBucket.putIfAbsent(it.param, srcPair.second?.let { value -> mapObject(it, value) })
+            argumentBucket.putIfAbsent(it.param, srcPair.second?.let { value -> it.mapObject(value) })
         }
     }
 
