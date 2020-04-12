@@ -1,6 +1,8 @@
 package com.mapk.kmapper
 
 import com.mapk.core.EnumMapper
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -13,7 +15,7 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
     private val converters: Set<Pair<KClass<*>, KFunction<T>>> = clazz.getConverters()
 
-    private val convertCache: MutableMap<KClass<*>, (Any) -> Any?> = HashMap()
+    private val convertCache: ConcurrentMap<KClass<*>, (Any) -> Any?> = ConcurrentHashMap()
 
     fun <U : Any> mapObject(value: U): Any? {
         val valueClazz: KClass<*> = value::class
@@ -23,7 +25,7 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
 
         // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
         if (clazz.isSuperclassOf(valueClazz)) {
-            convertCache[valueClazz] = { value }
+            convertCache.putIfAbsent(valueClazz) { it }
             return value
         }
 
@@ -38,7 +40,7 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
             clazz == String::class -> { { it.toString() } }
             else -> throw IllegalArgumentException("Can not convert $valueClazz to $clazz")
         }
-        convertCache[valueClazz] = lambda
+        convertCache.putIfAbsent(valueClazz, lambda)
         return lambda(value)
     }
 
