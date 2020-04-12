@@ -65,8 +65,11 @@ class KMapper<T : Any> private constructor(
                 javaGetter.isAccessible = true
 
                 val tempCache = { value: Any, bucket: ArgumentBucket ->
-                    // javaGetterを呼び出す方が高速
-                    bucket.putIfAbsent(param.param, javaGetter.invoke(value)?.let { param.mapObject(it) })
+                    // 初期化済みであれば高コストな取得処理は行わない
+                    if (!bucket.containsKey(param.param)) {
+                        // javaGetterを呼び出す方が高速
+                        bucket.putIfAbsent(param.param, javaGetter.invoke(value)?.let { param.mapObject(it) })
+                    }
                 }
                 tempCache(src, argumentBucket)
                 tempCacheArrayList.add(tempCache)
