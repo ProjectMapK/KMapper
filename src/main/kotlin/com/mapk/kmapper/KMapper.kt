@@ -40,11 +40,8 @@ class KMapper<T : Any> private constructor(
 
         // キャッシュヒットしたら登録した内容に沿って取得処理を行う
         getCache[clazz]?.let { getters ->
-            getters.forEach {
-                it(src, argumentBucket)
-                // 終了判定
-                if (argumentBucket.isInitialized) return
-            }
+            // 取得対象フィールドは十分絞り込んでいると考えられるため、終了判定は行わない
+            getters.forEach { it(src, argumentBucket) }
             return
         }
 
