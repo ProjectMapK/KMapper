@@ -31,7 +31,23 @@ class KMapper<T : Any> private constructor(
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
         .associate { (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
 
+    private val getCache: MutableMap<KClass<*>, List<(Any, ArgumentBucket) -> Unit>> = HashMap()
+
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
+        val clazz = src::class
+
+        // キャッシュヒットしたら登録した内容に沿って取得処理を行う
+        getCache[clazz]?.let { getters ->
+            getters.forEach {
+                it(src, argumentBucket)
+                // 終了判定
+                if (argumentBucket.isInitialized) return
+            }
+            return
+        }
+
+        val tempCacheArrayList = ArrayList<(Any, ArgumentBucket) -> Unit>()
+
         src::class.memberProperties.forEach outer@{ property ->
             // propertyが公開されていない場合は処理を行わない
             if (property.visibility != KVisibility.PUBLIC) return@outer
@@ -46,14 +62,19 @@ class KMapper<T : Any> private constructor(
                 if (it is KGetterAlias) alias = it.value
             }
 
-            parameterMap[alias ?: property.name]?.let {
-                // javaGetterを呼び出す方が高速
+            parameterMap[alias ?: property.name]?.let { param ->
                 javaGetter.isAccessible = true
-                argumentBucket.putIfAbsent(it.param, javaGetter.invoke(src)?.let { value -> it.mapObject(value) })
-                // 終了判定
-                if (argumentBucket.isInitialized) return
+
+                val tempCache = { value: Any, bucket: ArgumentBucket ->
+                    // javaGetterを呼び出す方が高速
+                    bucket.putIfAbsent(param.param, javaGetter.invoke(value)?.let { param.mapObject(it) })
+                }
+                tempCache(src, argumentBucket)
+                tempCacheArrayList.add(tempCache)
+                // キャッシュの整合性を保つため、ここでは終了判定を行わない
             }
         }
+        getCache[clazz] = tempCacheArrayList
     }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Map<*, *>) {
