@@ -25,7 +25,7 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
 
         // パラメータに対してvalueが代入可能（同じもしくは親クラス）であればそのまま用いる
         if (clazz.isSuperclassOf(valueClazz)) {
-            convertCache[valueClazz] = { it }
+            convertCache.putIfAbsent(valueClazz) { it }
             return value
         }
 
