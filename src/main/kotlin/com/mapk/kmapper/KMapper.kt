@@ -8,6 +8,8 @@ import com.mapk.core.getAliasOrName
 import com.mapk.core.isUseDefaultArgument
 import com.mapk.core.toKConstructor
 import java.lang.reflect.Method
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -31,7 +33,7 @@ class KMapper<T : Any> private constructor(
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
         .associate { (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
 
-    private val getCache: MutableMap<KClass<*>, List<(Any, ArgumentBucket) -> Unit>> = HashMap()
+    private val getCache: ConcurrentMap<KClass<*>, List<(Any, ArgumentBucket) -> Unit>> = ConcurrentHashMap()
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         val clazz = src::class
@@ -74,7 +76,7 @@ class KMapper<T : Any> private constructor(
                 // キャッシュの整合性を保つため、ここでは終了判定を行わない
             }
         }
-        getCache[clazz] = tempCacheArrayList
+        getCache.putIfAbsent(clazz, tempCacheArrayList)
     }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Map<*, *>) {
