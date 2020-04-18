@@ -1,7 +1,7 @@
 plugins {
     id("maven")
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.3.71"
+    id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
@@ -18,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath(kotlin("gradle-plugin", version = "1.3.71"))
+        classpath(kotlin("gradle-plugin"))
     }
 }
 
