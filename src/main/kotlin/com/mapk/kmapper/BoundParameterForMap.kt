@@ -13,18 +13,18 @@ import kotlin.reflect.jvm.javaGetter
 @Suppress("UNCHECKED_CAST")
 internal sealed class BoundParameterForMap<S> {
     abstract val param: KParameter
-    abstract val propertyGetter: Method
+    protected abstract val propertyGetter: Method
 
     abstract fun map(src: S): Any?
 
-    class Plain<S : Any>(
+    private class Plain<S : Any>(
         override val param: KParameter,
         override val propertyGetter: Method
     ) : BoundParameterForMap<S>() {
         override fun map(src: S): Any? = propertyGetter.invoke(src)
     }
 
-    class UseConverter<S : Any>(
+    private class UseConverter<S : Any>(
         override val param: KParameter,
         override val propertyGetter: Method,
         private val converter: KFunction<*>
@@ -32,7 +32,7 @@ internal sealed class BoundParameterForMap<S> {
         override fun map(src: S): Any? = converter.call(propertyGetter.invoke(src))
     }
 
-    class ToEnum<S : Any>(
+    private class ToEnum<S : Any>(
         override val param: KParameter,
         override val propertyGetter: Method,
         private val paramClazz: Class<*>
@@ -40,7 +40,7 @@ internal sealed class BoundParameterForMap<S> {
         override fun map(src: S): Any? = EnumMapper.getEnum(paramClazz, propertyGetter.invoke(src) as String)
     }
 
-    class ToString<S : Any>(
+    private class ToString<S : Any>(
         override val param: KParameter,
         override val propertyGetter: Method
     ) : BoundParameterForMap<S>() {
