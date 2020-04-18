@@ -20,7 +20,7 @@ import kotlin.reflect.jvm.jvmName
 class BoundKMapper<S : Any, D : Any> private constructor(
     private val function: KFunctionForCall<D>,
     src: KClass<S>,
-    parameterNameConverter: (String) -> String = { it }
+    parameterNameConverter: (String) -> String
 ) {
     constructor(function: KFunction<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
         KFunctionForCall(function), src, parameterNameConverter
