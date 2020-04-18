@@ -33,7 +33,7 @@ dependencies {
     api("com.github.ProjectMapK:Shared:0.11")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.1") {
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.2") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     // 現状プロパティ名の変換はテストでしか使っていないのでtestImplementation
