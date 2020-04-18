@@ -33,7 +33,7 @@ class KMapper<T : Any> private constructor(
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
         .associate { (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
 
-    private val getCache: ConcurrentMap<KClass<*>, List<(Any, ArgumentBucket) -> Unit>> = ConcurrentHashMap()
+    private val getCache: ConcurrentMap<KClass<*>, List<ArgumentBinder>> = ConcurrentHashMap()
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         val clazz = src::class
@@ -41,11 +41,11 @@ class KMapper<T : Any> private constructor(
         // キャッシュヒットしたら登録した内容に沿って取得処理を行う
         getCache[clazz]?.let { getters ->
             // 取得対象フィールドは十分絞り込んでいると考えられるため、終了判定は行わない
-            getters.forEach { it(src, argumentBucket) }
+            getters.forEach { it.bindArgument(src, argumentBucket) }
             return
         }
 
-        val tempCacheArrayList = ArrayList<(Any, ArgumentBucket) -> Unit>()
+        val tempBinderArrayList = ArrayList<ArgumentBinder>()
 
         src::class.memberProperties.forEach outer@{ property ->
             // propertyが公開されていない場合は処理を行わない
@@ -64,19 +64,14 @@ class KMapper<T : Any> private constructor(
             parameterMap[alias ?: property.name]?.let { param ->
                 javaGetter.isAccessible = true
 
-                val tempCache = { value: Any, bucket: ArgumentBucket ->
-                    // 初期化済みであれば高コストな取得処理は行わない
-                    if (!bucket.containsKey(param.param)) {
-                        // javaGetterを呼び出す方が高速
-                        bucket.putIfAbsent(param.param, javaGetter.invoke(value)?.let { param.mapObject(it) })
-                    }
-                }
-                tempCache(src, argumentBucket)
-                tempCacheArrayList.add(tempCache)
+                val binder = ArgumentBinder(param, javaGetter)
+
+                binder.bindArgument(src, argumentBucket)
+                tempBinderArrayList.add(binder)
                 // キャッシュの整合性を保つため、ここでは終了判定を行わない
             }
         }
-        getCache.putIfAbsent(clazz, tempCacheArrayList)
+        getCache.putIfAbsent(clazz, tempBinderArrayList)
     }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Map<*, *>) {
@@ -129,5 +124,15 @@ class KMapper<T : Any> private constructor(
         }
 
         return function.call(bucket)
+    }
+}
+
+private class ArgumentBinder(private val param: ParameterForMap<*>, private val javaGetter: Method) {
+    fun bindArgument(value: Any, bucket: ArgumentBucket) {
+        // 初期化済みであれば高コストな取得処理は行わない
+        if (!bucket.containsKey(param.param)) {
+            // javaGetterを呼び出す方が高速
+            bucket.putIfAbsent(param.param, javaGetter.invoke(value)?.let { param.mapObject(it) })
+        }
     }
 }

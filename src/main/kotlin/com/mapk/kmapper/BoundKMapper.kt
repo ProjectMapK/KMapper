@@ -20,7 +20,7 @@ import kotlin.reflect.jvm.jvmName
 class BoundKMapper<S : Any, D : Any> private constructor(
     private val function: KFunctionForCall<D>,
     src: KClass<S>,
-    parameterNameConverter: (String) -> String = { it }
+    parameterNameConverter: (String) -> String
 ) {
     constructor(function: KFunction<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
         KFunctionForCall(function), src, parameterNameConverter
@@ -45,7 +45,7 @@ class BoundKMapper<S : Any, D : Any> private constructor(
             .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
             .mapNotNull {
                 val temp = srcPropertiesMap[parameterNameConverter(it.getAliasOrName()!!)]?.let { property ->
-                    BoundParameterForMap(it, property)
+                    BoundParameterForMap.newInstance(it, property)
                 }
 
                 // 必須引数に対応するプロパティがsrcに定義されていない場合エラー
