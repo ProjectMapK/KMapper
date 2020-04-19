@@ -64,6 +64,33 @@ class RecursiveMappingTest {
     }
 
     @Nested
+    @DisplayName("PlainKMapper")
+    inner class PlainKMapperTest {
+        @Test
+        @DisplayName("シンプルなマッピング")
+        fun test() {
+            val actual = PlainKMapper(::Dst).map(src)
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        @DisplayName("スネークケースsrc -> キャメルケースdst")
+        fun snakeToCamel() {
+            val actual = PlainKMapper(::Dst) {
+                CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, it)
+            }.map(snakeSrc)
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        @DisplayName("内部フィールドがMapの場合")
+        fun includesMap() {
+            val actual = PlainKMapper(::Dst).map(mapSrc)
+            assertEquals(expected, actual)
+        }
+    }
+
+    @Nested
     @DisplayName("BoundKMapper")
     inner class BoundKMapperTest {
         @Test
