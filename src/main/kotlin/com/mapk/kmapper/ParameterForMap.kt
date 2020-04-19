@@ -8,7 +8,11 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSuperclassOf
 
-internal class ParameterForMap<T : Any> private constructor(val param: KParameter, private val clazz: KClass<T>) {
+internal class ParameterForMap<T : Any> private constructor(
+    val param: KParameter,
+    private val clazz: KClass<T>,
+    private val parameterNameConverter: (String) -> String
+) {
     private val javaClazz: Class<T> by lazy {
         clazz.java
     }
@@ -38,15 +42,18 @@ internal class ParameterForMap<T : Any> private constructor(val param: KParamete
             javaClazz.isEnum && value is String -> ParameterProcessor.ToEnum(javaClazz)
             // 要求されているパラメータがStringならtoStringする
             clazz == String::class -> ParameterProcessor.ToString
-            else -> throw IllegalArgumentException("Can not convert $valueClazz to $clazz")
+            // 入力がmapもしくはpairなら、KMapperを用いてマッピングを試みる
+            value is Map<*, *> || value is Pair<*, *> ->
+                ParameterProcessor.UseKMapper(KMapper(clazz, parameterNameConverter))
+            else -> ParameterProcessor.UseBoundKMapper(BoundKMapper(clazz, valueClazz, parameterNameConverter))
         }
         convertCache.putIfAbsent(valueClazz, processor)
         return processor.process(value)
     }
 
     companion object {
-        fun newInstance(param: KParameter): ParameterForMap<*> {
-            return ParameterForMap(param, param.type.classifier as KClass<*>)
+        fun newInstance(param: KParameter, parameterNameConverter: (String) -> String): ParameterForMap<*> {
+            return ParameterForMap(param, param.type.classifier as KClass<*>, parameterNameConverter)
         }
     }
 }
@@ -60,6 +67,15 @@ private sealed class ParameterProcessor {
 
     class UseConverter(private val converter: KFunction<*>) : ParameterProcessor() {
         override fun process(value: Any): Any? = converter.call(value)
+    }
+
+    class UseKMapper(private val kMapper: KMapper<*>) : ParameterProcessor() {
+        override fun process(value: Any): Any? = kMapper.map(value, PARAMETER_DUMMY)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    class UseBoundKMapper<T : Any>(private val boundKMapper: BoundKMapper<T, *>) : ParameterProcessor() {
+        override fun process(value: Any): Any? = boundKMapper.map(value as T)
     }
 
     class ToEnum(private val javaClazz: Class<*>) : ParameterProcessor() {

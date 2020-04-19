@@ -31,7 +31,9 @@ class KMapper<T : Any> private constructor(
 
     private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate { (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it) }
+        .associate {
+            (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it, parameterNameConverter)
+        }
 
     private val getCache: ConcurrentMap<KClass<*>, List<ArgumentBinder>> = ConcurrentHashMap()
 

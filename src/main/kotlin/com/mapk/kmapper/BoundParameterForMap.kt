@@ -32,6 +32,23 @@ internal sealed class BoundParameterForMap<S> {
         override fun map(src: S): Any? = converter.call(propertyGetter.invoke(src))
     }
 
+    private class UseKMapper<S : Any>(
+        override val param: KParameter,
+        override val propertyGetter: Method,
+        private val kMapper: KMapper<*>
+    ) : BoundParameterForMap<S>() {
+        // 1引数で呼び出すとMap/Pairが適切に処理されないため、2引数目にダミーを噛ませている
+        override fun map(src: S): Any? = kMapper.map(propertyGetter.invoke(src), PARAMETER_DUMMY)
+    }
+
+    private class UseBoundKMapper<S : Any, T : Any>(
+        override val param: KParameter,
+        override val propertyGetter: Method,
+        private val boundKMapper: BoundKMapper<T, *>
+    ) : BoundParameterForMap<S>() {
+        override fun map(src: S): Any? = boundKMapper.map(propertyGetter.invoke(src) as T)
+    }
+
     private class ToEnum<S : Any>(
         override val param: KParameter,
         override val propertyGetter: Method,
@@ -48,7 +65,11 @@ internal sealed class BoundParameterForMap<S> {
     }
 
     companion object {
-        fun <S : Any> newInstance(param: KParameter, property: KProperty1<S, *>): BoundParameterForMap<S> {
+        fun <S : Any> newInstance(
+            param: KParameter,
+            property: KProperty1<S, *>,
+            parameterNameConverter: (String) -> String
+        ): BoundParameterForMap<S> {
             // ゲッターが無いならエラー
             val propertyGetter = property.javaGetter
                 ?: throw IllegalArgumentException("${property.name} does not have getter.")
@@ -77,7 +98,14 @@ internal sealed class BoundParameterForMap<S> {
             return when {
                 javaClazz.isEnum && propertyClazz == String::class -> ToEnum(param, propertyGetter, javaClazz)
                 paramClazz == String::class -> ToString(param, propertyGetter)
-                else -> throw IllegalArgumentException("Can not convert $propertyClazz to $paramClazz")
+                // SrcがMapやPairならKMapperを使わないとマップできない
+                propertyClazz.isSubclassOf(Map::class) || propertyClazz.isSubclassOf(Pair::class) -> UseKMapper(
+                    param, propertyGetter, KMapper(paramClazz, parameterNameConverter)
+                )
+                // 何にも当てはまらなければBoundKMapperでマップを試みる
+                else -> UseBoundKMapper(
+                    param, propertyGetter, BoundKMapper(paramClazz, propertyClazz, parameterNameConverter)
+                )
             }
         }
     }

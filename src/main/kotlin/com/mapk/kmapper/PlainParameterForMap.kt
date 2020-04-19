@@ -6,7 +6,11 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSuperclassOf
 
-internal class PlainParameterForMap<T : Any> private constructor(val param: KParameter, private val clazz: KClass<T>) {
+internal class PlainParameterForMap<T : Any> private constructor(
+    val param: KParameter,
+    private val clazz: KClass<T>,
+    private val parameterNameConverter: (String) -> String
+) {
     private val javaClazz: Class<T> by lazy {
         clazz.java
     }
@@ -28,13 +32,14 @@ internal class PlainParameterForMap<T : Any> private constructor(val param: KPar
             javaClazz.isEnum && value is String -> EnumMapper.getEnum(javaClazz, value)
             // 要求されているパラメータがStringならtoStringする
             clazz == String::class -> value.toString()
-            else -> throw IllegalArgumentException("Can not convert $valueClazz to $clazz")
+            // それ以外の場合PlainKMapperを作り再帰的なマッピングを試みる
+            else -> PlainKMapper(clazz, parameterNameConverter).map(value, PARAMETER_DUMMY)
         }
     }
 
     companion object {
-        fun newInstance(param: KParameter): PlainParameterForMap<*> {
-            return PlainParameterForMap(param, param.type.classifier as KClass<*>)
+        fun newInstance(param: KParameter, parameterNameConverter: (String) -> String): PlainParameterForMap<*> {
+            return PlainParameterForMap(param, param.type.classifier as KClass<*>, parameterNameConverter)
         }
     }
 }
