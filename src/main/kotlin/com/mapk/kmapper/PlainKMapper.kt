@@ -29,7 +29,10 @@ class PlainKMapper<T : Any> private constructor(
 
     private val parameterMap: Map<String, PlainParameterForMap<*>> = function.parameters
         .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate { (parameterNameConverter(it.getAliasOrName()!!)) to PlainParameterForMap.newInstance(it) }
+        .associate {
+            (parameterNameConverter(it.getAliasOrName()!!)) to
+                    PlainParameterForMap.newInstance(it, parameterNameConverter)
+        }
 
     private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
