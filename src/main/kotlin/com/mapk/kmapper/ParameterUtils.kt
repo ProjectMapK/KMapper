@@ -52,3 +52,6 @@ private fun <T : Any> convertersFromCompanionObject(clazz: KClass<T>): Set<Pair<
 // 引数の型がconverterに対して入力可能ならconverterを返す
 internal fun <T : Any> Set<Pair<KClass<*>, KFunction<T>>>.getConverter(input: KClass<out T>): KFunction<T>? =
     this.find { (key, _) -> input.isSubclassOf(key) }?.second
+
+// 再帰的マッピング時にKMapperでマップする場合、引数の数が1つだと正常にマッピングが機能しないため、2引数にするために用いるダミー
+internal val PARAMETER_DUMMY = "" to null
