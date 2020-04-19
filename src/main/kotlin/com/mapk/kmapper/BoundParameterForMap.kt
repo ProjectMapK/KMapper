@@ -32,6 +32,14 @@ internal sealed class BoundParameterForMap<S> {
         override fun map(src: S): Any? = converter.call(propertyGetter.invoke(src))
     }
 
+    private class UseBoundKMapper<S : Any, T : Any>(
+        override val param: KParameter,
+        override val propertyGetter: Method,
+        private val boundKMapper: BoundKMapper<T, *>
+    ) : BoundParameterForMap<S>() {
+        override fun map(src: S): Any? = boundKMapper.map(propertyGetter.invoke(src) as T)
+    }
+
     private class ToEnum<S : Any>(
         override val param: KParameter,
         override val propertyGetter: Method,
@@ -77,7 +85,8 @@ internal sealed class BoundParameterForMap<S> {
             return when {
                 javaClazz.isEnum && propertyClazz == String::class -> ToEnum(param, propertyGetter, javaClazz)
                 paramClazz == String::class -> ToString(param, propertyGetter)
-                else -> throw IllegalArgumentException("Can not convert $propertyClazz to $paramClazz")
+                // TODO: パラメータ名のコンバータ対応、SrcがMapやPairだった場合にKMapperを用いる形への変更
+                else -> UseBoundKMapper(param, propertyGetter, BoundKMapper(paramClazz, propertyClazz))
             }
         }
     }
