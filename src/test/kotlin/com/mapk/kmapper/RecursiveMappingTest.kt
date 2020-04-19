@@ -14,11 +14,13 @@ class RecursiveMappingTest {
 
     private data class Src(val fooFoo: InnerSrc, val barBar: Boolean, val bazBaz: Int)
     private data class SnakeSrc(val foo_foo: InnerSnakeSrc, val bar_bar: Boolean, val baz_baz: Int)
+    private data class MapSrc(val fooFoo: Map<String, Any>, val barBar: Boolean, val bazBaz: Int)
     private data class Dst(val fooFoo: InnerDst, val bazBaz: Int)
 
     companion object {
         private val src: Src = Src(InnerSrc(1, 2, "three"), true, 4)
         private val snakeSrc: SnakeSrc = SnakeSrc(InnerSnakeSrc(1, 2, "three"), true, 4)
+        private val mapSrc: MapSrc = MapSrc(mapOf("hogeHoge" to 1, "piyoPiyo" to "three"), true, 4)
         private val expected: Dst = Dst(InnerDst(1, "three"), 4)
     }
 
@@ -38,6 +40,13 @@ class RecursiveMappingTest {
             val actual = BoundKMapper(::Dst, SnakeSrc::class) {
                 CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, it)
             }.map(snakeSrc)
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        @DisplayName("内部フィールドがMapの場合")
+        fun includesMap() {
+            val actual = BoundKMapper(::Dst, MapSrc::class).map(mapSrc)
             assertEquals(expected, actual)
         }
     }
