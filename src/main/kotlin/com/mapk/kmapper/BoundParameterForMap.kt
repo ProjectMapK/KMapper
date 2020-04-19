@@ -56,7 +56,11 @@ internal sealed class BoundParameterForMap<S> {
     }
 
     companion object {
-        fun <S : Any> newInstance(param: KParameter, property: KProperty1<S, *>): BoundParameterForMap<S> {
+        fun <S : Any> newInstance(
+            param: KParameter,
+            property: KProperty1<S, *>,
+            parameterNameConverter: (String) -> String
+        ): BoundParameterForMap<S> {
             // ゲッターが無いならエラー
             val propertyGetter = property.javaGetter
                 ?: throw IllegalArgumentException("${property.name} does not have getter.")
@@ -85,8 +89,10 @@ internal sealed class BoundParameterForMap<S> {
             return when {
                 javaClazz.isEnum && propertyClazz == String::class -> ToEnum(param, propertyGetter, javaClazz)
                 paramClazz == String::class -> ToString(param, propertyGetter)
-                // TODO: パラメータ名のコンバータ対応、SrcがMapやPairだった場合にKMapperを用いる形への変更
-                else -> UseBoundKMapper(param, propertyGetter, BoundKMapper(paramClazz, propertyClazz))
+                // TODO: SrcがMapやPairだった場合にKMapperを用いる形への変更
+                else -> UseBoundKMapper(
+                    param, propertyGetter, BoundKMapper(paramClazz, propertyClazz, parameterNameConverter)
+                )
             }
         }
     }
