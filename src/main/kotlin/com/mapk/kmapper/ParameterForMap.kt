@@ -62,6 +62,15 @@ private sealed class ParameterProcessor {
         override fun process(value: Any): Any? = converter.call(value)
     }
 
+    class UseKMapper(private val kMapper: KMapper<*>) : ParameterProcessor() {
+        override fun process(value: Any): Any? = kMapper.map(value, PARAMETER_DUMMY)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    class UseBoundKMapper<T : Any>(private val boundKMapper: BoundKMapper<T, *>) : ParameterProcessor() {
+        override fun process(value: Any): Any? = boundKMapper.map(value as T)
+    }
+
     class ToEnum(private val javaClazz: Class<*>) : ParameterProcessor() {
         override fun process(value: Any): Any? = EnumMapper.getEnum(javaClazz, value as String)
     }
