@@ -130,11 +130,11 @@ class KMapper<T : Any> private constructor(
 }
 
 private class ArgumentBinder(private val param: ParameterForMap<*>, private val javaGetter: Method) {
-    fun bindArgument(value: Any, bucket: ArgumentBucket) {
+    fun bindArgument(src: Any, bucket: ArgumentBucket) {
         // 初期化済みであれば高コストな取得処理は行わない
         if (!bucket.containsKey(param.param)) {
             // javaGetterを呼び出す方が高速
-            bucket.putIfAbsent(param.param, javaGetter.invoke(value)?.let { param.mapObject(it) })
+            bucket.putIfAbsent(param.param, javaGetter.invoke(src)?.let { param.mapObject(it) })
         }
     }
 }
