@@ -15,7 +15,9 @@ internal class PlainParameterForMap<T : Any> private constructor(
         clazz.java
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
-    private val converters: Set<Pair<KClass<*>, KFunction<T>>> = clazz.getConverters()
+    @Suppress("UNCHECKED_CAST")
+    private val converters: Set<Pair<KClass<*>, KFunction<T>>> =
+        (param.getConverters() as Set<Pair<KClass<*>, KFunction<T>>>) + clazz.getConverters()
 
     fun <U : Any> mapObject(value: U): Any? {
         val valueClazz: KClass<*> = value::class
