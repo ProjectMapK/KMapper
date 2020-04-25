@@ -49,7 +49,7 @@ class KMapper<T : Any> private constructor(
 
         val tempBinderArrayList = ArrayList<ArgumentBinder>()
 
-        src::class.memberProperties.forEach outer@{ property ->
+        clazz.memberProperties.forEach outer@{ property ->
             // propertyが公開されていない場合は処理を行わない
             if (property.visibility != KVisibility.PUBLIC) return@outer
 
