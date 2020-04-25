@@ -1,19 +1,23 @@
 package com.mapk.kmapper
 
 import com.mapk.annotations.KConverter
+import com.mapk.conversion.KConvertBy
 import com.mapk.core.KFunctionWithInstance
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.isAccessible
 
 internal fun <T : Any> KClass<T>.getConverters(): Set<Pair<KClass<*>, KFunction<T>>> =
     convertersFromConstructors(this) + convertersFromStaticMethods(this) + convertersFromCompanionObject(this)
 
-private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pair<KClass<*>, KFunction<T>>> {
+private fun <T> Collection<KFunction<T>>.getConvertersFromFunctions(): Set<Pair<KClass<*>, KFunction<T>>> {
     return filter { it.annotations.any { annotation -> annotation is KConverter } }
         .map { func ->
             func.isAccessible = true
@@ -23,14 +27,14 @@ private fun <T> Collection<KFunction<T>>.getConverterMapFromFunctions(): Set<Pai
 }
 
 private fun <T : Any> convertersFromConstructors(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
-    return clazz.constructors.getConverterMapFromFunctions()
+    return clazz.constructors.getConvertersFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> convertersFromStaticMethods(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
     val staticFunctions: Collection<KFunction<T>> = clazz.staticFunctions as Collection<KFunction<T>>
 
-    return staticFunctions.getConverterMapFromFunctions()
+    return staticFunctions.getConvertersFromFunctions()
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -47,6 +51,16 @@ private fun <T : Any> convertersFromCompanionObject(clazz: KClass<T>): Set<Pair<
                 (func.parameters.single().type.classifier as KClass<*>) to func
             }.toSet()
     } ?: emptySet()
+}
+
+@Suppress("UNCHECKED_CAST")
+internal fun KParameter.getConverters(): Set<Pair<KClass<*>, KFunction<*>>> {
+    return annotations.mapNotNull { paramAnnotation ->
+        paramAnnotation.annotationClass
+            .findAnnotation<KConvertBy>()
+            ?.converters
+            ?.map { it.primaryConstructor!!.call(paramAnnotation) }
+    }.flatten().map { (it.srcClass) to it::convert as KFunction<*> }.toSet()
 }
 
 // 引数の型がconverterに対して入力可能ならconverterを返す
