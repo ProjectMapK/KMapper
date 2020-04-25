@@ -79,7 +79,7 @@ internal sealed class BoundParameterForMap<S> {
             val propertyClazz = property.returnType.classifier as KClass<*>
 
             // コンバータが取れた場合
-            paramClazz.getConverters()
+            (param.getConverters() + paramClazz.getConverters())
                 .filter { (key, _) -> propertyClazz.isSubclassOf(key) }
                 .let {
                     if (1 < it.size) throw IllegalArgumentException("${param.name} has multiple converter. $it")
