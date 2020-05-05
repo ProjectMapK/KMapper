@@ -2,15 +2,11 @@ package com.mapk.kmapper
 
 import com.mapk.annotations.KGetterAlias
 import com.mapk.annotations.KGetterIgnore
-import com.mapk.core.ArgumentBucket
 import com.mapk.core.KFunctionForCall
-import com.mapk.core.getAliasOrName
-import com.mapk.core.isUseDefaultArgument
 import com.mapk.core.toKConstructor
 import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.findAnnotation
