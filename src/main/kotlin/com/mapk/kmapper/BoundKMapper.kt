@@ -56,12 +56,12 @@ class BoundKMapper<S : Any, D : Any> private constructor(
     }
 
     fun map(src: S): D {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
+        val adaptor = function.getArgumentAdaptor()
 
         parameters.forEach {
-            bucket.putIfAbsent(it.param, it.map(src))
+            adaptor.putIfAbsent(it.name, it.map(src))
         }
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 }
