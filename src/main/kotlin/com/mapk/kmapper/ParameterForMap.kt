@@ -1,6 +1,7 @@
 package com.mapk.kmapper
 
 import com.mapk.core.EnumMapper
+import com.mapk.core.ValueParameter
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import kotlin.reflect.KClass
@@ -8,11 +9,13 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSuperclassOf
 
-internal class ParameterForMap<T : Any> private constructor(
-    val param: KParameter,
-    private val clazz: KClass<T>,
+internal class ParameterForMap<T : Any>(
+    param: ValueParameter<T>,
     private val parameterNameConverter: (String) -> String
 ) {
+    val name: String = param.name
+    private val clazz: KClass<T> = param.requiredClazz
+
     private val javaClazz: Class<T> by lazy {
         clazz.java
     }
@@ -51,12 +54,6 @@ internal class ParameterForMap<T : Any> private constructor(
         }
         convertCache.putIfAbsent(valueClazz, processor)
         return processor.process(value)
-    }
-
-    companion object {
-        fun newInstance(param: KParameter, parameterNameConverter: (String) -> String): ParameterForMap<*> {
-            return ParameterForMap(param, param.type.classifier as KClass<*>, parameterNameConverter)
-        }
     }
 }
 
