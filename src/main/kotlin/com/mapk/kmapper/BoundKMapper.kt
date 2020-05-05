@@ -23,11 +23,11 @@ class BoundKMapper<S : Any, D : Any> private constructor(
     parameterNameConverter: (String) -> String
 ) {
     constructor(function: KFunction<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
-        KFunctionForCall(function), src, parameterNameConverter
+        KFunctionForCall(function, parameterNameConverter), src, parameterNameConverter
     )
 
     constructor(clazz: KClass<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
-        clazz.toKConstructor(), src, parameterNameConverter
+        clazz.toKConstructor(parameterNameConverter), src, parameterNameConverter
     )
 
     private val parameters: List<BoundParameterForMap<S>>
