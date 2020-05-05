@@ -20,11 +20,11 @@ class PlainKMapper<T : Any> private constructor(
     parameterNameConverter: (String) -> String
 ) {
     constructor(function: KFunction<T>, parameterNameConverter: (String) -> String = { it }) : this(
-        KFunctionForCall(function), parameterNameConverter
+        KFunctionForCall(function, parameterNameConverter), parameterNameConverter
     )
 
     constructor(clazz: KClass<T>, parameterNameConverter: (String) -> String = { it }) : this(
-        clazz.toKConstructor(), parameterNameConverter
+        clazz.toKConstructor(parameterNameConverter), parameterNameConverter
     )
 
     private val parameterMap: Map<String, PlainParameterForMap<*>> = function.parameters
