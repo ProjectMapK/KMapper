@@ -3,9 +3,9 @@ package com.mapk.kmapper
 import com.mapk.annotations.KConverter
 import com.mapk.conversion.KConvertBy
 import com.mapk.core.KFunctionWithInstance
+import com.mapk.core.ValueParameter
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
@@ -54,7 +54,7 @@ private fun <T : Any> convertersFromCompanionObject(clazz: KClass<T>): Set<Pair<
 }
 
 @Suppress("UNCHECKED_CAST")
-internal fun KParameter.getConverters(): Set<Pair<KClass<*>, KFunction<*>>> {
+internal fun <T : Any> ValueParameter<T>.getConverters(): Set<Pair<KClass<*>, KFunction<*>>> {
     return annotations.mapNotNull { paramAnnotation ->
         paramAnnotation.annotationClass
             .findAnnotation<KConvertBy>()
