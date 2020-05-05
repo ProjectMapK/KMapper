@@ -32,8 +32,8 @@ class BoundKMapper<S : Any, D : Any> private constructor(
         val srcPropertiesMap: Map<String, KProperty1<S, *>> = src.memberProperties
             .filter {
                 // アクセス可能かつignoreされてないもののみ抽出
-                !(it.visibility != KVisibility.PUBLIC)
-                        && it.getter.annotations.none { annotation -> annotation is KGetterIgnore }
+                !(it.visibility != KVisibility.PUBLIC) &&
+                        it.getter.annotations.none { annotation -> annotation is KGetterIgnore }
             }.associateBy { it.getter.findAnnotation<KGetterAlias>()?.value ?: it.name }
 
         parameters = function.requiredParameters
