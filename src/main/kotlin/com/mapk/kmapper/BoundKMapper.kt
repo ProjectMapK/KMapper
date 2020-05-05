@@ -33,13 +33,12 @@ class BoundKMapper<S : Any, D : Any> private constructor(
     private val parameters: List<BoundParameterForMap<S>>
 
     init {
-        val srcPropertiesMap: Map<String, KProperty1<S, *>> =
-            src.memberProperties
-                .filter {
-                    // アクセス可能かつignoreされてないもののみ抽出
-                    !(it.visibility != KVisibility.PUBLIC) &&
-                            it.getter.annotations.none { annotation -> annotation is KGetterIgnore }
-                }.associateBy { it.getter.findAnnotation<KGetterAlias>()?.value ?: it.name }
+        val srcPropertiesMap: Map<String, KProperty1<S, *>> = src.memberProperties
+            .filter {
+                // アクセス可能かつignoreされてないもののみ抽出
+                !(it.visibility != KVisibility.PUBLIC)
+                        && it.getter.annotations.none { annotation -> annotation is KGetterIgnore }
+            }.associateBy { it.getter.findAnnotation<KGetterAlias>()?.value ?: it.name }
 
         parameters = function.parameters
             .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
