@@ -40,16 +40,15 @@ class BoundKMapper<S : Any, D : Any> private constructor(
                         && it.getter.annotations.none { annotation -> annotation is KGetterIgnore }
             }.associateBy { it.getter.findAnnotation<KGetterAlias>()?.value ?: it.name }
 
-        parameters = function.parameters
-            .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
+        parameters = function.requiredParameters
             .mapNotNull {
-                val temp = srcPropertiesMap[parameterNameConverter(it.getAliasOrName()!!)]?.let { property ->
+                val temp = srcPropertiesMap[it.name]?.let { property ->
                     BoundParameterForMap.newInstance(it, property, parameterNameConverter)
                 }
 
                 // 必須引数に対応するプロパティがsrcに定義されていない場合エラー
                 if (temp == null && !it.isOptional) {
-                    throw IllegalArgumentException("Property ${it.name!!} is not declared in ${src.jvmName}.")
+                    throw IllegalArgumentException("Property ${it.name} is not declared in ${src.jvmName}.")
                 }
 
                 temp
