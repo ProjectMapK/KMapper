@@ -29,11 +29,9 @@ class KMapper<T : Any> private constructor(
         clazz.toKConstructor(parameterNameConverter), parameterNameConverter
     )
 
-    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
-        .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate {
-            (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it, parameterNameConverter)
-        }
+    private val parameterMap: Map<String, ParameterForMap<*>> = function.requiredParameters.associate {
+        it.name to ParameterForMap(it, parameterNameConverter)
+    }
 
     private val getCache: ConcurrentMap<KClass<*>, List<ArgumentBinder>> = ConcurrentHashMap()
 
