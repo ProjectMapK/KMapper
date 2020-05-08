@@ -1,16 +1,17 @@
 package com.mapk.kmapper
 
 import com.mapk.core.EnumMapper
+import com.mapk.core.ValueParameter
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSuperclassOf
 
-internal class PlainParameterForMap<T : Any> private constructor(
-    val param: KParameter,
-    private val clazz: KClass<T>,
+internal class PlainParameterForMap<T : Any>(
+    param: ValueParameter<T>,
     private val parameterNameConverter: (String) -> String
 ) {
+    private val clazz: KClass<T> = param.requiredClazz
+
     private val javaClazz: Class<T> by lazy {
         clazz.java
     }
@@ -36,12 +37,6 @@ internal class PlainParameterForMap<T : Any> private constructor(
             clazz == String::class -> value.toString()
             // それ以外の場合PlainKMapperを作り再帰的なマッピングを試みる
             else -> PlainKMapper(clazz, parameterNameConverter).map(value, PARAMETER_DUMMY)
-        }
-    }
-
-    companion object {
-        fun newInstance(param: KParameter, parameterNameConverter: (String) -> String): PlainParameterForMap<*> {
-            return PlainParameterForMap(param, param.type.classifier as KClass<*>, parameterNameConverter)
         }
     }
 }

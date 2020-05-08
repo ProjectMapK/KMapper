@@ -2,17 +2,14 @@ package com.mapk.kmapper
 
 import com.mapk.annotations.KGetterAlias
 import com.mapk.annotations.KGetterIgnore
-import com.mapk.core.ArgumentBucket
+import com.mapk.core.ArgumentAdaptor
 import com.mapk.core.KFunctionForCall
-import com.mapk.core.getAliasOrName
-import com.mapk.core.isUseDefaultArgument
 import com.mapk.core.toKConstructor
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaGetter
@@ -22,28 +19,26 @@ class KMapper<T : Any> private constructor(
     parameterNameConverter: (String) -> String
 ) {
     constructor(function: KFunction<T>, parameterNameConverter: (String) -> String = { it }) : this(
-        KFunctionForCall(function), parameterNameConverter
+        KFunctionForCall(function, parameterNameConverter), parameterNameConverter
     )
 
     constructor(clazz: KClass<T>, parameterNameConverter: (String) -> String = { it }) : this(
-        clazz.toKConstructor(), parameterNameConverter
+        clazz.toKConstructor(parameterNameConverter), parameterNameConverter
     )
 
-    private val parameterMap: Map<String, ParameterForMap<*>> = function.parameters
-        .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate {
-            (parameterNameConverter(it.getAliasOrName()!!)) to ParameterForMap.newInstance(it, parameterNameConverter)
-        }
+    private val parameterMap: Map<String, ParameterForMap<*>> = function.requiredParameters.associate {
+        it.name to ParameterForMap(it, parameterNameConverter)
+    }
 
     private val getCache: ConcurrentMap<KClass<*>, List<ArgumentBinder>> = ConcurrentHashMap()
 
-    private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
+    private fun bindArguments(argumentAdaptor: ArgumentAdaptor, src: Any) {
         val clazz = src::class
 
         // キャッシュヒットしたら登録した内容に沿って取得処理を行う
         getCache[clazz]?.let { getters ->
             // 取得対象フィールドは十分絞り込んでいると考えられるため、終了判定は行わない
-            getters.forEach { it.bindArgument(src, argumentBucket) }
+            getters.forEach { it.bindArgument(src, argumentAdaptor) }
             return
         }
 
@@ -68,7 +63,7 @@ class KMapper<T : Any> private constructor(
 
                 val binder = ArgumentBinder(param, javaGetter)
 
-                binder.bindArgument(src, argumentBucket)
+                binder.bindArgument(src, argumentAdaptor)
                 tempBinderArrayList.add(binder)
                 // キャッシュの整合性を保つため、ここでは終了判定を行わない
             }
@@ -76,65 +71,67 @@ class KMapper<T : Any> private constructor(
         getCache.putIfAbsent(clazz, tempBinderArrayList)
     }
 
-    private fun bindArguments(argumentBucket: ArgumentBucket, src: Map<*, *>) {
+    private fun bindArguments(argumentAdaptor: ArgumentAdaptor, src: Map<*, *>) {
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                argumentBucket.putIfAbsent(param.param, value?.let { param.mapObject(value) })
+                argumentAdaptor.putIfAbsent(param.name, value?.let { param.mapObject(value) })
                 // 終了判定
-                if (argumentBucket.isInitialized) return
+                if (argumentAdaptor.isFullInitialized()) return
             }
         }
     }
 
-    private fun bindArguments(argumentBucket: ArgumentBucket, srcPair: Pair<*, *>) {
-        parameterMap[srcPair.first.toString()]?.let {
-            argumentBucket.putIfAbsent(it.param, srcPair.second?.let { value -> it.mapObject(value) })
+    private fun bindArguments(argumentAdaptor: ArgumentAdaptor, srcPair: Pair<*, *>) {
+        val key = srcPair.first.toString()
+
+        parameterMap[key]?.let {
+            argumentAdaptor.putIfAbsent(key, srcPair.second?.let { value -> it.mapObject(value) })
         }
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
-        bindArguments(bucket, srcMap)
+        val adaptor: ArgumentAdaptor = function.getArgumentAdaptor()
+        bindArguments(adaptor, srcMap)
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 
     fun map(srcPair: Pair<String, Any?>): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
-        bindArguments(bucket, srcPair)
+        val adaptor: ArgumentAdaptor = function.getArgumentAdaptor()
+        bindArguments(adaptor, srcPair)
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 
     fun map(src: Any): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
-        bindArguments(bucket, src)
+        val adaptor: ArgumentAdaptor = function.getArgumentAdaptor()
+        bindArguments(adaptor, src)
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 
     fun map(vararg args: Any): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
+        val adaptor: ArgumentAdaptor = function.getArgumentAdaptor()
 
         listOf(*args).forEach { arg ->
             when (arg) {
-                is Map<*, *> -> bindArguments(bucket, arg)
-                is Pair<*, *> -> bindArguments(bucket, arg)
-                else -> bindArguments(bucket, arg)
+                is Map<*, *> -> bindArguments(adaptor, arg)
+                is Pair<*, *> -> bindArguments(adaptor, arg)
+                else -> bindArguments(adaptor, arg)
             }
         }
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 }
 
 private class ArgumentBinder(private val param: ParameterForMap<*>, private val javaGetter: Method) {
-    fun bindArgument(src: Any, bucket: ArgumentBucket) {
+    fun bindArgument(src: Any, adaptor: ArgumentAdaptor) {
         // 初期化済みであれば高コストな取得処理は行わない
-        if (!bucket.containsKey(param.param)) {
+        if (!adaptor.isInitialized(param.name)) {
             // javaGetterを呼び出す方が高速
-            bucket.putIfAbsent(param.param, javaGetter.invoke(src)?.let { param.mapObject(it) })
+            adaptor.putIfAbsent(param.name, javaGetter.invoke(src)?.let { param.mapObject(it) })
         }
     }
 }

@@ -2,15 +2,12 @@ package com.mapk.kmapper
 
 import com.mapk.annotations.KGetterAlias
 import com.mapk.annotations.KGetterIgnore
-import com.mapk.core.ArgumentBucket
+import com.mapk.core.ArgumentAdaptor
 import com.mapk.core.KFunctionForCall
-import com.mapk.core.getAliasOrName
-import com.mapk.core.isUseDefaultArgument
 import com.mapk.core.toKConstructor
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaGetter
@@ -20,21 +17,18 @@ class PlainKMapper<T : Any> private constructor(
     parameterNameConverter: (String) -> String
 ) {
     constructor(function: KFunction<T>, parameterNameConverter: (String) -> String = { it }) : this(
-        KFunctionForCall(function), parameterNameConverter
+        KFunctionForCall(function, parameterNameConverter), parameterNameConverter
     )
 
     constructor(clazz: KClass<T>, parameterNameConverter: (String) -> String = { it }) : this(
-        clazz.toKConstructor(), parameterNameConverter
+        clazz.toKConstructor(parameterNameConverter), parameterNameConverter
     )
 
-    private val parameterMap: Map<String, PlainParameterForMap<*>> = function.parameters
-        .filter { it.kind != KParameter.Kind.INSTANCE && !it.isUseDefaultArgument() }
-        .associate {
-            (parameterNameConverter(it.getAliasOrName()!!)) to
-                    PlainParameterForMap.newInstance(it, parameterNameConverter)
-        }
+    private val parameterMap: Map<String, PlainParameterForMap<*>> = function.requiredParameters.associate {
+        it.name to PlainParameterForMap(it, parameterNameConverter)
+    }
 
-    private fun bindArguments(argumentBucket: ArgumentBucket, src: Any) {
+    private fun bindArguments(argumentAdaptor: ArgumentAdaptor, src: Any) {
         src::class.memberProperties.forEach outer@{ property ->
             // propertyが公開されていない場合は処理を行わない
             if (property.visibility != KVisibility.PUBLIC) return@outer
@@ -48,66 +42,69 @@ class PlainKMapper<T : Any> private constructor(
                 if (it is KGetterIgnore) return@outer // ignoreされている場合は処理を行わない
                 if (it is KGetterAlias) alias = it.value
             }
+            alias = alias ?: property.name
 
-            parameterMap[alias ?: property.name]?.let {
+            parameterMap[alias!!]?.let {
                 // javaGetterを呼び出す方が高速
                 javaGetter.isAccessible = true
-                argumentBucket.putIfAbsent(it.param, javaGetter.invoke(src)?.let { value -> it.mapObject(value) })
+                argumentAdaptor.putIfAbsent(alias!!, javaGetter.invoke(src)?.let { value -> it.mapObject(value) })
                 // 終了判定
-                if (argumentBucket.isInitialized) return
+                if (argumentAdaptor.isFullInitialized()) return
             }
         }
     }
 
-    private fun bindArguments(argumentBucket: ArgumentBucket, src: Map<*, *>) {
+    private fun bindArguments(argumentAdaptor: ArgumentAdaptor, src: Map<*, *>) {
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                argumentBucket.putIfAbsent(param.param, value?.let { param.mapObject(value) })
+                argumentAdaptor.putIfAbsent(key as String, value?.let { param.mapObject(value) })
                 // 終了判定
-                if (argumentBucket.isInitialized) return
+                if (argumentAdaptor.isFullInitialized()) return
             }
         }
     }
 
-    private fun bindArguments(argumentBucket: ArgumentBucket, srcPair: Pair<*, *>) {
-        parameterMap[srcPair.first.toString()]?.let {
-            argumentBucket.putIfAbsent(it.param, srcPair.second?.let { value -> it.mapObject(value) })
+    private fun bindArguments(argumentBucket: ArgumentAdaptor, srcPair: Pair<*, *>) {
+        val key = srcPair.first.toString()
+
+        parameterMap[key]?.let {
+            argumentBucket.putIfAbsent(key, srcPair.second?.let { value -> it.mapObject(value) })
         }
     }
 
     fun map(srcMap: Map<String, Any?>): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
-        bindArguments(bucket, srcMap)
+        val adaptor = function.getArgumentAdaptor()
+        bindArguments(adaptor, srcMap)
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 
     fun map(srcPair: Pair<String, Any?>): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
-        bindArguments(bucket, srcPair)
+        val adaptor = function.getArgumentAdaptor()
+        bindArguments(adaptor, srcPair)
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 
     fun map(src: Any): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
-        bindArguments(bucket, src)
+        val adaptor = function.getArgumentAdaptor()
+        bindArguments(adaptor, src)
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 
     fun map(vararg args: Any): T {
-        val bucket: ArgumentBucket = function.getArgumentBucket()
+        val adaptor = function.getArgumentAdaptor()
 
         listOf(*args).forEach { arg ->
             when (arg) {
-                is Map<*, *> -> bindArguments(bucket, arg)
-                is Pair<*, *> -> bindArguments(bucket, arg)
-                else -> bindArguments(bucket, arg)
+                is Map<*, *> -> bindArguments(adaptor, arg)
+                is Pair<*, *> -> bindArguments(adaptor, arg)
+                else -> bindArguments(adaptor, arg)
             }
         }
 
-        return function.call(bucket)
+        return function.call(adaptor)
     }
 }
