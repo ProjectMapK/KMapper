@@ -4,11 +4,10 @@ import com.mapk.annotations.KConverter
 import com.mapk.conversion.KConvertBy
 import com.mapk.core.KFunctionWithInstance
 import com.mapk.core.ValueParameter
+import com.mapk.core.getAnnotatedFunctionsFromCompanionObject
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.staticFunctions
@@ -39,17 +38,12 @@ private fun <T : Any> convertersFromStaticMethods(clazz: KClass<T>): Set<Pair<KC
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> convertersFromCompanionObject(clazz: KClass<T>): Set<Pair<KClass<*>, KFunction<T>>> {
-    return clazz.companionObjectInstance?.let { companionObject ->
-        companionObject::class.functions
-            .filter { it.annotations.any { annotation -> annotation is KConverter } }
-            .map { function ->
-                val func: KFunction<T> = KFunctionWithInstance(
-                    function,
-                    companionObject
-                ) as KFunction<T>
+    return clazz.getAnnotatedFunctionsFromCompanionObject<KConverter>()?.let { (instance, functions) ->
+        functions.map { function ->
+            val func: KFunction<T> = KFunctionWithInstance(function, instance) as KFunction<T>
 
-                (func.parameters.single().type.classifier as KClass<*>) to func
-            }.toSet()
+            (func.parameters.single().type.classifier as KClass<*>) to func
+        }.toSet()
     } ?: emptySet()
 }
 
