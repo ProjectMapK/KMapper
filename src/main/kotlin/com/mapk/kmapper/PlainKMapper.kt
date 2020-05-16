@@ -47,7 +47,7 @@ class PlainKMapper<T : Any> private constructor(
             parameterMap[alias!!]?.let {
                 // javaGetterを呼び出す方が高速
                 javaGetter.isAccessible = true
-                argumentAdaptor.putIfAbsent(alias!!, javaGetter.invoke(src)?.let { value -> it.mapObject(value) })
+                argumentAdaptor.putIfAbsent(alias!!) { javaGetter.invoke(src)?.let { value -> it.mapObject(value) } }
                 // 終了判定
                 if (argumentAdaptor.isFullInitialized()) return
             }
@@ -58,7 +58,7 @@ class PlainKMapper<T : Any> private constructor(
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                argumentAdaptor.putIfAbsent(key as String, value?.let { param.mapObject(value) })
+                argumentAdaptor.putIfAbsent(key as String) { value?.let { param.mapObject(value) } }
                 // 終了判定
                 if (argumentAdaptor.isFullInitialized()) return
             }
@@ -69,7 +69,7 @@ class PlainKMapper<T : Any> private constructor(
         val key = srcPair.first.toString()
 
         parameterMap[key]?.let {
-            argumentBucket.putIfAbsent(key, srcPair.second?.let { value -> it.mapObject(value) })
+            argumentBucket.putIfAbsent(key) { srcPair.second?.let { value -> it.mapObject(value) } }
         }
     }
 
