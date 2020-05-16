@@ -4,6 +4,7 @@ import com.mapk.annotations.KConverter
 import com.mapk.conversion.KConvertBy
 import com.mapk.core.KFunctionWithInstance
 import com.mapk.core.ValueParameter
+import com.mapk.core.getAnnotatedFunctions
 import com.mapk.core.getAnnotatedFunctionsFromCompanionObject
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -17,7 +18,7 @@ internal fun <T : Any> KClass<T>.getConverters(): Set<Pair<KClass<*>, KFunction<
     convertersFromConstructors(this) + convertersFromStaticMethods(this) + convertersFromCompanionObject(this)
 
 private fun <T> Collection<KFunction<T>>.getConvertersFromFunctions(): Set<Pair<KClass<*>, KFunction<T>>> {
-    return filter { it.annotations.any { annotation -> annotation is KConverter } }
+    return this.getAnnotatedFunctions<KConverter, T>()
         .map { func ->
             func.isAccessible = true
 
