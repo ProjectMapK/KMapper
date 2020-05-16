@@ -6,6 +6,7 @@ import com.mapk.core.KFunctionWithInstance
 import com.mapk.core.ValueParameter
 import com.mapk.core.getAnnotatedFunctions
 import com.mapk.core.getAnnotatedFunctionsFromCompanionObject
+import com.mapk.core.getKClass
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.findAnnotation
@@ -22,7 +23,7 @@ private fun <T> Collection<KFunction<T>>.getConvertersFromFunctions(): Set<Pair<
         .map { func ->
             func.isAccessible = true
 
-            (func.parameters.single().type.classifier as KClass<*>) to func
+            func.parameters.single().getKClass() to func
         }.toSet()
 }
 
@@ -43,7 +44,7 @@ private fun <T : Any> convertersFromCompanionObject(clazz: KClass<T>): Set<Pair<
         functions.map { function ->
             val func: KFunction<T> = KFunctionWithInstance(function, instance) as KFunction<T>
 
-            (func.parameters.single().type.classifier as KClass<*>) to func
+            func.parameters.single().getKClass() to func
         }.toSet()
     } ?: emptySet()
 }
