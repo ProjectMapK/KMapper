@@ -128,10 +128,8 @@ class KMapper<T : Any> private constructor(
 
 private class ArgumentBinder(private val param: ParameterForMap<*>, private val javaGetter: Method) {
     fun bindArgument(src: Any, adaptor: ArgumentAdaptor) {
-        // 初期化済みであれば高コストな取得処理は行わない
-        if (!adaptor.isInitialized(param.name)) {
-            // javaGetterを呼び出す方が高速
-            adaptor.putIfAbsent(param.name, javaGetter.invoke(src)?.let { param.mapObject(it) })
+        adaptor.putIfAbsent(param.name) {
+            javaGetter.invoke(src)?.let { param.mapObject(it) }
         }
     }
 }
