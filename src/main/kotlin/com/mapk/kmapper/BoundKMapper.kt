@@ -55,7 +55,7 @@ class BoundKMapper<S : Any, D : Any> private constructor(
         val adaptor = function.getArgumentAdaptor()
 
         parameters.forEach {
-            adaptor.putIfAbsent(it.name, it.map(src))
+            adaptor.forcePut(it.name, it.map(src))
         }
 
         return function.call(adaptor)
