@@ -75,7 +75,7 @@ class KMapper<T : Any> private constructor(
         src.forEach { (key, value) ->
             parameterMap[key]?.let { param ->
                 // 取得した内容がnullでなければ適切にmapする
-                argumentAdaptor.putIfAbsent(param.name, value?.let { param.mapObject(value) })
+                argumentAdaptor.putIfAbsent(param.name) { value?.let { param.mapObject(value) } }
                 // 終了判定
                 if (argumentAdaptor.isFullInitialized()) return
             }
@@ -86,7 +86,7 @@ class KMapper<T : Any> private constructor(
         val key = srcPair.first.toString()
 
         parameterMap[key]?.let {
-            argumentAdaptor.putIfAbsent(key, srcPair.second?.let { value -> it.mapObject(value) })
+            argumentAdaptor.putIfAbsent(key) { srcPair.second?.let { value -> it.mapObject(value) } }
         }
     }
 
