@@ -20,8 +20,9 @@ internal class ParameterForMap<T : Any>(
     }
     // リストの長さが小さいと期待されるためこの形で実装しているが、理想的にはmap的なものが使いたい
     @Suppress("UNCHECKED_CAST")
-    private val converters: Set<Pair<KClass<*>, KFunction<T>>> =
+    private val converters: Set<Pair<KClass<*>, KFunction<T>>> by lazy {
         (param.getConverters() as Set<Pair<KClass<*>, KFunction<T>>>) + clazz.getConverters()
+    }
 
     private val convertCache: ConcurrentMap<KClass<*>, ParameterProcessor> = ConcurrentHashMap()
 
