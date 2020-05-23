@@ -16,7 +16,7 @@ class BoundParameterForMapTest {
     @DisplayName("ToStringのテスト")
     inner class ToStringTest {
         private val parameter =
-            BoundParameterForMap.ToString<Any>("", IntSrc::class.memberProperties.single().javaGetter!!)
+            BoundParameterForMap.ToString<IntSrc>("", IntSrc::class.memberProperties.single().javaGetter!!)
 
         @Test
         @DisplayName("not null")
