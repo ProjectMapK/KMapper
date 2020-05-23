@@ -49,7 +49,7 @@ internal sealed class BoundParameterForMap<S> {
         override fun map(src: S): Any? = boundKMapper.map(propertyGetter.invoke(src) as T)
     }
 
-    private class ToEnum<S : Any>(
+    internal class ToEnum<S : Any>(
         override val name: String,
         override val propertyGetter: Method,
         private val paramClazz: Class<*>
