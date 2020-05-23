@@ -68,7 +68,7 @@ internal sealed class BoundParameterForMap<S> {
         fun <S : Any> newInstance(
             param: ValueParameter<*>,
             property: KProperty1<S, *>,
-            parameterNameConverter: (String) -> String
+            parameterNameConverter: ((String) -> String)?
         ): BoundParameterForMap<S> {
             // ゲッターが無いならエラー
             val propertyGetter = property.javaGetter

@@ -16,13 +16,13 @@ import kotlin.reflect.jvm.jvmName
 class BoundKMapper<S : Any, D : Any> private constructor(
     private val function: KFunctionForCall<D>,
     src: KClass<S>,
-    parameterNameConverter: (String) -> String
+    parameterNameConverter: ((String) -> String)?
 ) {
-    constructor(function: KFunction<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
+    constructor(function: KFunction<D>, src: KClass<S>, parameterNameConverter: ((String) -> String)? = null) : this(
         KFunctionForCall(function, parameterNameConverter), src, parameterNameConverter
     )
 
-    constructor(clazz: KClass<D>, src: KClass<S>, parameterNameConverter: (String) -> String = { it }) : this(
+    constructor(clazz: KClass<D>, src: KClass<S>, parameterNameConverter: ((String) -> String)? = null) : this(
         clazz.toKConstructor(parameterNameConverter), src, parameterNameConverter
     )
 

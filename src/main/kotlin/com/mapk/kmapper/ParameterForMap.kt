@@ -10,7 +10,7 @@ import kotlin.reflect.full.isSuperclassOf
 
 internal class ParameterForMap<T : Any>(
     param: ValueParameter<T>,
-    private val parameterNameConverter: (String) -> String
+    private val parameterNameConverter: ((String) -> String)?
 ) {
     val name: String = param.name
     private val clazz: KClass<T> = param.requiredClazz
@@ -61,7 +61,7 @@ private sealed class ParameterProcessor {
     abstract fun process(value: Any): Any?
 
     object Plain : ParameterProcessor() {
-        override fun process(value: Any): Any? = value
+        override fun process(value: Any): Any = value
     }
 
     class UseConverter(private val converter: KFunction<*>) : ParameterProcessor() {
@@ -82,6 +82,6 @@ private sealed class ParameterProcessor {
     }
 
     object ToString : ParameterProcessor() {
-        override fun process(value: Any): Any? = value.toString()
+        override fun process(value: Any): Any = value.toString()
     }
 }
