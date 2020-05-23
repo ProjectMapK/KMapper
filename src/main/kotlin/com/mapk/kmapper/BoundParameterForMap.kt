@@ -54,7 +54,7 @@ internal sealed class BoundParameterForMap<S> {
         override val propertyGetter: Method,
         private val paramClazz: Class<*>
     ) : BoundParameterForMap<S>() {
-        override fun map(src: S): Any? = EnumMapper.getEnum(paramClazz, propertyGetter.invoke(src) as String)
+        override fun map(src: S): Any? = EnumMapper.getEnum(paramClazz, propertyGetter.invoke(src) as String?)
     }
 
     internal class ToString<S : Any>(
