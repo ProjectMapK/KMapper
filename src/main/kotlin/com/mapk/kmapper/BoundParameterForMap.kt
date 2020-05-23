@@ -17,14 +17,14 @@ internal sealed class BoundParameterForMap<S> {
 
     abstract fun map(src: S): Any?
 
-    private class Plain<S : Any>(
+    internal class Plain<S : Any>(
         override val name: String,
         override val propertyGetter: Method
     ) : BoundParameterForMap<S>() {
         override fun map(src: S): Any? = propertyGetter.invoke(src)
     }
 
-    private class UseConverter<S : Any>(
+    internal class UseConverter<S : Any>(
         override val name: String,
         override val propertyGetter: Method,
         private val converter: KFunction<*>
@@ -32,36 +32,36 @@ internal sealed class BoundParameterForMap<S> {
         override fun map(src: S): Any? = converter.call(propertyGetter.invoke(src))
     }
 
-    private class UseKMapper<S : Any>(
+    internal class UseKMapper<S : Any>(
         override val name: String,
         override val propertyGetter: Method,
         private val kMapper: KMapper<*>
     ) : BoundParameterForMap<S>() {
         // 1引数で呼び出すとMap/Pairが適切に処理されないため、2引数目にダミーを噛ませている
-        override fun map(src: S): Any? = kMapper.map(propertyGetter.invoke(src), PARAMETER_DUMMY)
+        override fun map(src: S): Any? = propertyGetter.invoke(src)?.let { kMapper.map(it, PARAMETER_DUMMY) }
     }
 
-    private class UseBoundKMapper<S : Any, T : Any>(
+    internal class UseBoundKMapper<S : Any, T : Any>(
         override val name: String,
         override val propertyGetter: Method,
         private val boundKMapper: BoundKMapper<T, *>
     ) : BoundParameterForMap<S>() {
-        override fun map(src: S): Any? = boundKMapper.map(propertyGetter.invoke(src) as T)
+        override fun map(src: S): Any? = (propertyGetter.invoke(src))?.let { boundKMapper.map(it as T) }
     }
 
-    private class ToEnum<S : Any>(
+    internal class ToEnum<S : Any>(
         override val name: String,
         override val propertyGetter: Method,
         private val paramClazz: Class<*>
     ) : BoundParameterForMap<S>() {
-        override fun map(src: S): Any? = EnumMapper.getEnum(paramClazz, propertyGetter.invoke(src) as String)
+        override fun map(src: S): Any? = EnumMapper.getEnum(paramClazz, propertyGetter.invoke(src) as String?)
     }
 
-    private class ToString<S : Any>(
+    internal class ToString<S : Any>(
         override val name: String,
         override val propertyGetter: Method
     ) : BoundParameterForMap<S>() {
-        override fun map(src: S): String? = propertyGetter.invoke(src).toString()
+        override fun map(src: S): String? = propertyGetter.invoke(src)?.toString()
     }
 
     companion object {
