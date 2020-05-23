@@ -61,7 +61,7 @@ private sealed class ParameterProcessor {
     abstract fun process(value: Any): Any?
 
     object Plain : ParameterProcessor() {
-        override fun process(value: Any): Any? = value
+        override fun process(value: Any): Any = value
     }
 
     class UseConverter(private val converter: KFunction<*>) : ParameterProcessor() {
@@ -82,6 +82,6 @@ private sealed class ParameterProcessor {
     }
 
     object ToString : ParameterProcessor() {
-        override fun process(value: Any): Any? = value.toString()
+        override fun process(value: Any): Any = value.toString()
     }
 }
