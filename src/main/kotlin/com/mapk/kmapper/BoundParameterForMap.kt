@@ -38,7 +38,7 @@ internal sealed class BoundParameterForMap<S> {
         private val kMapper: KMapper<*>
     ) : BoundParameterForMap<S>() {
         // 1引数で呼び出すとMap/Pairが適切に処理されないため、2引数目にダミーを噛ませている
-        override fun map(src: S): Any? = kMapper.map(propertyGetter.invoke(src), PARAMETER_DUMMY)
+        override fun map(src: S): Any? = propertyGetter.invoke(src)?.let { kMapper.map(it, PARAMETER_DUMMY) }
     }
 
     private class UseBoundKMapper<S : Any, T : Any>(
