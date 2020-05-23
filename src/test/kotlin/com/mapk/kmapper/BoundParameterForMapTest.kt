@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 class BoundParameterForMapTest {
     data class IntSrc(val int: Int?)
     data class StringSrc(val str: String?)
+    data class InnerSrc(val int: Int?, val str: String?)
     data class ObjectSrc(val obj: Any?)
 
     data class ObjectDst(val int: Int?, val str: String?)
@@ -74,6 +75,27 @@ class BoundParameterForMapTest {
         fun isNotNull() {
             val result = parameter.map(ObjectSrc(mapOf("int" to 0, "str" to null)))
             assertEquals(ObjectDst(0, null), result)
+        }
+
+        @Test
+        @DisplayName("null")
+        fun isNull() {
+            assertNull(parameter.map(ObjectSrc(null)))
+        }
+    }
+
+    @Nested
+    @DisplayName("UseBoundKMapperのテスト")
+    inner class UseBoundKMapperTest {
+        private val parameter = BoundParameterForMap.UseBoundKMapper<ObjectSrc, InnerSrc>(
+            "", ObjectSrc::class.memberProperties.single().javaGetter!!, BoundKMapper(::ObjectDst, InnerSrc::class)
+        )
+
+        @Test
+        @DisplayName("not null")
+        fun isNotNull() {
+            val result = parameter.map(ObjectSrc(InnerSrc(null, "str")))
+            assertEquals(ObjectDst(null, "str"), result)
         }
 
         @Test
