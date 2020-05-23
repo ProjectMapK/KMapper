@@ -14,7 +14,7 @@ import kotlin.reflect.jvm.javaGetter
 
 class PlainKMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
-    parameterNameConverter: (String) -> String
+    parameterNameConverter: ((String) -> String)?
 ) {
     constructor(function: KFunction<T>, parameterNameConverter: (String) -> String = { it }) : this(
         KFunctionForCall(function, parameterNameConverter), parameterNameConverter
