@@ -15,6 +15,26 @@ class BoundParameterForMapTest {
     data class StringSrc(val str: String?)
 
     @Nested
+    @DisplayName("Plainのテスト")
+    inner class PlainTest {
+        private val parameter =
+            BoundParameterForMap.Plain<StringSrc>("", StringSrc::class.memberProperties.single().javaGetter!!)
+
+        @Test
+        @DisplayName("not null")
+        fun isNotNull() {
+            val result = parameter.map(StringSrc("sss"))
+            assertEquals("sss", result)
+        }
+
+        @Test
+        @DisplayName("null")
+        fun isNull() {
+            assertNull(parameter.map(StringSrc(null)))
+        }
+    }
+
+    @Nested
     @DisplayName("ToEnumのテスト")
     inner class ToEnumTest {
         private val parameter = BoundParameterForMap.ToEnum<StringSrc>(
