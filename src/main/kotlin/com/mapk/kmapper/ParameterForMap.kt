@@ -10,7 +10,7 @@ import kotlin.reflect.full.isSuperclassOf
 
 internal class ParameterForMap<T : Any>(
     param: ValueParameter<T>,
-    private val parameterNameConverter: (String) -> String
+    private val parameterNameConverter: ((String) -> String)?
 ) {
     val name: String = param.name
     private val clazz: KClass<T> = param.requiredClazz
