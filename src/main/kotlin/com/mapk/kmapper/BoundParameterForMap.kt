@@ -17,7 +17,7 @@ internal sealed class BoundParameterForMap<S> {
 
     abstract fun map(src: S): Any?
 
-    private class Plain<S : Any>(
+    internal class Plain<S : Any>(
         override val name: String,
         override val propertyGetter: Method
     ) : BoundParameterForMap<S>() {
