@@ -1,5 +1,6 @@
 package com.mapk.kmapper
 
+import com.mapk.kmapper.testcommons.JvmLanguage
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaGetter
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -11,6 +12,28 @@ import org.junit.jupiter.api.Test
 @DisplayName("BoundKMapperのパラメータテスト")
 class BoundParameterForMapTest {
     data class IntSrc(val int: Int?)
+    data class StringSrc(val str: String?)
+
+    @Nested
+    @DisplayName("ToEnumのテスト")
+    inner class ToEnumTest {
+        private val parameter = BoundParameterForMap.ToEnum<StringSrc>(
+            "", StringSrc::class.memberProperties.single().javaGetter!!, JvmLanguage::class.java
+        )
+
+        @Test
+        @DisplayName("not null")
+        fun isNotNull() {
+            val result = parameter.map(StringSrc("Java"))
+            assertEquals(JvmLanguage.Java, result)
+        }
+
+        @Test
+        @DisplayName("null")
+        fun isNull() {
+            assertNull(parameter.map(StringSrc(null)))
+        }
+    }
 
     @Nested
     @DisplayName("ToStringのテスト")
