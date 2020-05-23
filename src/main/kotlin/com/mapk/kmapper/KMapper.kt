@@ -18,11 +18,11 @@ class KMapper<T : Any> private constructor(
     private val function: KFunctionForCall<T>,
     parameterNameConverter: ((String) -> String)?
 ) {
-    constructor(function: KFunction<T>, parameterNameConverter: (String) -> String = { it }) : this(
+    constructor(function: KFunction<T>, parameterNameConverter: ((String) -> String)? = null) : this(
         KFunctionForCall(function, parameterNameConverter), parameterNameConverter
     )
 
-    constructor(clazz: KClass<T>, parameterNameConverter: (String) -> String = { it }) : this(
+    constructor(clazz: KClass<T>, parameterNameConverter: ((String) -> String)? = null) : this(
         clazz.toKConstructor(parameterNameConverter), parameterNameConverter
     )
 
