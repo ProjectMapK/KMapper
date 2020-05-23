@@ -46,7 +46,7 @@ internal sealed class BoundParameterForMap<S> {
         override val propertyGetter: Method,
         private val boundKMapper: BoundKMapper<T, *>
     ) : BoundParameterForMap<S>() {
-        override fun map(src: S): Any? = boundKMapper.map(propertyGetter.invoke(src) as T)
+        override fun map(src: S): Any? = (propertyGetter.invoke(src))?.let { boundKMapper.map(it as T) }
     }
 
     internal class ToEnum<S : Any>(
