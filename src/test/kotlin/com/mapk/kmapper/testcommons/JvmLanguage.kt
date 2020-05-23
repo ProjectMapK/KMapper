@@ -1,4 +1,4 @@
-package com.mapk.kmapper
+package com.mapk.kmapper.testcommons
 
 enum class JvmLanguage {
     Java, Scala, Groovy, Kotlin

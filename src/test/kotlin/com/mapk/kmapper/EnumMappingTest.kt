@@ -2,6 +2,7 @@
 
 package com.mapk.kmapper
 
+import com.mapk.kmapper.testcommons.JvmLanguage
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
