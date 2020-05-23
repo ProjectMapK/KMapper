@@ -61,7 +61,7 @@ internal sealed class BoundParameterForMap<S> {
         override val name: String,
         override val propertyGetter: Method
     ) : BoundParameterForMap<S>() {
-        override fun map(src: S): String? = propertyGetter.invoke(src).toString()
+        override fun map(src: S): String? = propertyGetter.invoke(src)?.toString()
     }
 
     companion object {
