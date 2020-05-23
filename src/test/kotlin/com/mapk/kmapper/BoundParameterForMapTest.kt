@@ -35,6 +35,31 @@ class BoundParameterForMapTest {
     }
 
     @Nested
+    @DisplayName("UseConverterのテスト")
+    inner class UseConverterTest {
+        // アクセシビリティの問題で公開状態に設定
+        @Suppress("MemberVisibilityCanBePrivate")
+        fun makeTwiceOrNull(int: Int?) = int?.let { it * 2 }
+
+        private val parameter = BoundParameterForMap.UseConverter<IntSrc>(
+            "", IntSrc::class.memberProperties.single().javaGetter!!, this::makeTwiceOrNull
+        )
+
+        @Test
+        @DisplayName("not null")
+        fun isNotNull() {
+            val result = parameter.map(IntSrc(1))
+            assertEquals(2, result)
+        }
+
+        @Test
+        @DisplayName("null")
+        fun isNull() {
+            assertNull(parameter.map(IntSrc(null)))
+        }
+    }
+
+    @Nested
     @DisplayName("ToEnumのテスト")
     inner class ToEnumTest {
         private val parameter = BoundParameterForMap.ToEnum<StringSrc>(
