@@ -40,7 +40,7 @@ dependencies {
     }
     // 現状プロパティ名の変換はテストでしか使っていないのでtestImplementation
     // https://mvnrepository.com/artifact/com.google.guava/guava
-    testImplementation(group = "com.google.guava", name = "guava", version = "28.2-jre")
+    testImplementation(group = "com.google.guava", name = "guava", version = "29.0-jre")
 }
 
 tasks {
