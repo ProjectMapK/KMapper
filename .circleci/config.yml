@@ -2,7 +2,9 @@
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.5
 jobs:
   build:
     docker:
@@ -42,3 +44,5 @@ jobs:
       - run: gradle ktlintCheck
       # run tests!
       - run: gradle test
+      # upload coverages to codecov
+      - run: bash <(curl -s https://codecov.io/bash)
