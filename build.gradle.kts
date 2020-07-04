@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
     // その他補助系
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("jacoco")
     id("com.github.ben-manes.versions") version "0.28.0"
 }
 
@@ -60,5 +61,15 @@ tasks {
     }
     test {
         useJUnitPlatform()
+        // テスト終了時にjacocoのレポートを生成する
+        finalizedBy(jacocoTestReport)
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.isEnabled = true
+            csv.isEnabled = false
+            html.isEnabled = true
+        }
     }
 }
