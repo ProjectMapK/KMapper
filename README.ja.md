@@ -195,6 +195,32 @@ val mapper: KMapper<Dst> = KMapper(Dst::class)
 ## 詳細な使い方
 
 ### マッピング時の値の変換
+マッピングを行うに当たり、入力の型を別の型に変換したい場合が有ります。  
+`KMapper`では、そのような状況に対応するため、豊富な変換機能を提供しています。
+
+#### デフォルトで利用可能な変換
+いくつかの変換機能は、特別な記述無しに利用することができます。
+
+##### ネストしたマッピング
+引数をそのまま用いることができず、かつその他の変換も行えない場合、`KMapper`は内部でマッピングクラスを用い、1対1マッピングを試みます。  
+これによって、デフォルトで以下のようなネストしたマッピングを行うことができます。
+
+```kotlin
+data class InnerDst(val foo: Int, val bar: Int)
+data class Dst(val param: InnerDst)
+
+data class InnerSrc(val foo: Int, val bar: Int)
+data class Src(val param: InnerSrc)
+
+val src = Src(InnerSrc(1, 2))
+val dst = KMapper(::Dst).map(src)
+
+println(dst.param) // -> InnerDst(foo=1, bar=2)
+```
+
+###### ネストしたマッピングに用いられる関数の指定
+ネストしたマッピングは、`KMapper`をクラスから指定した場合と同様に行われます。  
+このため、`KConstructor`アノテーションを用いて呼び出し対象を指定することができます。
 
 ### マッピング時に用いる引数名・フィールド名の設定
 `KMapper`は、デフォルトでは引数名に対応する名前のフィールドをソースからそのまま探します。  
@@ -340,21 +366,6 @@ class Foo(
 **4. マッパークラスを用いた変換処理**
 ここまでの変換条件に合致しなかった場合、マッパークラスを用いてネストした変換処理を行います。  
 このマッピング処理には、`PlainKMapper`は`PlainKMapper`を、それ以外は`BoundKMapper`を用います。
-
-これによって、以下のようなネストしたマッピングを行うことができます。
-
-```kotlin
-data class InnerDst(val foo: Int, val bar: Int)
-data class Dst(val param: InnerDst)
-
-data class InnerSrc(val foo: Int, val bar: Int)
-data class Src(val param: InnerSrc)
-
-val src = Src(InnerSrc(1, 2))
-val dst = KMapper(::Dst).map(src)
-
-println(dst.param) // -> InnerDst(foo=1, bar=2)
-```
 
 ### 入力の優先度
 `KMapper`では、基本的に先に入った入力可能な引数を優先します。  
