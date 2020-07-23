@@ -121,7 +121,7 @@ class ConversionTest {
         @DisplayName("Numberソース")
         fun fromNumber(numbers: NumberSource) {
             numbers.values.forEach {
-                val actual = BoundKMapper(::Dst, NumberSrc::class).map(NumberSrc(it))
+                val actual = BoundKMapper<NumberSrc, Dst>().map(NumberSrc(it))
                 assertEquals(0, BigDecimal.valueOf(it.toDouble()).compareTo(actual.number))
             }
         }
@@ -130,7 +130,7 @@ class ConversionTest {
         @ValueSource(strings = ["100", "2.0", "-500"])
         @DisplayName("Stringソース")
         fun fromString(str: String) {
-            val actual = BoundKMapper(::Dst, StringSrc::class).map(StringSrc(str))
+            val actual = BoundKMapper<StringSrc, Dst>().map(StringSrc(str))
             assertEquals(0, BigDecimal(str).compareTo(actual.number))
         }
     }
