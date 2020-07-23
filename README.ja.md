@@ -228,6 +228,25 @@ println(dst.param) // -> InnerDst(foo=1, bar=2)
 ネストしたマッピングは、`KMapper`をクラスから指定した場合と同様に行われます。  
 このため、`KConstructor`アノテーションを用いて呼び出し対象を指定することができます。
 
+##### その他の変換
+
+###### StringからEnumへの変換
+入力が`String`で、かつ引数が`Enum`だった場合、入力と対応する`name`を持つ`Enum`への変換が試みられます。  
+
+```kotlin
+enum class FizzBuzz {
+    Fizz, Buzz, FizzBuzz;
+}
+
+data class Dst(val fizzBuzz: FizzBuzz)
+
+val dst = KMapper(::Dst).map("fizzBuzz" to "Fizz")
+println(dst) // -> Dst(fizzBuzz=Fizz)
+```
+
+###### Stringへの変換
+引数が`String`だった場合、入力を`toString`する変換が行われます。
+
 ### マッピング時に用いる引数名・フィールド名の設定
 `KMapper`は、デフォルトでは引数名に対応する名前のフィールドをソースからそのまま探します。  
 一方、引数名とソースで違う名前を用いたいという場合も有ります。
