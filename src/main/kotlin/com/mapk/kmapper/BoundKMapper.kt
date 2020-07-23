@@ -38,16 +38,13 @@ class BoundKMapper<S : Any, D : Any> private constructor(
 
         parameters = function.requiredParameters
             .mapNotNull {
-                val temp = srcPropertiesMap[it.name]?.let { property ->
+                srcPropertiesMap[it.name]?.let { property ->
                     BoundParameterForMap.newInstance(it, property, parameterNameConverter)
+                }.apply {
+                    // 必須引数に対応するプロパティがsrcに定義されていない場合エラー
+                    if (this == null && !it.isOptional)
+                        throw IllegalArgumentException("Property ${it.name} is not declared in ${src.jvmName}.")
                 }
-
-                // 必須引数に対応するプロパティがsrcに定義されていない場合エラー
-                if (temp == null && !it.isOptional) {
-                    throw IllegalArgumentException("Property ${it.name} is not declared in ${src.jvmName}.")
-                }
-
-                temp
             }
     }
 
