@@ -30,3 +30,33 @@ val dst = Dst(
 // KMapperを用いる場合
 val dst = KMapper(::Dst).map(src)
 ```
+
+## インストール方法
+`KMapper`は`JitPack`にて公開しており、`Maven`や`Gradle`といったビルドツールから手軽に利用できます。  
+各ツールでの正確なインストール方法については下記をご参照ください。
+
+- [ProjectMapK / KMapper](https://jitpack.io/#ProjectMapK/KMapper)
+
+### Mavenでのインストール方法
+以下は`Maven`でのインストール例です。
+
+**1. JitPackのリポジトリへの参照を追加する**
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+**2. dependencyを追加する**
+
+```xml
+<dependency>
+    <groupId>com.github.ProjectMapK</groupId>
+    <artifactId>KMapper</artifactId>
+    <version>Tag</version>
+</dependency>
+```
