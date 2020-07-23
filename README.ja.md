@@ -197,7 +197,54 @@ val mapper: KMapper<Dst> = KMapper(Dst::class)
 ### マッピング時の値の変換
 
 ### マッピング時に用いる引数名・フィールド名の設定
+#### 引数名の変換
+`KMapper`は、デフォルトでは引数名に対応するフィールドをそのまま探します。  
+一方、引数の命名規則がキャメルケースかつソースの命名規則がスネークケースというような場合、このままでは一致を見ることができません。
 
+このような一定の変換が要求される状況には、命名の変更関数を初期化時に設定することで対応できます。
+
+```kotlin
+data class Dst(
+    fooFoo: String,
+    barBar: String,
+    bazBaz: Int?
+)
+
+val mapper: KMapper<Dst> = KMapper(::Dst) { fieldName: String ->
+    /* 命名変換処理 */
+}
+
+// 例えばスネークケースへの変換関数を渡すことで、以下のような入力にも対応できる
+val dst = mapper.map(mapOf(
+    "foo_foo" to "foo",
+    "bar_bar" to "bar",
+    "baz_baz" to 3
+))
+```
+
+また、当然ながらラムダ内で任意の変換処理を行うこともできます。
+
+#### 実際の変換処理
+`KRowMapper`では命名変換処理を提供していませんが、`Spring`やそれを用いたプロジェクトの中で用いられるライブラリでは命名変換処理が提供されている場合が有ります。  
+`Jackson`、`Guava`の2つのライブラリで実際に「キャメルケース -> スネークケース」の変換処理を渡すサンプルコードを示します。
+
+##### Jackson
+```kotlin
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+
+val parameterNameConverter: (String) -> String = PropertyNamingStrategy.SnakeCaseStrategy()::translate
+val mapper: KRowMapper<Dst> = KRowMapper(::Dst, parameterNameConverter)
+```
+
+##### Guava
+```kotlin
+import com.google.common.base.CaseFormat
+
+val parameterNameConverter: (String) -> String = { fieldName: String ->
+    CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName)
+}
+val mapper: KRowMapper<Dst> = KRowMapper(::Dst, parameterNameConverter)
+```
 
 ### その他機能
 #### 制御してデフォルト引数を用いる
