@@ -94,3 +94,31 @@ val dst = KMapper(::Dst).map(src)
 ### BoundKMapper
 `BoundKMapper`はソースとなるクラスが1つに限定できる場合に利用できるマッピングクラスです。  
 `KMapper`に比べ高速に動作します。
+
+## KMapperの初期化
+`KMapper`は呼び出し対象の`method reference(KFunction)`、またはマッピング先の`KClass`から初期化できます。
+
+### method reference(KFunction)からの初期化
+プライマリコンストラクタを呼び出し対象とする場合、以下のように初期化を行うことができます。  
+ただし、この例では簡単のため`BoundKMapper`の初期化をダミーコンストラクタによって行っています。
+
+```kotlin
+data class Dst(
+    foo: String,
+    bar: String,
+    baz: Int?,
+
+    ...
+
+)
+
+// コンストラクタのメソッドリファレンスを取得
+val dstConstructor: KFunction<Dst> = ::Dst
+
+// KMapperの場合
+val kMapper: KMapper<Dst> = KMapper(dstConstructor)
+// PlainKMapperの場合
+val plainMapper: PlainKMapper<Dst> = PlainKMapper(dstConstructor)
+// BoundKMapperの場合（ダミーコンストラクタ利用）
+val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper(dstConstructor)
+```
