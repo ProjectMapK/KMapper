@@ -247,6 +247,45 @@ println(dst) // -> Dst(fizzBuzz=Fizz)
 ###### Stringへの変換
 引数が`String`だった場合、入力を`toString`する変換が行われます。
 
+#### KConverterアノテーションを設定することによる変換
+自作のクラスで、かつ単一引数から初期化できる場合、`KConverter`アノテーションを用いた変換が利用できます。  
+`KConverter`アノテーションは、コンストラクタ、もしくは`companion object`に定義したファクトリーメソッドに対して付与できます。
+
+```kotlin
+// プライマリーコンストラクタに付与した場合
+data class FooId @KConverter constructor(val id: Int)
+```
+
+```kotlin
+// セカンダリーコンストラクタに付与した場合
+data class FooId(val id: Int) {
+    @KConverter
+    constructor(id: String) : this(id.toInt())
+}
+```
+
+```kotlin
+// ファクトリーメソッドに付与した場合
+data class FooId(val id: Int) {
+    companion object {
+        @KConverter
+        fun of(id: String): FooId = FooId(id.toInt())
+    }
+}
+```
+
+```kotlin
+// fooIdにKConverterが付与されていればDstでは何もせずに正常にマッピングができる
+data class Dst(
+    fooId: FooId,
+    bar: String,
+    baz: Int?,
+
+    ...
+
+)
+```
+
 ### マッピング時に用いる引数名・フィールド名の設定
 `KMapper`は、デフォルトでは引数名に対応する名前のフィールドをソースからそのまま探します。  
 一方、引数名とソースで違う名前を用いたいという場合も有ります。
