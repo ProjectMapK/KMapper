@@ -124,3 +124,29 @@ val plainMapper: PlainKMapper<Dst> = PlainKMapper(dstConstructor)
 // BoundKMapperの場合
 val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper(dstConstructor)
 ```
+
+### KClassからの初期化
+`KMapper`は`KClass`からも初期化できます。  
+デフォルトではプライマリーコンストラクタが呼び出し対象になります。
+
+```kotlin
+data class Dst(...)
+
+// KMapperの場合
+val kMapper: KMapper<Dst> = KMapper(Dst::class)
+// PlainKMapperの場合
+val plainMapper: PlainKMapper<Dst> = PlainKMapper(Dst::class)
+// BoundKMapperの場合
+val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper(Dst::class, Src::class)
+```
+
+ダミーコンストラクタを用い、かつジェネリクスを省略することで、それぞれ以下のようにも書けます。
+
+```kotlin
+// KMapperの場合
+val kMapper: KMapper<Dst> = KMapper()
+// PlainKMapperの場合
+val plainMapper: PlainKMapper<Dst> = PlainKMapper()
+// BoundKMapperの場合
+val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper()
+```
