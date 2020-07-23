@@ -96,11 +96,13 @@ val dst = KMapper(::Dst).map(src)
 `KMapper`に比べ高速に動作します。
 
 ## KMapperの初期化
-`KMapper`は呼び出し対象の`method reference(KFunction)`、またはマッピング先の`KClass`から初期化できます。
+`KMapper`は呼び出し対象の`method reference(KFunction)`、またはマッピング先の`KClass`から初期化できます。  
+
+以下にそれぞれの初期化方法をまとめます。  
+ただし、`BoundKMapper`の初期化の内可能なものは全てダミーコンストラクタによって簡略化した例を示します。
 
 ### method reference(KFunction)からの初期化
-プライマリコンストラクタを呼び出し対象とする場合、以下のように初期化を行うことができます。  
-ただし、この例では簡単のため`BoundKMapper`の初期化をダミーコンストラクタによって行っています。
+プライマリコンストラクタを呼び出し対象とする場合、以下のように初期化を行うことができます。
 
 ```kotlin
 data class Dst(
@@ -119,6 +121,6 @@ val dstConstructor: KFunction<Dst> = ::Dst
 val kMapper: KMapper<Dst> = KMapper(dstConstructor)
 // PlainKMapperの場合
 val plainMapper: PlainKMapper<Dst> = PlainKMapper(dstConstructor)
-// BoundKMapperの場合（ダミーコンストラクタ利用）
+// BoundKMapperの場合
 val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper(dstConstructor)
 ```
