@@ -60,3 +60,15 @@ val dst = KMapper(::Dst).map(src)
     <version>Tag</version>
 </dependency>
 ```
+
+## 動作原理
+`KMapper`は以下のように動作します。
+
+1. 呼び出し対象の`KFunction`を取り出す
+2. `KFunction`を解析し、必要な引数とその取り出し方を決定する
+3. 入力からそれぞれの引数に対応する値の取り出しを行い、`KFunction`を呼び出す
+
+最終的にはコンストラクタや`companion object`に定義したファクトリーメソッドなどを呼び出してマッピングを行うため、結果は`Kotlin`上の引数・`nullability`等の制約に従います。  
+つまり、`Kotlin`の`null`安全が壊れることによる実行時エラーは発生しません（ただし、型引数の`nullability`に関しては`null`安全が壊れる場合が有ります）。
+
+また、`Kotlin`特有の機能であるデフォルト引数等にも対応しています。
