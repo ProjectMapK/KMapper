@@ -228,7 +228,7 @@ val dst = mapper.map(mapOf(
 また、当然ながらラムダ内で任意の変換処理を行うこともできます。
 
 #### 実際の変換処理
-`KRowMapper`では命名変換処理を提供していませんが、`Spring`やそれを用いたプロジェクトの中で用いられるライブラリでは命名変換処理が提供されている場合が有ります。  
+`KMapper`では命名変換処理を提供していませんが、プロジェクトでよく用いられるライブラリでも命名変換処理が提供されている場合が有ります。  
 `Jackson`、`Guava`の2つのライブラリで実際に「キャメルケース -> スネークケース」の変換処理を渡すサンプルコードを示します。
 
 ##### Jackson
@@ -236,7 +236,7 @@ val dst = mapper.map(mapOf(
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 
 val parameterNameConverter: (String) -> String = PropertyNamingStrategy.SnakeCaseStrategy()::translate
-val mapper: KRowMapper<Dst> = KRowMapper(::Dst, parameterNameConverter)
+val mapper: KMapper<Dst> = KMapper(::Dst, parameterNameConverter)
 ```
 
 ##### Guava
@@ -246,7 +246,7 @@ import com.google.common.base.CaseFormat
 val parameterNameConverter: (String) -> String = { fieldName: String ->
     CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName)
 }
-val mapper: KRowMapper<Dst> = KRowMapper(::Dst, parameterNameConverter)
+val mapper: KMapper<Dst> = KMapper(::Dst, parameterNameConverter)
 ```
 
 ### その他機能
