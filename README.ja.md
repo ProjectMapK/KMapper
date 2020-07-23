@@ -232,7 +232,13 @@ class Foo(
 `KMapper`は、オブジェクトの`public`フィールド、もしくは`Pair<String, Any?>`、`Map<String, Any?>`のプロパティを読み出しの対象とすることができます。
 
 ### 引数のセットアップ
-`KMapper`は、まず`parameterClazz.isSuperclassOf(inputClazz)`で入力が引数に設定可能かを判定し、そのままでは設定できない場合は変換処理を行います。
+`KMapper`は、値が`null`でなければセットアップ処理を行います。  
+セットアップ処理では、まず`parameterClazz.isSuperclassOf(inputClazz)`で入力が引数に設定可能かを判定し、そのままでは設定できない場合は後述する変換処理を行い、結果を引数とします。
+
+値が`null`だった場合は`KParameterRequireNonNull`アノテーションの有無を確認し、設定されていればセットアップ処理をスキップ、されていなければ`null`をそのまま引数とします。
+
+`KUseDefaultArgument`アノテーションが設定されていたり、`KParameterRequireNonNull`アノテーションによって全ての入力がスキップされた場合、デフォルト引数が用いられます。  
+ここでデフォルト引数が利用できなかった場合は実行時エラーとなります。
 
 #### 引数の変換処理
 `KMapper`は、以下の順序で変換内容のチェック及び変換処理を行います。
