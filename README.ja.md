@@ -191,3 +191,54 @@ data class Dst(...) {
 
 val mapper: KMapper<Dst> = KMapper(Dst::class)
 ```
+
+## 引数のセットアップ
+
+### 引数読み出しの対象
+`KMapper`は、オブジェクトの`public`フィールド、もしくは`Pair<String, Any?>`、`Map<String, Any?>`のプロパティを読み出しの対象とすることができます。
+
+### 引数のセットアップ
+`KMapper`は、まず`parameterClazz.isSuperclassOf(inputClazz)`で入力が引数に設定可能かを判定し、そのままでは設定できない場合は変換処理を行います。
+
+#### 引数の変換処理
+`KMapper`は、以下の順序で変換内容のチェック及び変換処理を行います。
+
+**1. アノテーションによる変換処理の確認**
+まず初めに、入力のクラスに対応する、`KConvertBy`アノテーションや`KConverter`アノテーションによって指定された変換処理が無いかを確認します。
+
+**2. Enumへの変換可否の確認**
+入力が`String`で、かつ引数が`Enum`だった場合、入力と対応する`name`を持つ`Enum`への変換を試みます。
+
+**3. 文字列への変換可否の確認**
+引数が`String`の場合、入力を`toString`します。
+
+**4. マッパークラスを用いた変換処理**
+ここまでの変換条件に合致しなかった場合、マッパークラスを用いてネストした変換処理を行います。  
+このマッピング処理には、`PlainKMapper`は`PlainKMapper`を、それ以外は`BoundKMapper`を用います。
+
+これによって、以下のようなネストしたマッピングを行うことができます。
+
+```kotlin
+data class InnerDst(val foo: Int, val bar: Int)
+data class Dst(val param: InnerDst)
+
+data class InnerSrc(val foo: Int, val bar: Int)
+data class Src(val param: InnerSrc)
+
+val src = Src(InnerSrc(1, 2))
+val dst = KMapper(::Dst).map(src)
+
+println(dst.param) // -> InnerDst(foo=1, bar=2)
+```
+
+### 入力の優先度
+`KMapper`では、基本的に先に入った入力可能な引数を優先します。  
+例えば、以下の例では`param1`として先に`value1`が指定されているため、`"param1" to "value2"`は無視されます。
+
+```kotlin
+val mapper: KMapper<Dst> = ...
+
+val dst = mapper.map("param1" to "value1", "param1" to "value2")
+```
+
+ただし、`KParameterRequireNonNull`アノテーションが指定された引数に対応する入力として`null`が指定された場合、その入力は無視され、後から入った引数が優先されます。
