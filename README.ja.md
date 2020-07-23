@@ -199,6 +199,32 @@ val mapper: KMapper<Dst> = KMapper(Dst::class)
 ### 引数名・フィールド名の変換
 
 ### その他機能
+#### 制御してデフォルト引数を用いる
+`KMapper`では、引数が指定されていなかった場合デフォルト引数を用います。  
+また、引数が指定されていた場合でも、それを用いるか制御することができます。
+
+##### 必ずデフォルト引数を用いる
+必ずデフォルト引数を用いたい場合、`KUseDefaultArgument`アノテーションを利用できます。
+
+```kotlin
+class Foo(
+    ...,
+    @KUseDefaultArgument
+    val description: String = ""
+)
+```
+
+##### 対応する内容が全てnullの場合デフォルト引数を用いる
+`KParameterRequireNonNull`アノテーションを指定することで、引数として`non null`な値が指定されるまで入力をスキップします。  
+これを利用することで、対応する内容が全て`null`の場合デフォルト引数を用いるという挙動が実現できます。
+
+```kotlin
+class Foo(
+    ...,
+    @KParameterRequireNonNull
+    val description: String = ""
+)
+```
 
 ## 引数のセットアップ
 
