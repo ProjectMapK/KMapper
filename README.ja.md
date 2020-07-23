@@ -249,6 +249,23 @@ val parameterNameConverter: (String) -> String = { fieldName: String ->
 val mapper: KMapper<Dst> = KMapper(::Dst, parameterNameConverter)
 ```
 
+#### ゲッターにエイリアスを設定する
+以下のようなコードで、マッピング時にのみ`Scr`クラスの`_foo`フィールドの名前を変更する場合、`KGetterAlias`アノテーションを用いるのが最適です。
+
+```kotlin
+data class Dst(val foo: Int)
+data class Src(val _foo: Int)
+```
+
+実際に付与すると以下のようになります。
+
+```kotlin
+data class Src(
+    @get:KGetterAlias("foo")
+    val _foo: Int
+)
+```
+
 ### その他機能
 #### 制御してデフォルト引数を用いる
 `KMapper`では、引数が指定されていなかった場合デフォルト引数を用います。  
