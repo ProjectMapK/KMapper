@@ -31,6 +31,18 @@ val dst = Dst(
 val dst = KMapper(::Dst).map(src)
 ```
 
+ソースは1つに限らず、複数のオブジェクトや、`Pair`、`Map`等を指定することもできます。
+
+```kotlin
+""
+val dst = KMapper(::Dst).map(
+    "param1" to "value of param1",
+    mapOf("param2" to 1, "param3" to 2L),
+    src1,
+    src2
+)
+```
+
 ## インストール方法
 `KMapper`は`JitPack`にて公開しており、`Maven`や`Gradle`といったビルドツールから手軽に利用できます。  
 各ツールでの正確なインストール方法については下記をご参照ください。
