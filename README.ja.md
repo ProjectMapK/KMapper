@@ -150,3 +150,32 @@ val plainMapper: PlainKMapper<Dst> = PlainKMapper()
 // BoundKMapperの場合
 val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper()
 ```
+
+#### KConstructorアノテーションによる呼び出し対象指定
+`KClass`から初期化を行う場合、全てのマッパークラスでは`KConstructor`アノテーションを用いて呼び出し対象の関数を指定することができます。  
+
+以下の例ではセカンダリーコンストラクタが呼び出されます。
+
+```kotlin
+data class Dst(...) {
+    @KConstructor
+    constructor(...) : this(...)
+}
+
+val mapper: KMapper<Dst> = KMapper(Dst::class)
+```
+
+同様に、以下の例ではファクトリーメソッドが呼び出されます。
+
+```kotlin
+data class Dst(...) {
+    companion object {
+        @KConstructor
+        fun factory(...): Dst {
+            ...
+        }
+    }
+}
+
+val mapper: KMapper<Dst> = KMapper(Dst::class)
+```
