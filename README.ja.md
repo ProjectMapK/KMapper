@@ -266,6 +266,23 @@ data class Src(
 )
 ```
 
+#### 引数名にエイリアスを設定する
+以下のようなコードで、マッピング時にのみ`Dst`クラスの`_bar`フィールドの名前を変更する場合、`KParameterAlias`アノテーションを用いるのが最適です。
+
+```kotlin
+data class Dst(val _bar: Int)
+data class Src(val bar: Int)
+```
+
+実際に付与すると以下のようになります。
+
+```kotlin
+data class Dst(
+    @KParameterAlias("bar")
+    val _bar: Int
+)
+```
+
 ### その他機能
 #### 制御してデフォルト引数を用いる
 `KMapper`では、引数が指定されていなかった場合デフォルト引数を用います。  
