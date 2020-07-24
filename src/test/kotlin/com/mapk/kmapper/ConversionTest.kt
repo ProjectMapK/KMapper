@@ -8,8 +8,11 @@ import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
@@ -36,7 +39,7 @@ class ConversionTest {
         }
 
         override val srcClass = String::class
-        override fun convert(source: String?): Number? = source?.let(converter)
+        override fun convert(source: String): Number? = source.let(converter)
     }
 
     class FromNumber(annotation: ToNumber) : AbstractKConverter<ToNumber, Number, Number>(annotation) {
@@ -53,12 +56,13 @@ class ConversionTest {
         }
 
         override val srcClass = Number::class
-        override fun convert(source: Number?): Number? = source?.let(converter)
+        override fun convert(source: Number): Number? = source.let(converter)
     }
 
-    data class Dst(@ToNumber(BigDecimal::class) val number: BigDecimal)
+    data class Dst(@ToNumber(BigDecimal::class) val number: BigDecimal?)
     data class NumberSrc(val number: Number)
     data class StringSrc(val number: String)
+    object NullSrc { val number: Number? = null }
 
     enum class NumberSource(val values: Array<Number>) {
         Doubles(arrayOf(1.0, -2.0, 3.5)),
@@ -72,12 +76,14 @@ class ConversionTest {
     @Nested
     @DisplayName("KMapper")
     inner class KMapperTest {
+        private val mapper = KMapper(::Dst)
+
         @ParameterizedTest
         @EnumSource(NumberSource::class)
         @DisplayName("Numberソース")
         fun fromNumber(numbers: NumberSource) {
             numbers.values.forEach {
-                val actual = KMapper(::Dst).map(NumberSrc(it))
+                val actual = mapper.map(NumberSrc(it))
                 assertEquals(0, BigDecimal.valueOf(it.toDouble()).compareTo(actual.number))
             }
         }
@@ -86,20 +92,31 @@ class ConversionTest {
         @ValueSource(strings = ["100", "2.0", "-500"])
         @DisplayName("Stringソース")
         fun fromString(str: String) {
-            val actual = KMapper(::Dst).map(StringSrc(str))
+            val actual = mapper.map(StringSrc(str))
             assertEquals(0, BigDecimal(str).compareTo(actual.number))
+        }
+
+        @Test
+        @DisplayName("nullを入れた際に変換処理に入らないことのテスト")
+        fun fromNull() {
+            assertDoesNotThrow {
+                val actual = mapper.map(NullSrc)
+                assertNull(actual.number)
+            }
         }
     }
 
     @Nested
     @DisplayName("PlainKMapper")
     inner class PlainKMapperTest {
+        private val mapper = PlainKMapper(::Dst)
+
         @ParameterizedTest
         @EnumSource(NumberSource::class)
         @DisplayName("Numberソース")
         fun fromNumber(numbers: NumberSource) {
             numbers.values.forEach {
-                val actual = PlainKMapper(::Dst).map(NumberSrc(it))
+                val actual = mapper.map(NumberSrc(it))
                 assertEquals(0, BigDecimal.valueOf(it.toDouble()).compareTo(actual.number))
             }
         }
@@ -108,8 +125,17 @@ class ConversionTest {
         @ValueSource(strings = ["100", "2.0", "-500"])
         @DisplayName("Stringソース")
         fun fromString(str: String) {
-            val actual = PlainKMapper(::Dst).map(StringSrc(str))
+            val actual = mapper.map(StringSrc(str))
             assertEquals(0, BigDecimal(str).compareTo(actual.number))
+        }
+
+        @Test
+        @DisplayName("nullを入れた際に変換処理に入らないことのテスト")
+        fun fromNull() {
+            assertDoesNotThrow {
+                val actual = mapper.map(NullSrc)
+                assertNull(actual.number)
+            }
         }
     }
 
@@ -132,6 +158,15 @@ class ConversionTest {
         fun fromString(str: String) {
             val actual = BoundKMapper<StringSrc, Dst>().map(StringSrc(str))
             assertEquals(0, BigDecimal(str).compareTo(actual.number))
+        }
+
+        @Test
+        @DisplayName("nullを入れた際に変換処理に入らないことのテスト")
+        fun fromNull() {
+            assertDoesNotThrow {
+                val actual = BoundKMapper<NullSrc, Dst>(::Dst).map(NullSrc)
+                assertNull(actual.number)
+            }
         }
     }
 }
