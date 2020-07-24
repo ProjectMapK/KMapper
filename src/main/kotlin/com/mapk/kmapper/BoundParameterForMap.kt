@@ -29,7 +29,7 @@ internal sealed class BoundParameterForMap<S> {
         override val propertyGetter: Method,
         private val converter: KFunction<*>
     ) : BoundParameterForMap<S>() {
-        override fun map(src: S): Any? = converter.call(propertyGetter.invoke(src))
+        override fun map(src: S): Any? = propertyGetter.invoke(src)?.let { converter.call(it) }
     }
 
     internal class UseKMapper<S : Any>(
