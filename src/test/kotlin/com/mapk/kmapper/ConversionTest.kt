@@ -36,7 +36,7 @@ class ConversionTest {
         }
 
         override val srcClass = String::class
-        override fun convert(source: String?): Number? = source?.let(converter)
+        override fun convert(source: String): Number? = source.let(converter)
     }
 
     class FromNumber(annotation: ToNumber) : AbstractKConverter<ToNumber, Number, Number>(annotation) {
@@ -53,7 +53,7 @@ class ConversionTest {
         }
 
         override val srcClass = Number::class
-        override fun convert(source: Number?): Number? = source?.let(converter)
+        override fun convert(source: Number): Number? = source.let(converter)
     }
 
     data class Dst(@ToNumber(BigDecimal::class) val number: BigDecimal)
