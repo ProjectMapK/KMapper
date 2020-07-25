@@ -308,6 +308,75 @@ data class Dst(
 annotation class ZonedDateTimeConverter(val zoneIdOf: String)
 ```
 
+##### コンバーターを定義する
+コンバーターは`AbstractKConverter<A, S, D>`を継承して定義します。  
+ジェネリクス`A`,`S`,`D`はそれぞれ以下の意味が有ります。
+- `A`: コンバートアノテーションの`Type`
+- `S`: 変換前の`Type`
+- `D`: 変換後の`Type`
+
+以下は`java.sql.Timestamp`から`ZonedDateTime`へ変換を行うコンバーターの例です。
+
+```kotlin
+class TimestampToZonedDateTimeConverter(
+    annotation: ZonedDateTimeConverter
+) : AbstractKConverter<ZonedDateTimeConverter, Timestamp, ZonedDateTime>(annotation) {
+    private val timeZone = ZoneId.of(annotation.zoneIdOf)
+
+    override val srcClass: KClass<Timestamp> = Timestamp::class
+
+    override fun convert(source: Timestamp): ZonedDateTime = ZonedDateTime.of(source.toLocalDateTime(), timeZone)
+}
+```
+
+コンバーターのプライマリコンストラクタの引数はコンバートアノテーションのみ取る必要が有ります。  
+これは`KMapper`の初期化時に呼び出されます。
+
+例の通り、アノテーションに定義した引数は適宜参照することができます。
+
+##### 付与する
+ここまでで定義したコンバートアノテーションとコンバーターをまとめて書くと以下のようになります。  
+`InstantToZonedDateTimeConverter`は`java.time.Instant`をソースとするコンバーターです。
+
+```kotlin
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+@KConvertBy([TimestampToZonedDateTimeConverter::class, InstantToZonedDateTimeConverter::class])
+annotation class ZonedDateTimeConverter(val zoneIdOf: String)
+
+class TimestampToZonedDateTimeConverter(
+    annotation: ZonedDateTimeConverter
+) : AbstractKConverter<ZonedDateTimeConverter, Timestamp, ZonedDateTime>(annotation) {
+    private val timeZone = ZoneId.of(annotation.zoneIdOf)
+
+    override val srcClass: KClass<Timestamp> = Timestamp::class
+
+    override fun convert(source: Timestamp): ZonedDateTime = ZonedDateTime.of(source.toLocalDateTime(), timeZone)
+}
+
+class InstantToZonedDateTimeConverter(
+    annotation: ZonedDateTimeConverter
+) : AbstractKConverter<ZonedDateTimeConverter, Instant, ZonedDateTime>(annotation) {
+    private val timeZone = ZoneId.of(annotation.zoneIdOf)
+
+    override val srcClass: KClass<Instant> = Instant::class
+
+    override fun convert(source: Instant): ZonedDateTime = ZonedDateTime.ofInstant(source, timeZone)
+}
+```
+
+これを付与すると以下のようになります。
+
+```kotlin
+data class Dst(
+    @ZonedDateTimeConverter("Asia/Tokyo")
+    val t1: ZonedDateTime,
+    @ZonedDateTimeConverter("-03:00")
+    val t2: ZonedDateTime
+)
+```
+
 ### マッピング時に用いる引数名・フィールド名の設定
 `KMapper`は、デフォルトでは引数名に対応する名前のフィールドをソースからそのまま探します。  
 一方、引数名とソースで違う名前を用いたいという場合も有ります。
