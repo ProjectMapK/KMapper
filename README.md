@@ -3,6 +3,12 @@
 [![](https://jitci.com/gh/ProjectMapK/KMapper/svg)](https://jitci.com/gh/ProjectMapK/KMapper)
 [![codecov](https://codecov.io/gh/ProjectMapK/KMapper/branch/master/graph/badge.svg)](https://codecov.io/gh/ProjectMapK/KMapper)
 
+---
+
+[日本語版](https://github.com/ProjectMapK/KMapper/blob/master/README.ja.md)
+
+---
+
 KMapper
 ====
 This is a Mapper Libraly like a `ModelMapper` for `Kotlin`.  
