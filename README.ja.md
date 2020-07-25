@@ -286,6 +286,28 @@ data class Dst(
 )
 ```
 
+#### コンバートアノテーションを自作しての変換
+1対1の変換で`KConverter`を用いることができない場合、コンバートアノテーションを自作してパラメータに付与することで変換を行うことができます。
+
+コンバートアノテーションの自作はコンバートアノテーションとコンバータの組を定義することで行います。  
+例として`java.sql.Timestamp`もしくは`java.time.Instant`から指定したタイムゾーンの`ZonedDateTime`に変換を行う`ZonedDateTimeConverter`の作成の様子を示します。
+
+##### コンバートアノテーションを定義する
+`@Target(AnnotationTarget.VALUE_PARAMETER)`と`KConvertBy`アノテーション、他幾つかのアノテーションを付与することで、コンバートアノテーションを定義できます。
+
+`KConvertBy`アノテーションの引数は、後述するコンバーターの`KClass`を渡します。  
+このコンバーターはソースとなる型ごとに定義する必要があります。
+
+また、この例ではアノテーションに引数を定義していますが、この値はコンバーターから参照することができます。
+
+```kotlin
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+@KConvertBy([TimestampToZonedDateTimeConverter::class, InstantToZonedDateTimeConverter::class])
+annotation class ZonedDateTimeConverter(val zoneIdOf: String)
+```
+
 ### マッピング時に用いる引数名・フィールド名の設定
 `KMapper`は、デフォルトでは引数名に対応する名前のフィールドをソースからそのまま探します。  
 一方、引数名とソースで違う名前を用いたいという場合も有ります。
