@@ -34,7 +34,6 @@ val dst = KMapper(::Dst).map(src)
 ソースは1つに限らず、複数のオブジェクトや、`Pair`、`Map`等を指定することもできます。
 
 ```kotlin
-""
 val dst = KMapper(::Dst).map(
     "param1" to "value of param1",
     mapOf("param2" to 1, "param3" to 2L),
