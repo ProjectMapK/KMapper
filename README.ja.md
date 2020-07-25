@@ -377,6 +377,74 @@ data class Dst(
 )
 ```
 
+#### 複数引数からの変換
+以下のような`Dst`で、`InnerDst`をマップ元の複数のフィールドから変換したい場合、`KParameterFlatten`アノテーションが利用できます。
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(val bazBaz: InnerDst, val quxQux: LocalDateTime)
+```
+
+`Dst`のフィールド名をプレフィックスに指定する場合以下のように付与します。  
+ここで、`KParameterFlatten`を指定されたクラスは、前述の`KConstructor`アノテーションで指定した関数またはプライマリコンストラクタから初期化されます。
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(
+    @KParameterFlatten
+    val bazBaz: InnerDst,
+    val quxQux: LocalDateTime
+)
+data class Src(val bazBazFooBoo: Int, val bazBazBarBar: String, val quxQux: LocalDateTime)
+
+// bazBazFooFoo, bazBazBarBar, quxQuxの3引数が要求される
+val mapper = KMapper(::Dst)
+```
+
+##### KParameterFlattenアノテーションのオプション
+`KParameterFlatten`アノテーションはネストしたクラスの引数名の扱いについて2つのオプションを持ちます。
+
+###### fieldNameToPrefix
+`KParameterFlatten`アノテーションはデフォルトでは引数名をプレフィックスに置いた名前で一致を見ようとします。  
+引数名をプレフィックスに付けたくない場合は`fieldNameToPrefix`オプションに`false`を指定します。
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(
+    @KParameterFlatten(fieldNameToPrefix = false)
+    val bazBaz: InnerDst,
+    val quxQux: LocalDateTime
+)
+
+// fooFoo, barBar, quxQuxの3引数が要求される
+val mapper = KMapper(::Dst)
+```
+
+`fieldNameToPrefix = false`を指定した場合、`nameJoiner`オプションは無視されます。
+
+###### nameJoiner
+`nameJoiner`は引数名と引数名の結合方法の指定です。  
+例えば`Src`が`snake_case`だった場合、以下のように利用します。
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(
+    @KParameterFlatten(nameJoiner = NameJoiner.Snake::class)
+    val bazBaz: InnerDst,
+    val quxQux: LocalDateTime
+)
+
+// baz_baz_foo_foo, baz_baz_bar_bar, qux_quxの3引数が要求される
+val mapper = KMapper(::Dst) { /* キャメル -> スネークの命名変換関数 */ }
+```
+
+デフォルトでは`camelCase`が指定されており、`snake_case`と`kebab-case`のサポートも有ります。  
+`NameJoiner`クラスを継承した`object`を作成することで自作することもできます。
+
+##### 他の変換方法との併用
+`KParameterFlatten`アノテーションを付与した場合も、これまでに紹介した変換方法は全て機能します。  
+また、`KParameterFlatten`アノテーションは何重にネストした中でも利用が可能です。
+
 ### マッピング時に用いる引数名・フィールド名の設定
 `KMapper`は、デフォルトでは引数名に対応する名前のフィールドをソースからそのまま探します。  
 一方、引数名とソースで違う名前を用いたいという場合も有ります。
