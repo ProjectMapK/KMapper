@@ -563,6 +563,18 @@ class Foo(
 )
 ```
 
+#### マッピング時にフィールドを無視する
+何らかの理由でマッピング時にフィールドを無視したい場合、`KGetterIgnore`アノテーションを用いることができます。  
+例えば、以下の`Src`クラスを入力した場合、`param1`フィールドは読み出し処理が行われません。
+
+```kotlin
+data class Src(
+    @KGetterIgnore
+    val param1: Int,
+    val param2: Int
+)
+```
+
 ## 引数のセットアップ
 
 ### 引数読み出しの対象
