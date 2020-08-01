@@ -406,3 +406,47 @@ data class Src(val bazBazFooBoo: Int, val bazBazBarBar: String, val quxQux: Loca
 // required 3 arguments that bazBazFooFoo, bazBazBarBar, quxQux
 val mapper = KMapper(::Dst)
 ```
+
+##### KParameterFlatten annotation options
+The `KParameterFlatten` annotation has two options for handling argument names of the nested classes.
+
+###### fieldNameToPrefix
+By default, the `KParameterFlatten` annotation tries to find a match by prefixing the name of the argument with the name of the prefix.  
+If you don't want to prefix the argument names, you can set the `fieldNameToPrefix` option to `false`.
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(
+    @KParameterFlatten(fieldNameToPrefix = false)
+    val bazBaz: InnerDst,
+    val quxQux: LocalDateTime
+)
+
+// required 3 arguments that fooFoo, barBar, quxQux
+val mapper = KMapper(::Dst)
+```
+
+If `fieldNameToPrefix = false` is specified, the `nameJoiner` option is ignored.
+
+###### nameJoiner
+The `nameJoiner` specifies how to join argument names and argument names.  
+For example, if `Src` is `snake_case`, the following command is used.
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(
+    @KParameterFlatten(nameJoiner = NameJoiner.Snake::class)
+    val bazBaz: InnerDst,
+    val quxQux: LocalDateTime
+)
+
+// required 3 arguments that baz_baz_foo_foo, baz_baz_bar_bar, qux_qux
+val mapper = KMapper(::Dst) { /* some naming transformation process */ }
+```
+
+By default, `camelCase` is specified, and `snake_case` and `kebab-case` are also supported.  
+You can also write your own by creating `object` which extends the `NameJoiner` class.
+
+##### Use with other conversion methods
+The `KParameterFlatten` annotation also works with all the conversion methods introduced so far.  
+Also, the `KParameterFlatten` annotation can be used in any number of layers of nested objects.
