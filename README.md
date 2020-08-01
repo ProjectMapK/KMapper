@@ -17,6 +17,40 @@ KMapper
 - Flexible and safe mapping based on function calls with reflection.
 - Richer features and thus more flexible and labor-saving mapping.
 
+## Demo code
+Here is a comparison between writing the mapping code by manually and using `KMapper`.
+
+If you write it manually, the more arguments you have, the more complicated the description will be.  
+However, by using `KMapper`, you can perform mapping without writing much code.
+
+Also, no external configuration file is required.
+
+```kotlin
+// If you write manually.
+val dst = Dst(
+    param1 = src.param1,
+    param2 = src.param2,
+    param3 = src.param3,
+    param4 = src.param4,
+    param5 = src.param5,
+    ...
+)
+
+// If you use KMapper
+val dst = KMapper(::Dst).map(src)
+```
+
+You can specify not only one source, but also multiple objects, `Pair`, `Map`, etc.
+
+```kotlin
+val dst = KMapper(::Dst).map(
+    "param1" to "value of param1",
+    mapOf("param2" to 1, "param3" to 2L),
+    src1,
+    src2
+)
+```
+
 ## How to use
 Published on JitPack.  
 Please see [here](https://jitpack.io/#ProjectMapK/KMapper/) for the introduction method.  
