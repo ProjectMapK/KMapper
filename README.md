@@ -541,3 +541,31 @@ data class Dst(
     val _bar: Int
 )
 ```
+
+### Other functions
+#### Control and use default arguments
+The `KMapper` uses the default argument if no argument is given.  
+Also, if an argument is given, you can control whether to use it or not.
+
+##### Always use the default arguments
+If you want to force a default argument, you can use the `KUseDefaultArgument` annotation.
+
+```kotlin
+class Foo(
+    ...,
+    @KUseDefaultArgument
+    val description: String = ""
+)
+```
+
+##### Use default argument if input is null
+The `KParameterRequireNonNull` annotation skips the input until a `non null` value is specified as an argument.  
+By using this, the default argument is used when all the corresponding contents are `null`.
+
+```kotlin
+class Foo(
+    ...,
+    @KParameterRequireNonNull
+    val description: String = ""
+)
+```
