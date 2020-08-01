@@ -569,3 +569,15 @@ class Foo(
     val description: String = ""
 )
 ```
+
+#### Ignore the field when mapping
+If you want to ignore a field for mapping for some reason, you can use the `KGetterIgnore` annotation.  
+For example, if you enter the following class of `Src`, the `param1` field will not be read.
+
+```kotlin
+data class Src(
+    @KGetterIgnore
+    val param1: Int,
+    val param2: Int
+)
+```
