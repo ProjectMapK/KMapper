@@ -296,3 +296,19 @@ If you cannot use `KConverter`, you can convert it by creating a custom conversi
 
 Custom conversion annotation is made by defining a pair of `conversion annotation` and `converter`.  
 As an example, we will show how to create a `ZonedDateTimeConverter` that converts from `java.sql.Timestamp` or `java.time.Instant` to `ZonedDateTime` in the specified time zone.
+
+##### Create conversion annotation
+You can define a conversion annotation by adding `@Target(AnnotationTarget.VALUE_PARAMETER)`, `KConvertBy` annotation, and several other annotations.
+
+The argument of the `KConvertBy` annotation passes the `KClass` of the converter described below.  
+This converter should be defined for each source type.
+
+Also, although this example defines an argument to the annotation, you can get the value of the annotation from the converter.
+
+```kotlin
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+@KConvertBy([TimestampToZonedDateTimeConverter::class, InstantToZonedDateTimeConverter::class])
+annotation class ZonedDateTimeConverter(val zoneIdOf: String)
+```
