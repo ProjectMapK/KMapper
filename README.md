@@ -11,23 +11,12 @@
 
 KMapper
 ====
-This is a Mapper Libraly like a `ModelMapper` for `Kotlin`.  
-You can call `KFunction`(e.g. `method reference`) from `Object`.
+`KMapper` is a mapper library for `Kotlin`, which provides the following features.
 
-```kotlin
-// before
-val dst = Dst(
-  param1 = src.param1,
-  param2 = src.param2,
-  param3 = src.param3,
-  param4 = src.param4,
-  param5 = src.param5,
-  ...
-)
+- `Bean mapping` with `Objects`, `Map`, and `Pair` as sources
+- Flexible and safe mapping based on function calls with reflection.
+- Richer features and thus more flexible and labor-saving mapping.
 
-// after
-val newInstance = KMapper(::Dst).map(src)
-```
 ## How to use
 Published on JitPack.  
 Please see [here](https://jitpack.io/#ProjectMapK/KMapper/) for the introduction method.  
