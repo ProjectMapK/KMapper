@@ -51,9 +51,32 @@ val dst = KMapper(::Dst).map(
 )
 ```
 
-## How to use
-Published on JitPack.  
+## Installation
+`KMapper` is published on JitPack.  
+You can use this library on maven, gradle and any other build tools.  
 Please see [here](https://jitpack.io/#ProjectMapK/KMapper/) for the introduction method.  
+
+### Example on maven
+**1. add repository reference for JitPack**
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+**2. add dependency**
+
+```xml
+<dependency>
+    <groupId>com.github.ProjectMapK</groupId>
+    <artifactId>KMapper</artifactId>
+    <version>Tag</version>
+</dependency>
+```
 
 ## Usages
 ### From multiple resources
