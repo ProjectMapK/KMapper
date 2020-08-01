@@ -581,3 +581,33 @@ data class Src(
     val param2: Int
 )
 ```
+
+## Setting Up Arguments
+
+### Target for argument reading
+The `KMapper` can read the `public` field of an object, or the properties of `Pair<String, Any?>` and `Map<String, Any?>`.
+
+### Setting Up Arguments
+The `KMapper` performs the setup process if the value is not `null`.  
+In the setup process, first of all, `parameterClazz.isSuperclassOf(inputClazz)` is used to check if the input can be set as an argument or not, and if not, the conversion described later is performed and the result is used as an argument.
+
+If the value is `null`, the `KParameterRequireNonNull` annotation is checked, and if it is set, the setup process is skipped, otherwise `null` is used as the argument.
+
+If the `KUseDefaultArgument` annotation is set or all inputs are skipped by the `KParameterRequireNonNull` annotation, the default argument is used.  
+If the default argument is not available at this time, a runtime error occurs.
+
+#### Conversion of arguments
+`KMapper` performs conversion and checking in the following order.
+
+**1. Checking the specification of the conversion process by annotation**
+First of all, it checks for conversions specified by the `KConvertBy` and `KConverter` annotations for the class of the input.
+
+**2. Confirmation of conversion to Enum**
+If the input is a `String` and the argument is an `Enum`, the function tries to convert the input to an `Enum` with the corresponding `name`.
+
+**3. Confirmation of conversion to string**
+If the argument is `String`, the input will be `toString`.
+
+**4. Conversion using the mapper class**
+If the transformation does not meet the criteria so far, a mapping process is performed using a mapper class.  
+For this mapping process, `PlainKMapper` is used for `PlainKMapper`, and `BoundKMapper` is used for others.
