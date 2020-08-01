@@ -312,3 +312,30 @@ Also, although this example defines an argument to the annotation, you can get t
 @KConvertBy([TimestampToZonedDateTimeConverter::class, InstantToZonedDateTimeConverter::class])
 annotation class ZonedDateTimeConverter(val zoneIdOf: String)
 ```
+
+##### Create converter
+You can define `converter` by inheriting `AbstractKConverter<A, S, D>`.  
+Generics `A`,`S`,`D` have the following meanings.
+
+- `A`: `conversion annotation` `Type`.
+- `S`: Source `Type`.
+- `D`: Destination `Type`.
+
+Below is an example of a converter that converts from `java.sql.Timestamp` to `ZonedDateTime`.
+
+```kotlin
+class TimestampToZonedDateTimeConverter(
+    annotation: ZonedDateTimeConverter
+) : AbstractKConverter<ZonedDateTimeConverter, Timestamp, ZonedDateTime>(annotation) {
+    private val timeZone = ZoneId.of(annotation.zoneIdOf)
+
+    override val srcClass: KClass<Timestamp> = Timestamp::class
+
+    override fun convert(source: Timestamp): ZonedDateTime = ZonedDateTime.of(source.toLocalDateTime(), timeZone)
+}
+```
+
+The argument to the converter's `primary constructor` should only take a conversion annotation.  
+This is called when `KMapper` is initialized.
+
+As shown in the example, you can refer to the arguments defined in the annotation.
