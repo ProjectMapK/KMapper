@@ -111,3 +111,33 @@ Although the performance is not as good as `KMapper` in case of multiple mapping
 ### BoundKMapper
 `BoundKMapper` is a mapping class for the case where only one source class is available.  
 It is faster than `KMapper`.
+
+## Initialization
+`KMapper` can be initialized from `method reference(KFunction)` to be called or the `KClass` to be mapped.
+
+The following is a summary of each initialization.  
+However, some of the initialization of `BoundKMapper` are shown as examples simplified by a dummy constructor.
+
+### Initialize from method reference(KFunction)
+When the `primary constructor` is the target of a call, you can initialize it as follows.
+
+```kotlin
+data class Dst(
+    foo: String,
+    bar: String,
+    baz: Int?,
+
+    ...
+
+)
+
+// Get constructor reference
+val dstConstructor: KFunction<Dst> = ::Dst
+
+// KMapper
+val kMapper: KMapper<Dst> = KMapper(dstConstructor)
+// PlainKMapper
+val plainMapper: PlainKMapper<Dst> = PlainKMapper(dstConstructor)
+// BoundKMapper
+val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper(dstConstructor)
+```
