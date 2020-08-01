@@ -479,11 +479,11 @@ val dst = mapper.map(mapOf(
 引数名の変換処理は、ネストしたマッピングにも反映されます。  
 また、後述する`KParameterAlias`アノテーションで指定したエイリアスに関しても変換が適用されます。
 
-#### 実際の変換処理
+##### 実際の変換処理
 `KMapper`では命名変換処理を提供していませんが、プロジェクトでよく用いられるライブラリでも命名変換処理が提供されている場合が有ります。  
 `Jackson`、`Guava`の2つのライブラリで実際に「キャメルケース -> スネークケース」の変換処理を渡すサンプルコードを示します。
 
-##### Jackson
+###### Jackson
 ```kotlin
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 
@@ -491,7 +491,7 @@ val parameterNameConverter: (String) -> String = PropertyNamingStrategy.SnakeCas
 val mapper: KMapper<Dst> = KMapper(::Dst, parameterNameConverter)
 ```
 
-##### Guava
+###### Guava
 ```kotlin
 import com.google.common.base.CaseFormat
 
