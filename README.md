@@ -507,3 +507,20 @@ val parameterNameConverter: (String) -> String = { fieldName: String ->
 }
 val mapper: KMapper<Dst> = KMapper(::Dst, parameterNameConverter)
 ```
+
+#### Set an alias for the getter
+It is best to use the `KGetterAlias` annotation to rename the `_foo` field of the `Scr` class only at mapping time in the following code.
+
+```kotlin
+data class Dst(val foo: Int)
+data class Src(val _foo: Int)
+```
+
+The actual grant is as follows.
+
+```kotlin
+data class Src(
+    @get:KGetterAlias("foo")
+    val _foo: Int
+)
+```
