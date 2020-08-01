@@ -232,3 +232,22 @@ println(dst.param) // -> InnerDst(foo=1, bar=2)
 ###### Specifies the function used for the nested mapping
 Nested mapping is performed by initializing `BoundKMapper` from the class.  
 For this reason, you can specify the target of the call with the `KConstructor` annotation.
+
+##### Other conversions
+
+###### Conversion from String to Enum
+If the input is a `String` and the argument is an `Enum`, an attempt is made to convert the input to an `Enum` with the corresponding `name`.
+
+```kotlin
+enum class FizzBuzz {
+    Fizz, Buzz, FizzBuzz;
+}
+
+data class Dst(val fizzBuzz: FizzBuzz)
+
+val dst = KMapper(::Dst).map("fizzBuzz" to "Fizz")
+println(dst) // -> Dst(fizzBuzz=Fizz)
+```
+
+###### Conversion to String
+If the argument is a `String`, the input is converted  by `toString` method.
