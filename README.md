@@ -251,3 +251,42 @@ println(dst) // -> Dst(fizzBuzz=Fizz)
 
 ###### Conversion to String
 If the argument is a `String`, the input is converted  by `toString` method.
+
+#### Specifying the conversion method using the KConverter annotation
+If you create your own class and can be initialized from a single argument, you can use the `KConverter` annotation.  
+The `KConverter` annotation can be added to a `constructor` or a `factory method` defined in a `companion object`.
+
+```kotlin
+// Annotate the primary constructor
+data class FooId @KConverter constructor(val id: Int)
+```
+
+```kotlin
+// Annotate the secondary constructor
+data class FooId(val id: Int) {
+    @KConverter
+    constructor(id: String) : this(id.toInt())
+}
+```
+
+```kotlin
+// Annotate the factory method
+data class FooId(val id: Int) {
+    companion object {
+        @KConverter
+        fun of(id: String): FooId = FooId(id.toInt())
+    }
+}
+```
+
+```kotlin
+// If the fooId is given a KConverter, Dst can do the mapping successfully without doing anything.
+data class Dst(
+    fooId: FooId,
+    bar: String,
+    baz: Int?,
+
+    ...
+
+)
+```
