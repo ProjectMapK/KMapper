@@ -339,3 +339,46 @@ The argument to the converter's `primary constructor` should only take a convers
 This is called when `KMapper` is initialized.
 
 As shown in the example, you can refer to the arguments defined in the annotation.
+
+##### Using custom conversion annotations
+The conversion annotation and the converter defined so far are written together as follows.  
+`InstantToZonedDateTimeConverter` is a converter whose source is `java.time.Instant`.
+
+```kotlin
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+@KConvertBy([TimestampToZonedDateTimeConverter::class, InstantToZonedDateTimeConverter::class])
+annotation class ZonedDateTimeConverter(val zoneIdOf: String)
+
+class TimestampToZonedDateTimeConverter(
+    annotation: ZonedDateTimeConverter
+) : AbstractKConverter<ZonedDateTimeConverter, Timestamp, ZonedDateTime>(annotation) {
+    private val timeZone = ZoneId.of(annotation.zoneIdOf)
+
+    override val srcClass: KClass<Timestamp> = Timestamp::class
+
+    override fun convert(source: Timestamp): ZonedDateTime = ZonedDateTime.of(source.toLocalDateTime(), timeZone)
+}
+
+class InstantToZonedDateTimeConverter(
+    annotation: ZonedDateTimeConverter
+) : AbstractKConverter<ZonedDateTimeConverter, Instant, ZonedDateTime>(annotation) {
+    private val timeZone = ZoneId.of(annotation.zoneIdOf)
+
+    override val srcClass: KClass<Instant> = Instant::class
+
+    override fun convert(source: Instant): ZonedDateTime = ZonedDateTime.ofInstant(source, timeZone)
+}
+```
+
+When this is given, it becomes as follows.
+
+```kotlin
+data class Dst(
+    @ZonedDateTimeConverter("Asia/Tokyo")
+    val t1: ZonedDateTime,
+    @ZonedDateTimeConverter("-03:00")
+    val t2: ZonedDateTime
+)
+```
