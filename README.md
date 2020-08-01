@@ -167,3 +167,32 @@ val plainMapper: PlainKMapper<Dst> = PlainKMapper()
 // BoundKMapper
 val boundKMapper: BoundKMapper<Src, Dst> = BoundKMapper()
 ```
+
+### Specifying the target of a call by KConstructor annotation
+When initializing from the `KClass`, all mapper classes can specify the function to be called by the `KConstructor` annotation.
+
+In the following example, the `secondary constructor` is called.
+
+```kotlin
+data class Dst(...) {
+    @KConstructor
+    constructor(...) : this(...)
+}
+
+val mapper: KMapper<Dst> = KMapper(Dst::class)
+```
+
+Similarly, the following example calls the factory method.
+
+```kotlin
+data class Dst(...) {
+    companion object {
+        @KConstructor
+        fun factory(...): Dst {
+            ...
+        }
+    }
+}
+
+val mapper: KMapper<Dst> = KMapper(Dst::class)
+```
