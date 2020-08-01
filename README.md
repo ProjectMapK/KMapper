@@ -611,3 +611,15 @@ If the argument is `String`, the input will be `toString`.
 **4. Conversion using the mapper class**
 If the transformation does not meet the criteria so far, a mapping process is performed using a mapper class.  
 For this mapping process, `PlainKMapper` is used for `PlainKMapper`, and `BoundKMapper` is used for others.
+
+### Input priority
+The `KMapper` basically gives priority to the first available argument.  
+For example, in the following example, since `param1` is given first as `value1`, the next input `param1" to "value2"` is ignored.
+
+```kotlin
+val mapper: KMapper<Dst> = ...
+
+val dst = mapper.map("param1" to "value1", "param1" to "value2")
+```
+
+However, if `null` is specified as an input for an argument with a `KParameterRequireNonNull` annotation, it is ignored and the later argument takes precedence.
