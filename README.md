@@ -450,3 +450,60 @@ You can also write your own by creating `object` which extends the `NameJoiner` 
 ##### Use with other conversion methods
 The `KParameterFlatten` annotation also works with all the conversion methods introduced so far.  
 Also, the `KParameterFlatten` annotation can be used in any number of layers of nested objects.
+
+### Set the argument names and field names used for mapping
+By default, `KMapper` searches the source for a field whose name corresponds to the argument name.  
+On the other hand, there are times when you want to use a different name for the argument name and the source.
+
+In order to deal with such a situation, `KMapper` provides some functions to set the argument name and field name used during mapping.
+
+#### Conversion of argument names
+With `KMapper`, you can set the argument name conversion function at initialization.
+It can handle situations where constant conversion is required, for example, the argument naming convention is camel case and the source naming convention is snake case.
+
+```kotlin
+data class Dst(
+    fooFoo: String,
+    barBar: String,
+    bazBaz: Int?
+)
+
+val mapper: KMapper<Dst> = KMapper(::Dst) { fieldName: String ->
+    /* some naming transformation process */
+}
+
+// For example, by passing a conversion function to the snake case, the following input can be handled
+val dst = mapper.map(mapOf(
+    "foo_foo" to "foo",
+    "bar_bar" to "bar",
+    "baz_baz" to 3
+))
+```
+
+And, of course, any conversion process can be performed within the lambda.
+
+##### Propagation of the argument name conversion process
+The argument name conversion process is also reflected in the nested mapping.  
+Also, the conversion is applied to the aliases specified with the `KParameterAlias` annotation described below.
+
+##### The actual conversion process
+Although `KMapper` does not provide naming transformation, some of the most popular libraries in your project may also provide it.  
+Here is a sample code of `Jackson` and `Guava` that actually passes the "CamelCase -> SnakeCase" transformations.
+
+##### Jackson
+```kotlin
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+
+val parameterNameConverter: (String) -> String = PropertyNamingStrategy.SnakeCaseStrategy()::translate
+val mapper: KMapper<Dst> = KMapper(::Dst, parameterNameConverter)
+```
+
+##### Guava
+```kotlin
+import com.google.common.base.CaseFormat
+
+val parameterNameConverter: (String) -> String = { fieldName: String ->
+    CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName)
+}
+val mapper: KMapper<Dst> = KMapper(::Dst, parameterNameConverter)
+```
