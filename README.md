@@ -290,3 +290,9 @@ data class Dst(
 
 )
 ```
+
+#### Conversion by creating your own custom deserialization annotations
+If you cannot use `KConverter`, you can convert it by creating a custom conversion annotations and adding it to the parameter.
+
+Custom conversion annotation is made by defining a pair of `conversion annotation` and `converter`.  
+As an example, we will show how to create a `ZonedDateTimeConverter` that converts from `java.sql.Timestamp` or `java.time.Instant` to `ZonedDateTime` in the specified time zone.
