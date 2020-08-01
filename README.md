@@ -77,3 +77,15 @@ Please see [here](https://jitpack.io/#ProjectMapK/KMapper/) for the introduction
     <version>Tag</version>
 </dependency>
 ```
+
+## Principle of operation
+The behavior of `KMapper` is as follows.
+
+1. Get the `KFunction` to be called.
+2. Analyze the `KFunction` and determine what arguments are needed and how to deserialize them.
+3. Get the value for each argument from inputs and deserialize it. and call the `KFunction`.
+
+`KMapper` performs the mapping by calling a `function`, so the result is a Subject to the constraints on the `argument` and `nullability`.  
+That is, there is no runtime error due to breaking the `null` safety of `Kotlin`(The `null` safety on type arguments may be broken due to problems on the `Kotlin` side). 
+
+Also, it supports the default arguments which are peculiar to `Kotlin`.
