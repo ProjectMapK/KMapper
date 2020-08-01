@@ -196,3 +196,39 @@ data class Dst(...) {
 
 val mapper: KMapper<Dst> = KMapper(Dst::class)
 ```
+
+## Detailed usage
+
+### Converting values during mapping
+In mapping, you may want to convert one input type to another.  
+The `KMapper` provides a rich set of conversion features for such a situation.
+
+However, this conversion can be performed under the following conditions.
+
+- Input is not `null`.
+  - If `null` is involved, it is recommended to combine the `KParameterRequireNonNull` annotation with the default argument.
+- Input cannot be assigned directly to an argument.
+
+#### Conversions available by default
+Some of the conversion features are available without any special description.
+
+##### 1-to-1 conversion (nested mapping)
+If you can't use arguments as they are and no other transformation is possible, `KMapper` tries to do 1-to-1 mapping using the mapping class.  
+This allows you to perform the following nested mappings by default.
+
+```kotlin
+data class InnerDst(val foo: Int, val bar: Int)
+data class Dst(val param: InnerDst)
+
+data class InnerSrc(val foo: Int, val bar: Int)
+data class Src(val param: InnerSrc)
+
+val src = Src(InnerSrc(1, 2))
+val dst = KMapper(::Dst).map(src)
+
+println(dst.param) // -> InnerDst(foo=1, bar=2)
+```
+
+###### Specifies the function used for the nested mapping
+Nested mapping is performed by initializing `BoundKMapper` from the class.  
+For this reason, you can specify the target of the call with the `KConstructor` annotation.
