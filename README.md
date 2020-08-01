@@ -382,3 +382,27 @@ data class Dst(
     val t2: ZonedDateTime
 )
 ```
+
+#### Conversion from Multiple Arguments
+The `KParameterFlatten` annotation allows you to perform a transformation that requires more than one argument.
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(val bazBaz: InnerDst, val quxQux: LocalDateTime)
+```
+
+To specify a field name as a prefix, give it as follows.  
+The class specified with `KParameterFlatten` is initialized from the function or the `primary constructor` specified with the aforementioned `KConstructor` annotation.
+
+```kotlin
+data class InnerDst(val fooFoo: Int, val barBar: String)
+data class Dst(
+    @KParameterFlatten
+    val bazBaz: InnerDst,
+    val quxQux: LocalDateTime
+)
+data class Src(val bazBazFooBoo: Int, val bazBazBarBar: String, val quxQux: LocalDateTime)
+
+// required 3 arguments that bazBazFooFoo, bazBazBarBar, quxQux
+val mapper = KMapper(::Dst)
+```
