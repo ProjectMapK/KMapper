@@ -524,3 +524,20 @@ data class Src(
     val _foo: Int
 )
 ```
+
+#### Set an alias to an argument name
+It is best to use the `KParameterAlias` annotation if you want to change the name of the `_bar` field of the `Dst` class only at mapping time in the following code.
+
+```kotlin
+data class Dst(val _bar: Int)
+data class Src(val bar: Int)
+```
+
+The actual grant is as follows.
+
+```kotlin
+data class Dst(
+    @KParameterAlias("bar")
+    val _bar: Int
+)
+```
