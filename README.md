@@ -89,3 +89,25 @@ The behavior of `KMapper` is as follows.
 That is, there is no runtime error due to breaking the `null` safety of `Kotlin`(The `null` safety on type arguments may be broken due to problems on the `Kotlin` side). 
 
 Also, it supports the default arguments which are peculiar to `Kotlin`.
+
+## Types of mapper classes
+The project offers three types of mapper classes.
+
+- `KMapper`
+- `PlainKMapper`
+- `BoundKMapper`
+
+Here is a summary of the features and advantages of each.  
+Also, the common features are explained using `KMapper` as an example.
+
+### KMapper
+The `KMapper` is a basic mapper class for this project.  
+It is suitable for using the same instance of the class, since it is cached internally to speed up the mapping process.
+
+### PlainKMapper
+`PlainKMapper` is a mapper class from `KMapper` without caching.  
+Although the performance is not as good as `KMapper` in case of multiple mappings, it is suitable for use as a disposable mapper because there is no overhead of cache processing.
+
+### BoundKMapper
+`BoundKMapper` is a mapping class for the case where only one source class is available.  
+It is faster than `KMapper`.
