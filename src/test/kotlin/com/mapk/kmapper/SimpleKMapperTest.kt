@@ -48,7 +48,7 @@ class SimpleDstExt(
     arg2: String?,
     arg3: Number
 ) : SimpleDst(arg1, arg2, arg3) {
-    private companion object {
+    companion object {
         @KConstructor
         fun factory(arg1: Int, arg2: String?, arg3: Number): SimpleDstExt {
             return SimpleDstExt(arg1, arg2, arg3)
