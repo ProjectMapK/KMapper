@@ -15,7 +15,7 @@ private data class ConstructorConverter @KConverter constructor(val arg: Number)
 private data class CompanionConverterDst(val argument: CompanionConverter)
 // NOTE: privateクラスのcompanion objectにアクセスする方法を見つけられなかった
 class CompanionConverter private constructor(val arg: String) {
-    private companion object {
+    companion object {
         @KConverter
         private fun converter(arg: String): CompanionConverter {
             return CompanionConverter(arg)
