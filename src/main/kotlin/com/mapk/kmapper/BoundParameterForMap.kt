@@ -84,9 +84,9 @@ internal sealed class BoundParameterForMap<S> {
                 .let {
                     if (1 < it.size) throw IllegalArgumentException("${param.name} has multiple converter. $it")
 
-                    it.singleOrNull()?.second
-                }?.let {
-                    return UseConverter(param.name, propertyGetter, it)
+                    it.singleOrNull()?.let { (_, converter) ->
+                        return UseConverter(param.name, propertyGetter, converter)
+                    }
                 }
 
             if (paramClazz.isSubclassOf(propertyClazz)) {

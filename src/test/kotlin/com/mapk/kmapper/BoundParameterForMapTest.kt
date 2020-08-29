@@ -1,13 +1,13 @@
 package com.mapk.kmapper
 
 import com.mapk.kmapper.testcommons.JvmLanguage
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.javaGetter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaGetter
 
 @DisplayName("BoundKMapperのパラメータテスト")
 class BoundParameterForMapTest {

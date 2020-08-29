@@ -3,9 +3,6 @@
 package com.mapk.kmapper
 
 import com.mapk.annotations.KConstructor
-import java.math.BigInteger
-import java.util.stream.Stream
-import kotlin.reflect.full.isSubclassOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -15,6 +12,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.math.BigInteger
+import java.util.stream.Stream
+import kotlin.reflect.full.isSubclassOf
 
 open class SimpleDst(
     val arg1: Int,
@@ -48,7 +48,7 @@ class SimpleDstExt(
     arg2: String?,
     arg3: Number
 ) : SimpleDst(arg1, arg2, arg3) {
-    private companion object {
+    companion object {
         @KConstructor
         fun factory(arg1: Int, arg2: String?, arg3: Number): SimpleDstExt {
             return SimpleDstExt(arg1, arg2, arg3)
