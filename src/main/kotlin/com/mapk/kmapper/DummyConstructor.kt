@@ -2,10 +2,10 @@
 
 package com.mapk.kmapper
 
+import kotlin.reflect.KFunction
 import com.mapk.kmapper.BoundKMapper as Bound
 import com.mapk.kmapper.KMapper as Normal
 import com.mapk.kmapper.PlainKMapper as Plain
-import kotlin.reflect.KFunction
 
 inline fun <reified S : Any, reified D : Any> BoundKMapper(): Bound<S, D> = Bound(D::class, S::class)
 
