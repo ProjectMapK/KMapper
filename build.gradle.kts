@@ -1,7 +1,7 @@
 plugins {
     id("maven")
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.4.0"
+    id("org.jetbrains.kotlin.jvm") version "1.4.10"
     // その他補助系
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("jacoco")
@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.mapk"
-version = "0.32"
+version = "0.34"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -33,7 +33,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
-    api("com.github.ProjectMapK:Shared:0.17")
+    api("com.github.ProjectMapK:Shared:0.18")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.2") {
