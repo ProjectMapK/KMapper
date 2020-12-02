@@ -11,7 +11,7 @@
 
 KMapper
 ====
-`KMapper` is a mapper library for `Kotlin`, which provides the following features.
+`KMapper` is a object to object mapper library for `Kotlin`, which provides the following features.
 
 - `Bean mapping` with `Objects`, `Map`, and `Pair` as sources
 - Flexible and safe mapping based on function calls with reflection.
