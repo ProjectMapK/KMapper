@@ -1,7 +1,7 @@
 plugins {
     id("maven")
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.4.10"
+    id("org.jetbrains.kotlin.jvm") version "1.4.21"
     // その他補助系
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("jacoco")
