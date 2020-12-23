@@ -46,7 +46,9 @@ class BoundParameterForMapTest {
         fun makeTwiceOrNull(int: Int?) = int?.let { it * 2 }
 
         private val parameter = BoundParameterForMap.UseConverter<IntSrc>(
-            "", IntSrc::class.memberProperties.single().javaGetter!!, this::makeTwiceOrNull
+            "",
+            IntSrc::class.memberProperties.single().javaGetter!!,
+            this::makeTwiceOrNull
         )
 
         @Test
@@ -67,7 +69,9 @@ class BoundParameterForMapTest {
     @DisplayName("UseKMapperのテスト")
     inner class UseKMapperTest {
         private val parameter = BoundParameterForMap.UseKMapper<ObjectSrc>(
-            "", ObjectSrc::class.memberProperties.single().javaGetter!!, KMapper(::ObjectDst)
+            "",
+            ObjectSrc::class.memberProperties.single().javaGetter!!,
+            KMapper(::ObjectDst)
         )
 
         @Test
@@ -88,7 +92,9 @@ class BoundParameterForMapTest {
     @DisplayName("UseBoundKMapperのテスト")
     inner class UseBoundKMapperTest {
         private val parameter = BoundParameterForMap.UseBoundKMapper<ObjectSrc, InnerSrc>(
-            "", ObjectSrc::class.memberProperties.single().javaGetter!!, BoundKMapper(::ObjectDst, InnerSrc::class)
+            "",
+            ObjectSrc::class.memberProperties.single().javaGetter!!,
+            BoundKMapper(::ObjectDst, InnerSrc::class)
         )
 
         @Test
@@ -109,7 +115,9 @@ class BoundParameterForMapTest {
     @DisplayName("ToEnumのテスト")
     inner class ToEnumTest {
         private val parameter = BoundParameterForMap.ToEnum<StringSrc>(
-            "", StringSrc::class.memberProperties.single().javaGetter!!, JvmLanguage::class.java
+            "",
+            StringSrc::class.memberProperties.single().javaGetter!!,
+            JvmLanguage::class.java
         )
 
         @Test

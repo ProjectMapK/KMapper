@@ -100,11 +100,15 @@ internal sealed class BoundParameterForMap<S> {
                 paramClazz == String::class -> ToString(param.name, propertyGetter)
                 // SrcがMapやPairならKMapperを使わないとマップできない
                 propertyClazz.isSubclassOf(Map::class) || propertyClazz.isSubclassOf(Pair::class) -> UseKMapper(
-                    param.name, propertyGetter, KMapper(paramClazz, parameterNameConverter)
+                    param.name,
+                    propertyGetter,
+                    KMapper(paramClazz, parameterNameConverter)
                 )
                 // 何にも当てはまらなければBoundKMapperでマップを試みる
                 else -> UseBoundKMapper(
-                    param.name, propertyGetter, BoundKMapper(paramClazz, propertyClazz, parameterNameConverter)
+                    param.name,
+                    propertyGetter,
+                    BoundKMapper(paramClazz, propertyClazz, parameterNameConverter)
                 )
             }
         }

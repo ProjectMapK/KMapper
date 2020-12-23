@@ -19,11 +19,13 @@ class KMapper<T : Any> private constructor(
     parameterNameConverter: ((String) -> String)?
 ) {
     constructor(function: KFunction<T>, parameterNameConverter: ((String) -> String)? = null) : this(
-        KFunctionForCall(function, parameterNameConverter), parameterNameConverter
+        KFunctionForCall(function, parameterNameConverter),
+        parameterNameConverter
     )
 
     constructor(clazz: KClass<T>, parameterNameConverter: ((String) -> String)? = null) : this(
-        clazz.toKConstructor(parameterNameConverter), parameterNameConverter
+        clazz.toKConstructor(parameterNameConverter),
+        parameterNameConverter
     )
 
     private val parameterMap: Map<String, ParameterForMap<*>> = function.requiredParameters.associate {
