@@ -1,7 +1,7 @@
 plugins {
     id("maven")
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.21"
     // その他補助系
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
     id("jacoco")
@@ -15,23 +15,12 @@ java {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath(kotlin("gradle-plugin"))
-    }
-}
-
 repositories {
     mavenCentral()
     maven { setUrl("https://jitpack.io") }
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
     api("com.github.ProjectMapK:Shared:0.19")
 
