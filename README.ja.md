@@ -11,6 +11,10 @@ KMapper
 - `Kotlin`のリフレクションを用いた関数呼び出しベースの安全なマッピング
 - 豊富な機能による、より柔軟かつ労力の少ないマッピング
 
+以下のリポジトリに簡単なベンチマーク結果を掲載しています。
+
+- [ProjectMapK/MapKInspections: Testing and benchmarking for ProjectMapK deliverables\.](https://github.com/ProjectMapK/MapKInspections#results)
+
 ## デモコード
 手動でマッピングコードを書いた場合と`KMapper`を用いた場合を比較します。  
 手動で書く場合引数が多ければ多いほど記述がかさみますが、`KMapper`を用いることで殆どコードを書かずにマッピングを行えます。  

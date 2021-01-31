@@ -17,6 +17,10 @@ KMapper
 - Flexible and safe mapping based on function calls with reflection.
 - Richer features and thus more flexible and labor-saving mapping.
 
+A brief benchmark result is posted in the following repository.
+
+- [ProjectMapK/MapKInspections: Testing and benchmarking for ProjectMapK deliverables\.](https://github.com/ProjectMapK/MapKInspections#results)
+
 ## Demo code
 Here is a comparison between writing the mapping code by manually and using `KMapper`.
 
