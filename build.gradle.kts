@@ -1,15 +1,15 @@
 plugins {
     id("maven")
     id("java")
-    kotlin("jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.32"
     // その他補助系
-    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
     id("jacoco")
     id("com.github.ben-manes.versions") version "0.28.0"
 }
 
 group = "com.mapk"
-version = "0.0.35"
+version = "0.36"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -22,10 +22,10 @@ repositories {
 
 dependencies {
     implementation(kotlin("reflect"))
-    api("com.github.ProjectMapK:Shared:0.19")
+    api("com.github.ProjectMapK:Shared:0.20")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.7.0") {
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.7.1") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     // 現状プロパティ名の変換はテストでしか使っていないのでtestImplementation
